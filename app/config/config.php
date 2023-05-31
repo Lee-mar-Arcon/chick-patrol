@@ -80,7 +80,7 @@ $config['ENVIRONMENT']             = 'development';
 | WARNING: You MUST set this value!
 |
 */
-$config['base_url'] 				= '';
+$config['base_url'] 				= 'http://chick-patrol.test/';
 
 /*
 |--------------------------------------------------------------------------
@@ -155,8 +155,8 @@ $config['charset']					= 'UTF-8';
 | This config will be used in the Router Class inside kernel.
 |
 */
-$config['default_controller'] 		= 'Welcome';
-$config['default_method'] 			= 'index';
+$config['default_controller'] 		= 'account';
+$config['default_method'] 			= 'login';
 
 /*
 |--------------------------------------------------------------------------
