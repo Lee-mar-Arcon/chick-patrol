@@ -59,13 +59,13 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 */
 
 $database['main'] = array(
-    'driver'	=> '',
-    'hostname'	=> '',
-    'port'		=> '',
-    'username'	=> '',
+    'driver'	=> 'mysql',
+    'hostname'	=> 'localhost',
+    'port'		=> '3306',
+    'username'	=> 'root',
     'password'	=> '',
-    'database'	=> '',
-    'charset'	=> '',
+    'database'	=> 'chick_patrol',
+    'charset'	=> 'utf8',
     'dbprefix'	=> '',
 );
 
