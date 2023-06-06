@@ -13,6 +13,12 @@ class account extends Controller {
 		]);
 	}
 
+	public function register() {
+		$this->call->view('account/register',[
+			'pageTitle' => 'register'
+		]);
+	}
+
 	public function forgot_password() {
 		$this->call->view('account/forgot-password',[
 			'pageTitle' => 'forgot-password'

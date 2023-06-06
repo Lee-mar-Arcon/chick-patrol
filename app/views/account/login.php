@@ -32,24 +32,25 @@
          <div class="row justify-content-center">
             <div class="col-md-6 col-lg-4">
                <div class="login-wrap p-0">
-                  <h3 class="mb-4 text-center">Have an account?</h3>
                   <form action="#" class="signin-form">
                      <div class="form-group">
                         <input type="email" class="form-control" placeholder="Email" required>
-                        <div class="error-msg">haha</div>
+                        <div class="error-msg">Email does not exists</div>
                      </div>
                      <div class="form-group m-0">
                         <input id="password-field" type="password" class="form-control" placeholder="Password" required>
                         <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                      </div>
-                     <div class="error-msg mb-3">haha</div>
+                     <div class="form-group d-flex justify-content-between mb-5">
+                        <div class="error-msg">Wrong password</div>
+                        <a href="<?= site_url('account/forgot-password')?>">Forgot Password</a>
+                     </div>
                      <div class="form-group">
                         <button type="submit" class="form-control btn btn-primary submit px-3">Sign In</button>
                      </div>
-                     <div class="form-group d-flex justify-content-end">
-                        <a href="<?= site_url('account/forgot-password')?>" class="me-5">Forgot Password</a>
-                     </div>
                   </form>
+                  <h6 class="mb-4 text-center">Dont have an account yet? <a
+                        href="<?= site_url('account/register')?>">&nbsp; <span>click here.</span></a></h6>
                </div>
             </div>
          </div>

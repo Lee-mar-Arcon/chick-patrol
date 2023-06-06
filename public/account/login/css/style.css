@@ -10692,8 +10692,8 @@ h5,
 }
 
 .ftco-section {
-  padding: 7em 0;
-  height: 100vh;
+  padding: 2em 0;
+  height: 100%;
 }
 
 .ftco-no-pt {
@@ -10712,7 +10712,8 @@ h5,
 .img {
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: center center;
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 .login-wrap {
