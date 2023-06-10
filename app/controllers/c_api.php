@@ -49,12 +49,21 @@ class c_api extends Controller
 		$this->call->model('m_encrypt');
 		$email = $this->m_encrypt->decrypt($email);
 		$databaseCode = $this->db->table('email_codes')->where('user_email', $email)->limit(1)->get_all()[0]['code'];
-		if ($databaseCode == $code){
+		if ($databaseCode == $code) {
 			$this->db->table('email_codes')->where('user_email', $email)->delete();
 			$this->db->table('users')->where('email', $email)->update(['verified_at' => date('Y-m-d H:i:s')]);
 			echo true;
-		}
-		else
+		} else
 			echo false;
+	}
+
+	function send_forgot_password_link($email)
+	{
+		$user = $this->db->table('users')->where_not_null('verified_at')->where('email', $email)->limit(1)->get_all();
+		if (count($user) > 0) {
+			$this->call->model('m_mailer');
+			echo $this->m_mailer->send_forgot_password_link($email, 'Account password reset link');
+		} else
+			echo 'User does not exists.';
 	}
 }

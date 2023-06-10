@@ -3,7 +3,6 @@ defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
 $LAVA = lava_instance();
 $LAVA->session->flashdata('error') ? $error = $LAVA->session->flashdata('error') : null;
 $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('formData') : null;
-echo var_dump($LAVA->session->flashdata('formData'));
 ?>
 
 <!doctype html>
