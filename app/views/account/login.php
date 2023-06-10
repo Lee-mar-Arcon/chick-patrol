@@ -1,3 +1,11 @@
+<?php
+defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
+$LAVA = lava_instance();
+$LAVA->session->flashdata('error') ? $error = $LAVA->session->flashdata('error') : null;
+$LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('formData') : null;
+echo var_dump($LAVA->session->flashdata('formData'));
+?>
+
 <!doctype html>
 <html lang="en">
 
@@ -32,16 +40,16 @@
          <div class="row justify-content-center">
             <div class="col-md-6 col-lg-4">
                <div class="login-wrap p-0">
-                  <form action="<?= BASE_URL ?>account/login" class="signin-form">
+                  <form action="<?= BASE_URL ?>account/handle_login_submit" method="post" class="signin-form">
                      <div class="form-group">
-                        <input type="email" class="form-control mb-4" placeholder="Email" required>
+                        <input type="email" value="<?= isset($formData) ? $formData['email'] : '' ?>" name="email" class="form-control mb-4" placeholder="Email" requireds>
                      </div>
                      <div class="form-group m-0">
-                        <input id="password-field" type="password" class="form-control" placeholder="Password" required>
-                        <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                        <input id="password" name="password" type="password" class="form-control" placeholder="Password" requireds>
+                        <span toggle="#password" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                      </div>
                      <div class="form-group d-flex justify-content-between mb-5">
-                        <div class="error-msg">Wrong password</div>
+                        <?= isset($error) ? '<div class="error-msg">'. $error .'</div>' : '<div></div>' ?>
                         <a href="<?= site_url('account/forgot-password') ?>">Forgot Password</a>
                      </div>
                      <div class="form-group">
