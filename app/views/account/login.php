@@ -32,10 +32,9 @@
          <div class="row justify-content-center">
             <div class="col-md-6 col-lg-4">
                <div class="login-wrap p-0">
-                  <form action="#" class="signin-form">
+                  <form action="<?= BASE_URL ?>account/login" class="signin-form">
                      <div class="form-group">
-                        <input type="email" class="form-control" placeholder="Email" required>
-                        <div class="error-msg">Email does not exists</div>
+                        <input type="email" class="form-control mb-4" placeholder="Email" required>
                      </div>
                      <div class="form-group m-0">
                         <input id="password-field" type="password" class="form-control" placeholder="Password" required>

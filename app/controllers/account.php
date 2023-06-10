@@ -76,7 +76,11 @@ class account extends Controller
 				->min_length(11, 'Contact number in not valid!')
 				->max_length(11, 'Contact number in not valid!')
 				->name('email')->required('Email is required.')
-				->valid_email('Your email is not valid!');
+				->valid_email('Your email is not valid!')
+				->name('password')
+				->matches('retype_password', 'Password are not the same.')
+				->min_length(8, 'Password length must be 8-16 characters!')
+				->max_length(16, 'Password length must be 8-16 characters!');
 
 			if (!preg_match('/@gmail\.com$/i', $this->io->post('email'))) {
 				$formData = array('formData' => $_POST);
@@ -94,6 +98,7 @@ class account extends Controller
 					$this->io->post('birth_date'),
 					$this->io->post('sex'),
 					$this->io->post('email'),
+					$this->io->post('password'),
 					$this->io->post('middle_name'),
 				);
 				if ($result == 'exists') {
