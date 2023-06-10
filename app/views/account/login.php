@@ -43,14 +43,13 @@
                      </div>
                      <div class="form-group d-flex justify-content-between mb-5">
                         <div class="error-msg">Wrong password</div>
-                        <a href="<?= site_url('account/forgot-password')?>">Forgot Password</a>
+                        <a href="<?= site_url('account/forgot-password') ?>">Forgot Password</a>
                      </div>
                      <div class="form-group">
                         <button type="submit" class="form-control btn btn-primary submit px-3">Sign In</button>
                      </div>
                   </form>
-                  <h6 class="mb-4 text-center">Dont have an account yet? <a
-                        href="<?= site_url('account/register')?>">&nbsp; <span>click here.</span></a></h6>
+                  <h6 class="mb-4 text-center">Dont have an account yet? <a href="<?= site_url('account/register') ?>">&nbsp; <span>click here.</span></a></h6>
                </div>
             </div>
          </div>

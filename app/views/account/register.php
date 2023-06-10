@@ -1,22 +1,7 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
 $LAVA = lava_instance();
-
 $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('formData') : '';
-$barangays = array(
-   0 => array(
-      'id' => 1,
-      'name' => 'barangay 1'
-   ),
-   1 => array(
-      'id' => 2,
-      'name' => 'barangay 2'
-   ),
-   2 => array(
-      'id' => 3,
-      'name' => 'barangay 3'
-   ),
-)
 ?>
 <!doctype html>
 <html lang="en">
@@ -106,15 +91,15 @@ $barangays = array(
                      <?= $LAVA->session->flashdata('errorMessage') ? '<div class="error-message">' .$LAVA->session->flashdata('errorMessage'). '</div>' : '' ?>
                   </div>
                   <div class="form-group pb-1 col">
-                     <label for="firstName">First name <span class="required">*</span></label>
-                     <input id="firstName" name="firstName" type="text" class="form-control" required
-                        value="<?= isset($formData) ? $formData['firstName'] : '' ?>">
+                     <label for="first_name">First name <span class="required">*</span></label>
+                     <input id="first_name" name="first_name" type="text" class="form-control" required
+                        value="<?= isset($formData) ? $formData['first_name'] : '' ?>">
                      <!-- <div class="error-msg">Email does not exists</div> -->
                   </div>
                   <div class="form-group pb-1 col">
-                     <label for="middleName">Middle name</label>
-                     <input id="middleName" name="middleName" type="text" class="form-control"
-                        value="<?= isset($formData) ? $formData['middleName'] : '' ?>">
+                     <label for="middle_name">Middle name</label>
+                     <input id="middle_name" name="middle_name" type="text" class="form-control"
+                        value="<?= isset($formData) ? $formData['middle_name'] : '' ?>">
                   </div>
                </div>
             </div>
@@ -122,9 +107,9 @@ $barangays = array(
             <div class="col-sm-12 col-md-6 offset-md-3">
                <div class="row justify-content-between">
                   <div class="form-group pb-1 col">
-                     <label for="lastName">Last name <span class="required">*</span></label>
-                     <input id="lastName" name="lastName" type="text" class="form-control" required
-                        value="<?= isset($formData) ? $formData['lastName'] : '' ?>">
+                     <label for="last_name">Last name <span class="required">*</span></label>
+                     <input id="last_name" name="last_name" type="text" class="form-control" required
+                        value="<?= isset($formData) ? $formData['last_name'] : '' ?>">
                      <!-- <div class="error-msg">Email does not exists</div> -->
                   </div>
                   <div class="form-group pb-1 col">
@@ -163,9 +148,9 @@ $barangays = array(
             <div class="col-sm-12 col-md-6 offset-md-3">
                <div class="row justify-content-between">
                   <div class="form-group pb-1 col">
-                     <label for="birthDate">Birthdate <span class="required">*</span></label>
-                     <input id="birthDate" name="birthDate" type="date" class="form-control" required
-                        value="<?= isset($formData) ? $formData['birthDate'] : '' ?>">
+                     <label for="birth_date">Birthdate <span class="required">*</span></label>
+                     <input id="birth_date" name="birth_date" type="date" class="form-control" required
+                        value="<?= isset($formData) ? $formData['birth_date'] : '' ?>">
                      <!-- <div class="error-msg">Email does not exists</div> -->
                   </div>
                   <div class="form-group pb-1 col">

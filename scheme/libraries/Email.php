@@ -199,7 +199,7 @@ class Email {
 	 * 
 	 * @param string $emailContent Email Content
 	 */
-	public function email_content($emailContent, $type = 'plain')
+	public function email_content($emailContent, $type = 'html')
 	{
 		$emailContent = wordwrap($emailContent, 70, "\n");
         $this->emailContent = $emailContent;
