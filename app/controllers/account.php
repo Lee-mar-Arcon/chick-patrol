@@ -148,16 +148,16 @@ class account extends Controller
 				$this->call->database();
 				$user = $this->db->table('users')->where('email', $this->io->post('email'))->where_not_null('verified_at')->limit(1)->get_all();
 				if (count($user) > 0) {
-					if ($user[0]['is_admin'])
-						redirect('admin/home');
-					else
-						redirect('customer/home');
+					if (password_verify($this->io->post('password'), $user[0]['password'])) {
+						if ($user[0]['is_admin'])
+							redirect('admin/home');
+						else
+							redirect('customer/home');
+					} else {
+						$this->session->set_flashdata(['error' => 'Wrong credentials']);
+					}
 				} else if (count($user) == 0) {
 					$this->session->set_flashdata(['error' => 'User does not exists.']);
-				} else if (password_verify($this->io->post('password'), $user[0]['password'])) {
-					echo 'redirect to user';
-				} else {
-					$this->session->set_flashdata(['error' => 'Wrong credentials']);
 				}
 			} else {
 				$this->session->set_flashdata(['error' => $this->form_validation->get_errors()[0]]);
