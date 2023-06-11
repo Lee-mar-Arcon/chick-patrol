@@ -167,4 +167,44 @@ class account extends Controller
 			redirect('account/login');
 		}
 	}
+
+	function reset_password($email)
+	{
+		$this->call->database();
+		$exists = $this->db->table('reset_password_code')->where('code', $email)->get();
+		if ($exists)
+			$this->call->view('account/reset-password', [
+				'pageTitle' => 'Reset Password',
+				'encryptedEmail' => $email
+			]);
+		else
+			$this->call->view('errors/error_404', [
+				'heading' => '404 not found',
+				'message' => 'Link expired'
+			]);
+	}
+
+	function handle_reset_password_submit($email)
+	{
+		$this->form_validation
+			->name('password')
+			->matches('retype_password', 'Password are not the same.')
+			->min_length(8, 'Password length must be 8-16 characters!')
+			->max_length(16, 'Password length must be 8-16 characters!');
+
+		$this->call->model('m_encrypt');
+		$encryptedEmail = $email;
+		$email = $this->m_encrypt->decrypt($email);
+
+		if ($this->form_validation->run()) {
+			$result = $this->m_account->update_password(
+				$email,
+				$this->io->post('password'),
+			);
+			redirect('account/login');
+		} else {
+			$this->session->set_flashdata(['error' => $this->form_validation->get_errors()[0]]);
+			redirect('account/reset-password/' . $encryptedEmail);
+		}
+	}
 }

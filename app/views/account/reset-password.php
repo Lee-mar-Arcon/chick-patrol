@@ -17,13 +17,14 @@ $LAVA->session->flashdata('error') ? $error = $LAVA->session->flashdata('error')
 
    <link rel="stylesheet" href="<?= BASE_URL .  PUBLIC_DIR ?>/account/login/css/style.css">
    <style>
-      .error-msg {
-         color: firebrick;
-         font-weight: bolder;
-         font-size: 8pt;
-         margin-left: 1rem;
+      .error-message {
+         font-weight: bold;
+         color: #ff5722;
+         background-color: #ffffff14;
+         padding: .5rem 1rem;
+         margin-bottom: 1.2rem;
+         border-radius: 25px;
       }
-
 
       .lds-facebook {
          display: inline-block;
@@ -82,19 +83,24 @@ $LAVA->session->flashdata('error') ? $error = $LAVA->session->flashdata('error')
          <div class="row justify-content-center">
             <div class="col-md-6 col-lg-4">
                <div class="login-wrap p-0">
-                  <h3 class="mb-4 text-center">Forgot password </h3>
-                  <div class="signin-form">
+                  <h3 class="mb-4 text-center">Reset password </h3>
+                  <?= isset($error) ? '<div class="error-message">' . $error . '</div>' : '' ?>
+                  <form method="post" action="<?= BASE_URL ?>account/handle_reset_password_submit/<?= $encryptedEmail ?>" class="signin-form">
                      <div class="form-group">
-                        <input type="email" id="email" class="form-control" placeholder="email">
+                        <input required type="password" name="password" class="form-control" placeholder="password">
                         <div class="error-msg"></div>
                      </div>
                      <div class="form-group">
-                        <button id="submit_forgot_password_link" class="form-control btn btn-primary submit px-3">Get Link</button>
+                        <input required type="password" name="retype_password" class="form-control" placeholder="retype-password">
+                        <div class="error-msg"></div>
+                     </div>
+                     <div class="form-group">
+                        <button id="submit_forgot_password_link" class="form-control btn btn-primary submit px-3">Save</button>
                      </div>
                      <div class="form-group d-flex justify-content-end">
                         <a href="<?= site_url('account/login') ?>" class="me-5">Go to Login</a>
                      </div>
-                  </div>
+                  </form>
                </div>
             </div>
          </div>
@@ -126,7 +132,6 @@ $LAVA->session->flashdata('error') ? $error = $LAVA->session->flashdata('error')
                         $('.error-msg').html(response.data);
                         $('#submit_forgot_password_link').html('Get link')
                      } else {
-                        console.log(response.data);
                         if (response.data) {
                            $('.error-msg').html('');
                            $('#submit_forgot_password_link').html('Link sent!')

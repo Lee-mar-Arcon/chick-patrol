@@ -157,7 +157,7 @@
                      $('.resend-code-btn').prop('disabled', false);
                      $('#send_code').prop('disabled', false);
                   }
-               }, 1000);
+               }, 1);
             })
             .catch(function(error) {
                console.log(error);
@@ -187,7 +187,7 @@
                   $('#send_code').prop('disabled', false);
                   $('.resend-code-btn').prop('disabled', false);
                   $('.resend-code-btn').html('Resend code')
-               }, 1000);
+               }, 1);
             })
             .catch(function(error) {
                console.log(error);

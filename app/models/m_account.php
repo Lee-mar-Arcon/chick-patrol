@@ -27,4 +27,14 @@ class m_account extends Model
 			$this->db->table('users')->insert($data);
 		return 'success';
 	}
+
+	function update_password($email, $password)
+	{
+		$data = array(
+			'password' => password_hash($password, PASSWORD_DEFAULT),
+		);
+
+		$this->db->table('reset_password_code')->where('email', $email)->delete();
+		$this->db->table('users')->where('email', $email)->update($data);
+	}
 }
