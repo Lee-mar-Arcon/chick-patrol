@@ -7,7 +7,6 @@ class account extends Controller
 	public function __construct()
 	{
 		parent::__construct();
-		//  $this->call->helper(array('form', 'alert'));
 		$this->call->model('m_account');
 		date_default_timezone_set("Asia/Singapore");
 	}
@@ -18,6 +17,7 @@ class account extends Controller
 
 	public function login()
 	{
+		$this->session->unset_userdata('user');
 		$this->call->view('account/login', [
 			'pageTitle' => 'login'
 		]);
@@ -149,10 +149,11 @@ class account extends Controller
 				$user = $this->db->table('users')->where('email', $this->io->post('email'))->where_not_null('verified_at')->limit(1)->get_all();
 				if (count($user) > 0) {
 					if (password_verify($this->io->post('password'), $user[0]['password'])) {
+						$this->session->set_userdata('user', $user[0]);
 						if ($user[0]['is_admin'])
-							redirect('admin/home');
+							redirect('admin/dashboard');
 						else
-							redirect('customer/home');
+							redirect('customer/home-page');
 					} else {
 						$this->session->set_flashdata(['error' => 'Wrong credentials']);
 					}
