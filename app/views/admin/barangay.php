@@ -33,15 +33,38 @@
                         <div class="col-sm-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h1 class="display-6 fw-bold">Dashboard</h1>
+                                    <h1 class="display-6 fw-bold">Barangay</h1>
                                 </div>
                                 <div class="card-body">
-                                    <blockquote class="card-bodyquote">
-                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere
-                                            erat a ante.</p>
-                                        <footer class="blockquote-footer text-muted">Someone famous in <cite title="Source Title">Source Title</cite>
-                                        </footer>
-                                    </blockquote>
+                                    <div class="table-responsive">
+                                        <div class="d-flex justify-content-end me-2 my-3">
+                                            <button id="add-barangay" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light m-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Add</button>
+                                        </div>
+                                        <table class="table table-hover table-borderless mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th class="text-center" style="width: 120px;">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($barangays as $barangay) : ?>
+                                                    <tr id="<?= $barangay['id'] ?>">
+                                                        <td class="align-middle"><?= $barangay['name'] ?></td>
+                                                        <td class="text-center">
+                                                            <span class="btn waves-effect waves-info p-1 py-0 shadow me-1 edit-barangay" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                                <i class="mdi mdi-home-edit fs-3 text-info"></i>
+                                                            </span>
+
+                                                            <span class="btn waves-effect waves-info p-1 py-0 shadow me-1">
+                                                                <i class="mdi mdi-delete fs-3 text-danger"></i>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -55,35 +78,13 @@
             <!-- Footer Start -->
             <footer class="footer">
                 <div class="container-fluid">
-                    <!-- <div class="row">
-                        <div class="col-md-6">
-                            <script>
-                                document.write(new Date().getFullYear())
-                            </script> &copy; Adminto theme by <a href="">Coderthemes</a>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="text-md-end footer-links d-none d-sm-block">
-                                <a href="javascript:void(0);">About Us</a>
-                                <a href="javascript:void(0);">Help</a>
-                                <a href="javascript:void(0);">Contact Us</a>
-                            </div>
-                        </div>
-                    </div> -->
                 </div>
             </footer>
             <!-- end Footer -->
 
         </div>
-
-        <!-- ============================================================== -->
-        <!-- End Page content -->
-        <!-- ============================================================== -->
-
-
     </div>
-    <!-- END wrapper -->
 
-    <!-- Right Sidebar -->
     <div class="right-bar">
 
         <div data-simplebar class="h-100">
@@ -213,6 +214,29 @@
     <!-- Right bar overlay-->
     <div class="rightbar-overlay"></div>
 
+
+    <!-- Off Canvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+            <h5 class="fs-3" id="offcanvasRightLabel">Offcanvas right</h5>
+            <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body">
+
+            <div class="mb-3 mt-2">
+                <label for="name" class="form-label">Name<span class="text-danger"> *</span></label>
+                <input type="text" parsley-trigger="change" required="" placeholder="Enter Barangay name" class="form-control parsley-error" id="name" data-parsley-id="27" aria-describedby="parsley-id-27">
+                <ul class="parsley-errors-list filled" id="parsley-id-27" aria-hidden="false">
+                    <li class="parsley-required">This value is required.</li>
+                </ul>
+            </div>
+            <div class="text-end mt-3">
+                <button class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Vendor -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -221,13 +245,24 @@
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/waypoints/lib/jquery.waypoints.min.js"></script>
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery.counterup/jquery.counterup.min.js"></script>
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/feather-icons/feather.min.js"></script>
-
+    <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/tippy.js/tippy.all.min.js"></script>
     <!-- App js -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
     <script>
         $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
         $('.toggle-sidebar').on('click', function() {
             $('body').toggleClass('sidebar-enable')
+        })
+
+        $('#add-barangay').on('click', function() {
+            $('#name').val('')
+            $('#offcanvasRightLabel').html('Add new barangay')
+        })
+
+        $('.edit-barangay').on('click', function() {
+            $('#offcanvasRightLabel').html('Edit barangay')
+            $('#name').val($(this).closest('td').prev().html())
+            console.log($(this).closest('tr').attr('id'))
         })
     </script>
 </body>

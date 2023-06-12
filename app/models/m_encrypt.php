@@ -21,7 +21,7 @@ class m_encrypt extends Model
 
    public function encrypt($data)
    {
-      $iv = $this->generate_iv();
+
       if (is_array($data)) {
          function modify_id_with_offset($cipher, $key, $iv, $item)
          {
@@ -29,8 +29,9 @@ class m_encrypt extends Model
             $item['id'] = preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($iv . $ciphertext));
             return $item;
          }
-         $data = array_map(fn ($item) => modify_id_with_offset($this->cipher, $this->key, $iv, $item), $data);
+         $data = array_map(fn ($item) => modify_id_with_offset($this->cipher, $this->key, $this->generate_iv(), $item), $data);
       } else {
+         $iv = $this->generate_iv();
          $ciphertext = openssl_encrypt($data, $this->cipher, $this->key, 0, $iv);
          $data = preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($iv . $ciphertext));
       }

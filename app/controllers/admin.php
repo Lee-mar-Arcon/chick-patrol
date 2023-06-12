@@ -7,20 +7,32 @@ class admin extends Controller
 	{
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
-		// if ($this->session->has_userdata('user'))
-		// 	if (!$this->session->userdata('user')['is_admin']) 
-		// 		echo 123;
+		$this->call->model('m_admin');
 
+		// session handler
 		if (!$this->session->has_userdata('user'))
 			redirect('account/login');
 		else
 			if (!$this->session->userdata('user')['is_admin'])
 			redirect('account/login');
 	}
+
 	public function dashboard()
 	{
 		$this->call->view('admin/dashboard', [
-			'pageTitle' => 'Dashboard'
+			'pageTitle' => 'Dashboard',
+			'breadCrumb' => 'Dashboard'
+		]);
+	}
+
+	public function barangay()
+	{
+		$barangays = $this->m_admin->barangay_index();
+
+		$this->call->view('admin/barangay', [
+			'pageTitle' => 'Dashboard',
+			'breadCrumb' => 'Barangay',
+			'barangays' => $barangays
 		]);
 	}
 }
