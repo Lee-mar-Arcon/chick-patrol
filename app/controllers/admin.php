@@ -30,9 +30,67 @@ class admin extends Controller
 		$barangays = $this->m_admin->barangay_index();
 
 		$this->call->view('admin/barangay', [
-			'pageTitle' => 'Dashboard',
+			'pageTitle' => 'Dashboard | Barangay',
 			'breadCrumb' => 'Barangay',
 			'barangays' => $barangays
 		]);
+	}
+
+	function barangay_store()
+	{
+		$this->form_validation
+			->name('name')
+			->min_length(1, 'Must be 1-100 characters in length only.')
+			->max_length(100, 'Must be 1-100 characters in length only.');
+		if ($this->form_validation->run()) {
+			$name = $this->io->post('name');
+
+			$exists = $this->db->table('barangays')->where('name', $name)->get();
+			if ($exists) {
+				if ($exists['deleted_at'] == null) {
+					$this->session->set_flashdata(['formMessage' => 'Name already exists']);
+					$this->session->set_flashdata(['formData' => $_POST]);
+				} else {
+					$this->db->table('barangays')->where('name', $name)->update(['deleted_at' => null]);
+					$this->session->set_flashdata(['formMessage' => 'restored']);
+				}
+			} else {
+				$this->db->table('barangays')->insert(['name' => $name]);
+				$this->session->set_flashdata(['formMessage' => 'success']);
+			}
+		} else {
+			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
+			$this->session->set_flashdata(['formData' => $_POST]);
+		}
+		redirect('admin/barangay');
+	}
+
+	function barangay_update()
+	{
+		$this->form_validation
+			->name('id')->required('ID is required.')
+			->name('name')
+			->min_length(1, 'Must be 1-100 characters in length only.')
+			->max_length(100, 'Must be 1-100 characters in length only.');
+
+
+		if ($this->form_validation->run()) {
+			$this->call->model('m_encrypt');
+			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$name = $this->io->post('name');
+			$exists = $this->db->table('barangays')->where('name', $name)->not_where('id', $id)->get();
+
+			if ($exists) {
+				$this->session->set_flashdata(['formMessage' => 'Name already exists']);
+				$this->session->set_flashdata(['formData' => $_POST]);
+			} else {
+				$this->db->table('barangays')->where('id', $id)->update(['name' => $name]);
+				$this->session->set_flashdata(['formMessage' => 'updated']);
+			}
+		} else {
+			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
+			$this->session->set_flashdata(['formData' => $_POST]);
+		}
+		redirect('admin/barangay');
 	}
 }
