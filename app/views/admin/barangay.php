@@ -21,9 +21,11 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/app.min.css" rel="stylesheet" type="text/css" id="app-style" />
     <!-- icons -->
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-
     <!-- toastr -->
     <link rel="stylesheet" href="<?= BASE_URL . PUBLIC_DIR ?>/libraries/toastr.css">
+    <!-- Sweet alert -->
+    <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+
 
 </head>
 
@@ -70,13 +72,13 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                                                 date('M-d Y h:i:s A', strtotime($barangay['deleted_at'])) :
                                                                 '' ?></td>
                                                         <td class="text-center">
-                                                            <span class="btn waves-effect waves-info p-1 py-0 shadow me-1 edit-barangay" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                            <span class="btn waves-effect waves-dark p-1 py-0 shadow me-1 edit-barangay" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                                 <i class="mdi mdi-home-edit fs-3 text-info"></i>
                                                             </span>
 
                                                             <span class="btn waves-effect waves-info p-1 py-0 shadow me-1">
                                                                 <?= $barangay['deleted_at'] ?
-                                                                    '<i class="mdi mdi-delete-restore fs-3 text-danger"></i>' :
+                                                                    '<i class="mdi mdi-delete-restore fs-3 text-info"></i>' :
                                                                     '<i class="mdi mdi-delete fs-3 text-danger"></i>' ?>
                                                             </span>
                                                         </td>
@@ -89,10 +91,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                             </div>
                         </div>
                     </div>
-
-
                 </div>
-
             </div>
 
             <!-- Footer Start -->
@@ -100,7 +99,6 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 <div class="container-fluid">
                 </div>
             </footer>
-            <!-- end Footer -->
 
         </div>
     </div>
@@ -125,6 +123,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         </form>
     </div>
 
+    <div id="delete-restore-form"></div>
     <!-- Vendor -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -137,12 +136,12 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
     <!-- taostr -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
+    <!-- Sweet Alerts js -->
+    <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
     <script>
         // form validation response handler
         const formMessage = '<?= $formMessage ?>'
         const formData = JSON.parse('<?= json_encode($formData) ?>')
-        console.log(formData)
 
         switch (formMessage) {
             case '':
@@ -155,6 +154,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 break;
             case 'updated':
                 toastr.info('Barangay updated.')
+                break;
+            case 'deleted':
+                toastr.info('Barangay deleted.')
                 break;
             default:
                 const url = '<?= BASE_URL ?>admin/barangay_store'
@@ -185,16 +187,69 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             $('#id').val($(this).closest('tr').attr('id'))
         })
 
+        // show restore confirmation
+        $('.mdi-delete-restore').on('click', function() {
+            id = $(this).closest('tr').attr('id')
+            Swal.fire({
+                title: 'Restore barangay?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Restore'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleDeleteRestoreSubmit(id, 'restore')
+                }
+            })
+        })
 
+        // show delete confirmation
+        $('.mdi-delete').on('click', function() {
+            id = $(this).closest('tr').attr('id')
+            Swal.fire({
+                title: 'Delete barangay?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Delete'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleDeleteRestoreSubmit(id, 'destroy')
+                }
+            })
+        })
 
+        // form restore and delete submit handler
+        function handleDeleteRestoreSubmit(id, httpMethod) {
+            const deleteUrl = '<?= BASE_URL ?>admin/barangay_destroy';
+            const restoreUrl = '<?= BASE_URL ?>admin/barangay_restore';
 
+            var form = $('<form>');
 
+            form.attr({
+                method: 'POST',
+                action: httpMethod == 'destroy' ? deleteUrl : restoreUrl
+            });
 
-
-
-
-
-
+            var idInput = $('<input>').attr({
+                type: 'text',
+                name: 'id',
+                placeholder: 'Enter your username',
+                value: id
+            });
+            form.append(idInput);
+            var submitBtn = $('<input>').attr({
+                type: 'submit',
+                value: 'Submit'
+            });
+            $('#delete-restore-form').append(form);
+            form.append(submitBtn);
+            form.submit();
+        }
 
 
         // let isEditForm = false;

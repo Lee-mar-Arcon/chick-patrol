@@ -28,7 +28,7 @@ class account extends Controller
 		$this->call->database();
 		$this->call->view('account/register', [
 			'pageTitle' => 'register',
-			'barangays' => $this->db->table('barangays')->get_all()
+			'barangays' => $this->db->table('barangays')->where_null('deleted_at')->get_all()
 		]);
 	}
 	public function forgot_password()
