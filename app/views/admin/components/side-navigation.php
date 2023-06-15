@@ -25,6 +25,13 @@
                </a>
             </li>
 
+            <li>
+               <a href="<?= BASE_URL ?>admin/category">
+                  <i class="fas fa-house-user"></i>
+                  <span> Category </span>
+               </a>
+            </li>
+
          </ul>
       </div>
       <!-- End Sidebar -->

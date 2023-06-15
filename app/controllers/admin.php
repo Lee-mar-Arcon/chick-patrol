@@ -25,6 +25,7 @@ class admin extends Controller
 		]);
 	}
 
+	// BARANGAY FUNCTIONS 
 	public function barangay()
 	{
 		$barangays = $this->m_admin->barangay_index();
@@ -123,5 +124,31 @@ class admin extends Controller
 		} else {
 			echo 'ID is required';
 		}
+	}
+
+	// CATEGORY
+	function category()
+	{
+		$categories = $this->m_admin->category_index();
+		$this->call->view('admin/category', [
+			'pageTitle' => 'Dashboard | Category',
+			'breadCrumb' => 'Category',
+			'categories' => $categories
+		]);
+	}
+
+	function category_store()
+	{
+		$this->form_validation
+			->name('name')
+			->min_length(1, 'Must be 1-100 characters in length only.')
+			->max_length(100, 'Must be 1-100 characters in length only.');
+		if ($this->form_validation->run()) {
+			$this->m_admin->category_store($this->io->post('name'));
+		} else {
+			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
+			$this->session->set_flashdata(['formData' => $_POST]);
+		}
+		redirect('admin/category');
 	}
 }

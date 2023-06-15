@@ -62,17 +62,6 @@
         $('.toggle-sidebar').on('click', function() {
             $('body').toggleClass('sidebar-enable')
         })
-
-        $('#add-barangay').on('click', function() {
-            $('#name').val('')
-            $('#offcanvasRightLabel').html('Add new barangay')
-        })
-
-        $('.edit-barangay').on('click', function() {
-            $('#offcanvasRightLabel').html('Edit barangay')
-            $('#name').val($(this).closest('td').prev().html())
-            console.log($(this).closest('tr').attr('id'))
-        })
     </script>
 </body>
 
