@@ -26,7 +26,7 @@ class m_admin extends Model
 		$exists = $this->db->table('categories')->where('LOWER(name)', strtolower($name))->get();
 		if ($exists) {
 			if ($exists['deleted_at'] == null) {
-				$this->session->set_flashdata(['formMessage' => 'Name already exists']);
+				$this->session->set_flashdata(['formMessage' => 'exists']);
 				$this->session->set_flashdata(['formData' => $_POST]);
 			} else {
 				$this->db->table('categories')->where('LOWER(name)', strtolower($name))->update(['deleted_at' => null]);
@@ -36,5 +36,37 @@ class m_admin extends Model
 			$this->db->table('categories')->insert(['name' => $name]);
 			$this->session->set_flashdata(['formMessage' => 'success']);
 		}
+	}
+
+	function category_update($id, $name)
+	{
+		$this->call->model('m_encrypt');
+		$id = $this->m_encrypt->decrypt($id);
+		$name = $name;
+		$exists = $this->db->table('categories')->where('LOWER(name)', strtolower($name))->not_where('id', $id)->get();
+
+		if ($exists) {
+			$this->session->set_flashdata(['formMessage' => 'exists']);
+			$this->session->set_flashdata(['formData' => $_POST]);
+		} else {
+			$this->db->table('categories')->where('id', $id)->update(['name' => $name]);
+			$this->session->set_flashdata(['formMessage' => 'updated']);
+		}
+	}
+
+	function category_destroy($id)
+	{
+		$this->call->model('m_encrypt');
+		$id = $this->m_encrypt->decrypt($id);
+		$this->db->table('categories')->where('id', $id)->update(['deleted_at' => date("Y-m-d H:i:s")]);
+		$this->session->set_flashdata(['formMessage' => 'deleted']);
+	}
+
+	function category_restore($id)
+	{
+		$this->call->model('m_encrypt');
+		$id = $this->m_encrypt->decrypt($this->io->post('id'));
+		$this->db->table('categories')->where('id', $id)->update(['deleted_at' => null]);
+		$this->session->set_flashdata(['formMessage' => 'restored']);
 	}
 }

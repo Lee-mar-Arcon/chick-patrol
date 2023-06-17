@@ -3,8 +3,8 @@ defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
 $LAVA = lava_instance();
 
 // form validation response data
-$LAVA->session->flashdata('formMessage') ? $formMessage = $LAVA->session->flashdata('formMessage') : $formMessage = null;
-$LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('formData') : $formData = null;
+// $LAVA->session->flashdata('formMessage') ? $formMessage = $LAVA->session->flashdata('formMessage') : $formMessage = null;
+// $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('formData') : $formData = null;
 ?>
 
 <!DOCTYPE html>
@@ -24,6 +24,8 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <!-- toastr -->
     <link rel="stylesheet" href="<?= BASE_URL . PUBLIC_DIR ?>/libraries/toastr.css">
+    <!-- Sweet alert -->
+    <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
 </head>
 
 <!-- body start -->
@@ -126,6 +128,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
     <!-- taostr -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Sweet Alerts js -->
+    <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
+
     <script>
         // form validation response handler
         const formMessage = '<?= $formMessage ?>'
@@ -137,6 +142,15 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             case 'success':
                 toastr.success('New category added.')
                 break;
+            case 'exists':
+                toastr.info('Category already exists.')
+                break;
+            case 'restored':
+                toastr.info('Category restored.')
+                break;
+            case 'updated':
+                toastr.info('Category updated.')
+                break;
         }
 
 
@@ -145,21 +159,89 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             $('body').toggleClass('sidebar-enable')
         })
 
-        function updateForm(url) {
+        function updateForm(url, formHeader) {
             $('#form').attr('action', url)
-            $('#offcanvasRightLabel').html('Add new category')
+            $('#offcanvasRightLabel').html(formHeader)
             // reset input values
             $('#name').val('')
         }
 
         $('#add-category').on('click', function() {
-            updateForm('<?= BASE_URL ?>admin/category_store')
+            updateForm('<?= BASE_URL ?>admin/category_store', 'Add new category')
         })
 
         $('.edit-category').on('click', function() {
             $('#offcanvasRightLabel').html('Edit category')
-            $('#name').val($(this).closest('td').prev().html())
+            updateForm('<?= BASE_URL ?>admin/category_update', 'Update category')
+            $('#id').val($(this).closest('tr').attr('id'))
+            $('#name').val($(this).closest('td').prev().prev().children('span:first-child').html())
         })
+
+        // show delete confirmation
+        $('.mdi-delete').on('click', function() {
+            id = $(this).closest('tr').attr('id')
+            Swal.fire({
+                title: 'Delete category?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Delete'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleDeleteRestoreSubmit(id, 'destroy')
+                }
+            })
+        })
+
+        // show restore confirmation
+        $('.mdi-delete-restore').on('click', function() {
+            id = $(this).closest('tr').attr('id')
+            Swal.fire({
+                title: 'Restore category?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Restore'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleDeleteRestoreSubmit(id, 'restore')
+                }
+            })
+        })
+
+        // form restore and delete submit handler
+        function handleDeleteRestoreSubmit(id, httpMethod) {
+            const deleteUrl = '<?= BASE_URL ?>admin/category_destroy';
+            const restoreUrl = '<?= BASE_URL ?>admin/category_restore';
+            $('body').append($('<div></div>').attr({
+                id: 'delete-restore-form'
+            }))
+            var form = $('<form>');
+
+            form.attr({
+                method: 'POST',
+                action: httpMethod == 'destroy' ? deleteUrl : restoreUrl
+            });
+
+            var idInput = $('<input>').attr({
+                type: 'text',
+                name: 'id',
+                placeholder: 'Enter your username',
+                value: id
+            });
+            form.append(idInput);
+            var submitBtn = $('<input>').attr({
+                type: 'submit',
+                value: 'Submit'
+            });
+            $('#delete-restore-form').append(form);
+            form.append(submitBtn);
+            form.submit();
+        }
     </script>
 </body>
 

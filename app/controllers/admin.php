@@ -133,7 +133,9 @@ class admin extends Controller
 		$this->call->view('admin/category', [
 			'pageTitle' => 'Dashboard | Category',
 			'breadCrumb' => 'Category',
-			'categories' => $categories
+			'categories' => $categories,
+			'formMessage' => $this->session->flashdata('formMessage') !== null ? $this->session->flashdata('formMessage') : null,
+			'formData' => $this->session->flashdata('formData') !== null ? $this->session->flashdata('formMessage') : null
 		]);
 	}
 
@@ -150,5 +152,48 @@ class admin extends Controller
 			$this->session->set_flashdata(['formData' => $_POST]);
 		}
 		redirect('admin/category');
+	}
+
+	function category_update()
+	{
+		$this->form_validation
+			->name('id')->required('ID is required.')
+			->name('name')
+			->min_length(1, 'Must be 1-100 characters in length only.')
+			->max_length(100, 'Must be 1-100 characters in length only.');
+
+
+		if ($this->form_validation->run()) {
+			$this->m_admin->category_update($this->io->post('id'), $this->io->post('name'));
+		} else {
+			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
+			$this->session->set_flashdata(['formData' => $_POST]);
+		}
+		redirect('admin/category');
+	}
+
+	function category_destroy()
+	{
+		$this->form_validation
+			->name('id')->required('ID is required.');
+
+		if ($this->form_validation->run()) {
+			$this->m_admin->category_destroy($this->io->post('id'));
+			redirect('admin/category');
+		} else {
+			echo 'ID is required';
+		}
+	}
+
+	function category_restore()
+	{
+		$this->form_validation
+			->name('id')->required('ID is required.');
+		if ($this->form_validation->run()) {
+$this->m_admin->category_restore($this->io->post('id'));
+			redirect('admin/category');
+		} else {
+			echo 'ID is required';
+		}
 	}
 }
