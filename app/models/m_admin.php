@@ -69,4 +69,9 @@ class m_admin extends Model
 		$this->db->table('categories')->where('id', $id)->update(['deleted_at' => null]);
 		$this->session->set_flashdata(['formMessage' => 'restored']);
 	}
+
+	// USERS FUNCTIONS
+	function user_index() {
+		return $this->db->table('users')->where('is_admin', 0)->get_all();
+	}
 }

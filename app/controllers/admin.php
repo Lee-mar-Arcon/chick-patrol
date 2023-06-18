@@ -20,7 +20,7 @@ class admin extends Controller
 	public function dashboard()
 	{
 		$this->call->view('admin/dashboard', [
-			'pageTitle' => 'Dashboard',
+			'pageTitle' => 'Admin | Dashboard',
 			'breadCrumb' => 'Dashboard'
 		]);
 	}
@@ -31,7 +31,7 @@ class admin extends Controller
 		$barangays = $this->m_admin->barangay_index();
 
 		$this->call->view('admin/barangay', [
-			'pageTitle' => 'Dashboard | Barangay',
+			'pageTitle' => 'Admin | Barangay',
 			'breadCrumb' => 'Barangay',
 			'barangays' => $barangays
 		]);
@@ -131,7 +131,7 @@ class admin extends Controller
 	{
 		$categories = $this->m_admin->category_index();
 		$this->call->view('admin/category', [
-			'pageTitle' => 'Dashboard | Category',
+			'pageTitle' => 'Admin | Category',
 			'breadCrumb' => 'Category',
 			'categories' => $categories,
 			'formMessage' => $this->session->flashdata('formMessage') !== null ? $this->session->flashdata('formMessage') : null,
@@ -190,10 +190,20 @@ class admin extends Controller
 		$this->form_validation
 			->name('id')->required('ID is required.');
 		if ($this->form_validation->run()) {
-$this->m_admin->category_restore($this->io->post('id'));
+			$this->m_admin->category_restore($this->io->post('id'));
 			redirect('admin/category');
 		} else {
 			echo 'ID is required';
 		}
+	}
+
+	function user()
+	{
+		
+		$this->call->view('admin/user', [
+			'pageTitle' => 'Admin | Users',
+			'breadCrumb' => 'Users',
+			'users' => $this->m_admin->user_index()
+		]);
 	}
 }

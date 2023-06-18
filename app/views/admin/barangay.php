@@ -49,7 +49,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
-                                        <div class="d-flex justify-content-end me-2 my-3">
+                                        <div class="d-flex justify-content-end me-2 my-0">
                                             <button id="add-barangay" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light m-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Add</button>
                                         </div>
                                         <table class="table table-hover table-borderless mb-0">
@@ -72,11 +72,11 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                                                 date('M-d Y h:i:s A', strtotime($barangay['deleted_at'])) :
                                                                 '' ?></td>
                                                         <td class="text-center">
-                                                            <span class="btn waves-effect waves-dark p-1 py-0 shadow me-1 edit-barangay" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                                            <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-barangay" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                                 <i class="mdi mdi-home-edit fs-3 text-info"></i>
                                                             </span>
 
-                                                            <span class="btn waves-effect waves-info p-1 py-0 shadow me-1">
+                                                            <span class="btn waves-effect waves-info p-1 py-0 shadow-lg me-1">
                                                                 <?= $barangay['deleted_at'] ?
                                                                     '<i class="mdi mdi-delete-restore fs-3 text-info"></i>' :
                                                                     '<i class="mdi mdi-delete fs-3 text-danger"></i>' ?>

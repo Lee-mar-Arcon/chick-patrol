@@ -14,21 +14,28 @@
             <li>
                <a href="<?= BASE_URL ?>admin/dashboard">
                   <i class="mdi mdi-view-dashboard-outline"></i>
-                  <span> Dashboard </span>
+                  <span>&nbsp;&nbsp;Dashboard </span>
                </a>
             </li>
 
             <li>
                <a href="<?= BASE_URL ?>admin/barangay">
                   <i class="fas fa-house-user"></i>
-                  <span> Barangay </span>
+                  <span>&nbsp;&nbsp;Barangay </span>
                </a>
             </li>
 
             <li>
                <a href="<?= BASE_URL ?>admin/category">
-                  <i class="fas fa-house-user"></i>
-                  <span> Category </span>
+                  <i class="fas fa-th"></i>
+                  <span>&nbsp;&nbsp;Category </span>
+               </a>
+            </li>
+
+            <li>
+               <a href="<?= BASE_URL ?>admin/user">
+                  <i class="fas fa-users"></i>
+                  <span>&nbsp;&nbsp;User </span>
                </a>
             </li>
 
