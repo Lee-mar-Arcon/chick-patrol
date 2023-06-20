@@ -37,6 +37,15 @@
             box-shadow: rgba(17, 17, 26, 0.2) 0px 0px 5px;
             transition: all 0.2s;
         }
+
+        #table-loader {
+            font-size: 45pt;
+            text-align: center;
+            height: 60vh;
+            color: #0000ff9c;
+            background-color: rgba(17, 17, 26, 0.2);
+            font-weight: bolder;
+        }
     </style>
 </head>
 
@@ -74,33 +83,32 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach (array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10) as $user) : ?>
-                                            <tr class="align-middle rounded m-1">
-                                                <th scope="row">1</th>
-                                                <td>Mark</td>
-                                                <td>Otto</td>
-                                                <td>Otto</td>
-                                                <td>Otto</td>
-                                                <td>Otto</td>
-                                                <td>Otto</td>
-                                                <td>Otto</td>
-                                                <td>@mdo</td>
-                                                <td class="text-center">
-                                                    <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1" aria-controls="offcanvasRight">
-                                                        <i class="mdi mdi-home-edit fs-3 text-info"></i>
-                                                    </span>
-                                                    <span class="btn waves-effect waves-info p-1 py-0 rounded shadow-lg me-1">
-                                                        <i class="mdi mdi-delete fs-3 text-danger"></i> </span>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                        <tr class="align-middle rounded m-1">
+                                            <th scope="row">1</th>
+                                            <td>Mark</td>
+                                            <td>Otto</td>
+                                            <td>Otto</td>
+                                            <td>Otto</td>
+                                            <td>Otto</td>
+                                            <td>Otto</td>
+                                            <td>Otto</td>
+                                            <td>@mdo</td>
+                                            <td class="text-center">
+                                                <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1" aria-controls="offcanvasRight">
+                                                    <i class="mdi mdi-home-edit fs-3 text-info"></i>
+                                                </span>
+                                                <span class="btn waves-effect waves-info p-1 py-0 rounded shadow-lg me-1">
+                                                    <i class="mdi mdi-delete fs-3 text-danger"></i> </span>
+                                            </td>
+                                        </tr>
+                                        <tr class="align-middle rounded m-1">
+                                            <th id="table-loader" colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin"></i></th>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-                    <?= var_dump($users) ?>
-
                 </div>
 
             </div>
@@ -126,11 +134,37 @@
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/feather-icons/feather.min.js"></script>
     <!-- App js -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
+    <!-- axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <script>
         $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
         $('.toggle-sidebar').on('click', function() {
             $('body').toggleClass('sidebar-enable')
         })
+
+        axios.get('<?= site_url('admin_api/user_index') ?>', {
+                /* OPTIONS */
+            })
+            .then(function(response) {
+                console.log(response.data)
+                populateTable(response.data)
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+            .finally(function() {
+                // always executed
+            });
+
+        function populateTable(users) {
+            $('tbody').html('')
+            const keys = ['first_name', 'middle_name', 'last_name', 'email', 'contact', 'birth_date', 'barangay', 'street', 'is_banned', 'sex']
+            users.forEach(user => {
+                let row = $('tbody').append('<tr></tr>')
+                row.append('<td>1</td>')
+            });
+        }
     </script>
 </body>
 

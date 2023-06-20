@@ -199,11 +199,9 @@ class admin extends Controller
 
 	function user()
 	{
-		
 		$this->call->view('admin/user', [
 			'pageTitle' => 'Admin | Users',
 			'breadCrumb' => 'Users',
-			'users' => $this->m_admin->user_index()
 		]);
 	}
 }
