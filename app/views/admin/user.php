@@ -26,10 +26,12 @@
 
         thead th:first-child {
             border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
         }
 
         thead th:last-child {
             border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
         }
 
         tbody tr:hover {
@@ -82,25 +84,7 @@
                                             <th class="text-center" style="width: 120px;">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr class="align-middle rounded m-1">
-                                            <th scope="row">1</th>
-                                            <td>Mark</td>
-                                            <td>Otto</td>
-                                            <td>Otto</td>
-                                            <td>Otto</td>
-                                            <td>Otto</td>
-                                            <td>Otto</td>
-                                            <td>Otto</td>
-                                            <td>@mdo</td>
-                                            <td class="text-center">
-                                                <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1" aria-controls="offcanvasRight">
-                                                    <i class="mdi mdi-home-edit fs-3 text-info"></i>
-                                                </span>
-                                                <span class="btn waves-effect waves-info p-1 py-0 rounded shadow-lg me-1">
-                                                    <i class="mdi mdi-delete fs-3 text-danger"></i> </span>
-                                            </td>
-                                        </tr>
+                                    <tbody class="align-middle">
                                         <tr class="align-middle rounded m-1">
                                             <th id="table-loader" colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin"></i></th>
                                         </tr>
@@ -159,11 +143,19 @@
 
         function populateTable(users) {
             $('tbody').html('')
-            const keys = ['first_name', 'middle_name', 'last_name', 'email', 'contact', 'birth_date', 'barangay', 'street', 'is_banned', 'sex']
-            users.forEach(user => {
+            const keys = ['first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'birth_date', 'sex', 'verified_at']
+            for (let i = 0; i < users.length; i++) {
                 let row = $('tbody').append('<tr></tr>')
-                row.append('<td>1</td>')
-            });
+                for (let x = 0; x < keys.length; x++) {
+                    if (keys[x] == 'address')
+                        row.append('<td class="p-2">' + users[i]['barangay_name'] + ', ' + users[i]['street'] + '</td>')
+                    else
+                        row.append('<td>' + (keys[x] == 'first_name' ? '&nbsp' : '') + users[i][keys[x]] + '</td>')
+                }
+                row.append('<td class="text-center"><span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-category" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="mdi mdi-circle-edit-outline fs-3 text-info"></i></span><span class="btn waves-effect waves-info p-1 py-0 shadow-lg me-1">' +
+                    users[i]['is_banned'] == 0 ? '<i class="mdi mdi-delete-restore fs-3 text-info"></i>' : '<i class="mdi mdi-delete fs-3 text-danger"></i>' + '</span></td>')
+            }
+
         }
     </script>
 </body>

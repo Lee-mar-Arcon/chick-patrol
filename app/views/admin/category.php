@@ -70,7 +70,7 @@ $LAVA = lava_instance();
                                                                 '' ?></td>
                                                         <td class="text-center">
                                                             <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-category" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                                                                <i class="mdi mdi-home-edit fs-3 text-info"></i>
+                                                                <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
                                                             </span>
                                                             <span class="btn waves-effect waves-info p-1 py-0 shadow-lg me-1">
                                                                 <?= $category['deleted_at'] ?

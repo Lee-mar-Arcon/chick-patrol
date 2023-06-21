@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 20, 2023 at 12:45 PM
+-- Generation Time: Jun 20, 2023 at 02:53 PM
 -- Server version: 8.0.32
 -- PHP Version: 8.2.4
 
@@ -31,7 +31,7 @@ CREATE TABLE `barangays` (
   `id` int NOT NULL,
   `name` varchar(100) NOT NULL,
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `barangays`
@@ -55,7 +55,7 @@ CREATE TABLE `categories` (
   `id` int NOT NULL,
   `name` varchar(100) NOT NULL,
   `deleted_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `categories`
@@ -79,7 +79,7 @@ CREATE TABLE `email_codes` (
   `id` int NOT NULL,
   `user_email` varchar(255) NOT NULL,
   `code` varchar(6) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -91,7 +91,7 @@ CREATE TABLE `reset_password_code` (
   `id` int NOT NULL,
   `email` varchar(300) NOT NULL,
   `code` varchar(300) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -101,20 +101,20 @@ CREATE TABLE `reset_password_code` (
 
 CREATE TABLE `users` (
   `id` int NOT NULL,
-  `first_name` varchar(50) CHARACTER SET utf8mb4 NOT NULL,
-  `middle_name` varchar(50) CHARACTER SET utf8mb4 DEFAULT NULL,
-  `last_name` varchar(50) CHARACTER SET utf8mb4 NOT NULL,
+  `first_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `middle_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `last_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `barangay` int NOT NULL,
   `contact` varchar(11) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `street` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
+  `street` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `birth_date` date NOT NULL,
   `sex` varchar(6) NOT NULL,
-  `password` varchar(300) CHARACTER SET utf8mb4 NOT NULL,
+  `password` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `verified_at` timestamp NULL DEFAULT NULL,
   `is_admin` tinyint NOT NULL DEFAULT '0',
   `is_banned` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `users`

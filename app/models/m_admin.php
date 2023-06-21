@@ -72,6 +72,18 @@ class m_admin extends Model
 
 	// USERS FUNCTIONS
 	function user_index() {
-		return $this->db->table('users')->where('is_admin', 0)->get_all();
+		return $this->db->table('users as u')->select('
+			u.id as id, 
+			u.first_name as first_name,
+			u.middle_name as middle_name,
+			u.last_name as last_name,
+			u.email as email,
+			b.name as barangay_name,
+			u.street,
+			u.contact,
+			u.birth_date,
+			u.sex,
+			u.verified_at,
+			u.is_banned')->inner_join('barangays as b', 'u.barangay = b.id')->where('is_admin', 0)->get_all();
 	}
 }
