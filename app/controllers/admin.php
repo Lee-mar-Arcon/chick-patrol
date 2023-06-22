@@ -236,4 +236,12 @@ class admin extends Controller
 			echo 'ID is required';
 		}
 	}
+
+	// INITIALIZE PAGINATION
+	public function paginator($total, $records_per_page, $page, $link)
+	{
+		$this->call->library('pagination');
+		$this->pagination->initialize($total, $records_per_page, $page, $link);
+		return $this->pagination->paginate();
+	}
 }

@@ -71,6 +71,21 @@
                             Users
                         </div>
                         <div class="card-body">
+                            <div class="d-flex justify-content-between my-3">
+                                <div>
+                                    <input type="text" class="form-control rounded-pill border-primary" placeholder="Search..." id="user-search">
+                                </div>
+                                <div>
+                                    <div class="btn-group-vertical mb-2">
+                                        <button type="button" class="btn btn-primary fw-bold dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> All <i class="mdi mdi-chevron-down"></i> </button>
+                                        <div class="dropdown-menu">
+                                            <button class="dropdown-item fw-bold status">All</button>
+                                            <button class="dropdown-item fw-bold status">Banned</button>
+                                            <button class="dropdown-item fw-bold status">Active</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-borderless mb-0">
                                     <thead>
@@ -89,9 +104,6 @@
                                         </tr>
                                     </thead>
                                     <tbody class="align-middle">
-                                        <tr class="align-middle rounded m-1">
-                                            <th id="table-loader" colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin"></i></th>
-                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -126,48 +138,39 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!-- Sweet Alerts js -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
+    <!-- loadash -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 
     <script>
+        let q = {
+            status: 'all',
+            q: 'all'
+        }
+
+        $(document).ready(function() {
+            handleFetchUsers(q)
+        })
+
         $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
         $('.toggle-sidebar').on('click', function() {
             $('body').toggleClass('sidebar-enable')
         })
 
-        axios.get('<?= site_url('admin_api/user_index') ?>', {
-                /* OPTIONS */
-            })
-            .then(function(response) {
-                console.log(response.data)
-                populateTable(response.data)
-            })
-            .catch(function(error) {
-                console.log(error);
-            })
-            .finally(function() {});
-
-        // function populateTable(users) {
-        //     $('tbody').html('')
-        //     const keys = ['first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'birth_date', 'sex', 'verified_at', 'Status']
-        //     for (let i = 0; i < users.length; i++) {
-        //         tableTR = $('<tr></tr>').attr('id', users[0]['id'])
-        //         let row = $('tbody').append(tableTR)
-        //         for (let x = 0; x < keys.length; x++) {
-        //             if (keys[x] == 'Status')
-        //                 continue
-        //             else if (keys[x] != 'address')
-        //                 row.append('<td>' + (keys[x] == 'first_name' ? '&nbsp' : '') + users[i][keys[x]] + '</td>')
-        //             else
-        //                 row.append('<td class="p-2">' + users[i]['barangay_name'] + ', ' + users[i]['street'] + '</td>')
-        //         }
-        //         var statuBadge = $('<div></div>').addClass(users[i]['is_banned'] ? 'badge text-danger my-1' : 'badge text-success my-1').html(users[i]['is_banned'] ? 'Banned' : 'Active')
-        //         var statusTD = $('<td></td>').addClass('text-center')
-        //         row.append(statusTD.html(statuBadge))
-        //         var banSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-reactivate fs-3 text-success"></i>')
-        //         var cancelBanSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-remove fs-3 text-danger"></i>')
-        //         var actionTD = $('<td></td>').addClass('text-center').append(users[i]['is_banned'] ? banSpan : cancelBanSpan)
-        //         row.append(actionTD)
-        //     }
-        // }
+        function fetchUsers(q) {
+            $('tbody').html('<tr class="align-middle rounded m-1"> <th id="table-loader" colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin"></i></th></tr>')
+            let baseLink = `<?= site_url('admin_api/user_index') ?>/${q.status}/${q.q}/`
+            axios.get(baseLink, {
+                    /* OPTIONS */
+                })
+                .then(function(response) {
+                    console.log(response.data)
+                    populateTable(response.data)
+                })
+                .catch(function(error) {
+                    console.log(error);
+                })
+                .finally(function() {});
+        }
 
         function populateTable(users) {
             $('tbody').html('');
@@ -181,7 +184,7 @@
                     if (keys[x] == 'Status') {
                         continue;
                     } else if (keys[x] != 'address') {
-                        tableTR.append('<td>' + (keys[x] == 'first_name' ? '&nbsp;' : '') + users[i][keys[x]] + '</td>');
+                        tableTR.append('<td>' + (keys[x] == 'first_name' ? '&nbsp;' : '') + (users[i][keys[x]] == null ? '<span class="text-danger">NOT VERIFIED</span>' : users[i][keys[x]]) + '</td>');
                     } else {
                         tableTR.append('<td class="p-2">' + users[i]['barangay_name'] + ', ' + users[i]['street'] + '</td>');
                     }
@@ -198,6 +201,28 @@
             }
         }
 
+        $('.status').on('click', function() {
+            console.log($(this).html())
+            switch ($(this).html()) {
+                case 'All':
+                    $(this).parent().prev().html(' All <i class="mdi mdi-chevron-down"></i> ')
+                    q.status = 'all'
+                    break;
+
+                case 'Banned':
+                    $(this).parent().prev().html(' Banned <i class="mdi mdi-chevron-down"></i> ')
+                    q.status = '0'
+                    break;
+
+                case 'Active':
+                    $(this).parent().prev().html(' Active <i class="mdi mdi-chevron-down"></i> ')
+                    q.status = '1'
+                    break;
+                default:
+                    break;
+            }
+            handleFetchUsers(q)
+        })
 
         // show uplift ban account confirmation
         $(document).on('click', '.mdi-account-reactivate', function() {
@@ -266,6 +291,14 @@
             form.append(submitBtn);
             form.submit();
         }
+
+        const handleFetchUsers = _.debounce(fetchUsers, 1000);
+        $('#user-search').on('input', function() {
+            q.q = $(this).val() == '' ? 'all' : $(this).val().trim()
+            if (/^\s*$/.test($(this).val()))
+                q.q = 'all'
+            handleFetchUsers(q);
+        })
     </script>
 </body>
 
