@@ -133,7 +133,6 @@
             $('body').toggleClass('sidebar-enable')
         })
 
-        
         axios.get('<?= site_url('admin_api/user_index') ?>', {
                 /* OPTIONS */
             })
@@ -144,40 +143,66 @@
             .catch(function(error) {
                 console.log(error);
             })
-            .finally(function() {
-                // always executed
-            });
+            .finally(function() {});
+
+        // function populateTable(users) {
+        //     $('tbody').html('')
+        //     const keys = ['first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'birth_date', 'sex', 'verified_at', 'Status']
+        //     for (let i = 0; i < users.length; i++) {
+        //         tableTR = $('<tr></tr>').attr('id', users[0]['id'])
+        //         let row = $('tbody').append(tableTR)
+        //         for (let x = 0; x < keys.length; x++) {
+        //             if (keys[x] == 'Status')
+        //                 continue
+        //             else if (keys[x] != 'address')
+        //                 row.append('<td>' + (keys[x] == 'first_name' ? '&nbsp' : '') + users[i][keys[x]] + '</td>')
+        //             else
+        //                 row.append('<td class="p-2">' + users[i]['barangay_name'] + ', ' + users[i]['street'] + '</td>')
+        //         }
+        //         var statuBadge = $('<div></div>').addClass(users[i]['is_banned'] ? 'badge text-danger my-1' : 'badge text-success my-1').html(users[i]['is_banned'] ? 'Banned' : 'Active')
+        //         var statusTD = $('<td></td>').addClass('text-center')
+        //         row.append(statusTD.html(statuBadge))
+        //         var banSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-reactivate fs-3 text-success"></i>')
+        //         var cancelBanSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-remove fs-3 text-danger"></i>')
+        //         var actionTD = $('<td></td>').addClass('text-center').append(users[i]['is_banned'] ? banSpan : cancelBanSpan)
+        //         row.append(actionTD)
+        //     }
+        // }
 
         function populateTable(users) {
-            $('tbody').html('')
-            const keys = ['first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'birth_date', 'sex', 'verified_at', 'Status']
+            $('tbody').html('');
+            const keys = ['first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'birth_date', 'sex', 'verified_at', 'Status'];
+
             for (let i = 0; i < users.length; i++) {
-                let row = $('tbody').append('<tr></tr>')
+                const tableTR = $('<tr></tr>').attr('id', users[i]['id']);
+                $('tbody').append(tableTR); // Append the table row to the tbody element
+
                 for (let x = 0; x < keys.length; x++) {
-                    if (keys[x] == 'Status')
-                        continue
-                    else if (keys[x] != 'address')
-                        row.append('<td>' + (keys[x] == 'first_name' ? '&nbsp' : '') + users[i][keys[x]] + '</td>')
-                    else
-                        row.append('<td class="p-2">' + users[i]['barangay_name'] + ', ' + users[i]['street'] + '</td>')
+                    if (keys[x] == 'Status') {
+                        continue;
+                    } else if (keys[x] != 'address') {
+                        tableTR.append('<td>' + (keys[x] == 'first_name' ? '&nbsp;' : '') + users[i][keys[x]] + '</td>');
+                    } else {
+                        tableTR.append('<td class="p-2">' + users[i]['barangay_name'] + ', ' + users[i]['street'] + '</td>');
+                    }
                 }
 
-                var statuBadge = $('<div></div>').addClass(users[i]['is_banned'] ? 'badge badge-soft-danger rounded-pill my-1' : 'badge badge-soft-success rounded-pill my-1').html(users[i]['is_banned'] ? 'Banned' : 'Active')
-                var statusTD = $('<td></td>').addClass('text-center')
+                const statuBadge = $('<div></div>').addClass(users[i]['is_banned'] ? 'badge text-danger my-1' : 'badge text-success my-1').html(users[i]['is_banned'] ? 'Banned' : 'Active');
+                const statusTD = $('<td></td>').addClass('text-center').append(statuBadge);
+                tableTR.append(statusTD);
 
-                row.append(statusTD.html(statuBadge))
-                // row.append('<td> ' + users[i]['is_banned'] ? '<span class="badge badge-soft-danger rounded-pill">Banned</span>' : '<span class="badge badge-soft-success rounded-pill">Active</span>' + ' </td>')
-
-                var banSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-reactivate fs-3 text-primary"></i>')
-                var cancelBanSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-remove fs-3 text-danger"></i>')
-                var actionTD = $('<td></td>').addClass('text-center').append(users[i]['is_banned'] ? banSpan : cancelBanSpan)
-                row.append(actionTD)
+                const banSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-reactivate fs-3 text-success"></i>');
+                const cancelBanSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-remove fs-3 text-danger"></i>');
+                const actionTD = $('<td></td>').addClass('text-center').append(users[i]['is_banned'] ? banSpan : cancelBanSpan);
+                tableTR.append(actionTD);
             }
         }
+
 
         // show uplift ban account confirmation
         $(document).on('click', '.mdi-account-reactivate', function() {
             id = $(this).closest('tr').attr('id')
+            console.log(id)
             Swal.fire({
                 title: 'Uplift Ban for this user??',
                 text: "You won't be able to revert this!",
@@ -188,7 +213,7 @@
                 confirmButtonText: 'Reactivate'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // handleDeleteRestoreSubmit(id, 'restore')
+                    handleBanAndRestoreUser(id, 'reactivate')
                 }
             })
         })
@@ -196,6 +221,7 @@
         // show ban account confirmation
         $(document).on('click', '.mdi-account-remove', function() {
             id = $(this).closest('tr').attr('id')
+            console.log(id)
             Swal.fire({
                 title: 'Ban this user??',
                 text: "You won't be able to revert this!",
@@ -206,10 +232,40 @@
                 confirmButtonText: 'Ban'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // handleDeleteRestoreSubmit(id, 'Ban')
+                    handleBanAndRestoreUser(id, 'ban')
                 }
             })
         })
+
+        // form restore and delete submit handler
+        function handleBanAndRestoreUser(id, httpMethod) {
+            const banUrl = '<?= BASE_URL ?>admin/ban_user';
+            const reactivateUrl = '<?= BASE_URL ?>admin/reactivate_user';
+            $('body').append($('<div></div>').attr({
+                id: 'delete-restore-form'
+            }))
+            var form = $('<form>');
+
+            form.attr({
+                method: 'POST',
+                action: httpMethod == 'ban' ? banUrl : reactivateUrl
+            });
+
+            var idInput = $('<input>').attr({
+                type: 'text',
+                name: 'id',
+                placeholder: 'Enter your username',
+                value: id
+            });
+            form.append(idInput);
+            var submitBtn = $('<input>').attr({
+                type: 'submit',
+                value: 'Submit'
+            });
+            $('#delete-restore-form').append(form);
+            form.append(submitBtn);
+            form.submit();
+        }
     </script>
 </body>
 

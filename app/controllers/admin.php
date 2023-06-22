@@ -204,4 +204,36 @@ class admin extends Controller
 			'breadCrumb' => 'Users',
 		]);
 	}
+
+	function ban_user()
+	{
+		$this->form_validation
+			->name('id')->required('ID is required.');
+
+		if ($this->form_validation->run()) {
+			$this->call->model('m_encrypt');
+			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->db->table('users')->where('id', $id)->update(['is_banned' => 1]);
+			$this->session->set_flashdata(['formMessage' => 'deleted']);
+			redirect('admin/user');
+		} else {
+			echo 'ID is required';
+		}
+	}
+
+	function reactivate_user()
+	{
+		$this->form_validation
+			->name('id')->required('ID is required.');
+
+		if ($this->form_validation->run()) {
+			$this->call->model('m_encrypt');
+			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->db->table('users')->where('id', $id)->update(['is_banned' => 0]);
+			$this->session->set_flashdata(['formMessage' => 'deleted']);
+			redirect('admin/user');
+		} else {
+			echo 'ID is required';
+		}
+	}
 }

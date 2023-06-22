@@ -5,19 +5,18 @@ class m_admin extends Model
 	{
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
+		$this->call->model('m_encrypt');
 	}
 
 	// BARANGAY FUNCTIONS
 	function barangay_index()
 	{
-		$this->call->model('m_encrypt');
 		return $this->m_encrypt->encrypt($this->db->table('barangays')->order_by('name', 'asc')->get_all());
 	}
 
 	// CATEGORY FUNCTIONS
 	function category_index()
 	{
-		$this->call->model('m_encrypt');
 		return $this->m_encrypt->encrypt($this->db->table('categories')->order_by('name', 'asc')->get_all());
 	}
 
@@ -40,7 +39,6 @@ class m_admin extends Model
 
 	function category_update($id, $name)
 	{
-		$this->call->model('m_encrypt');
 		$id = $this->m_encrypt->decrypt($id);
 		$name = $name;
 		$exists = $this->db->table('categories')->where('LOWER(name)', strtolower($name))->not_where('id', $id)->get();
@@ -56,7 +54,6 @@ class m_admin extends Model
 
 	function category_destroy($id)
 	{
-		$this->call->model('m_encrypt');
 		$id = $this->m_encrypt->decrypt($id);
 		$this->db->table('categories')->where('id', $id)->update(['deleted_at' => date("Y-m-d H:i:s")]);
 		$this->session->set_flashdata(['formMessage' => 'deleted']);
@@ -64,15 +61,16 @@ class m_admin extends Model
 
 	function category_restore($id)
 	{
-		$this->call->model('m_encrypt');
 		$id = $this->m_encrypt->decrypt($this->io->post('id'));
 		$this->db->table('categories')->where('id', $id)->update(['deleted_at' => null]);
 		$this->session->set_flashdata(['formMessage' => 'restored']);
 	}
 
 	// USERS FUNCTIONS
-	function user_index() {
-		return $this->db->table('users as u')->select('
+	function user_index()
+	{
+
+		return $this->m_encrypt->encrypt($this->db->table('users as u')->select('
 			u.id as id, 
 			u.first_name as first_name,
 			u.middle_name as middle_name,
@@ -84,6 +82,6 @@ class m_admin extends Model
 			u.birth_date,
 			u.sex,
 			u.verified_at,
-			u.is_banned')->inner_join('barangays as b', 'u.barangay = b.id')->where('is_admin', 0)->get_all();
+			u.is_banned')->inner_join('barangays as b', 'u.barangay = b.id')->where('is_admin', 0)->get_all());
 	}
 }
