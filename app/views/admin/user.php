@@ -14,6 +14,9 @@
 
     <!-- icons -->
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- Sweet alert -->
+    <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+
     <style>
         table {
             border-collapse: separate;
@@ -81,6 +84,7 @@
                                             <th>Birth date</th>
                                             <th>Sex</th>
                                             <th>Date Verified</th>
+                                            <th class="text-center">Status</th>
                                             <th class="text-center" style="width: 120px;">Action</th>
                                         </tr>
                                     </thead>
@@ -120,6 +124,8 @@
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
     <!-- axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Sweet Alerts js -->
+    <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
 
     <script>
         $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
@@ -127,6 +133,7 @@
             $('body').toggleClass('sidebar-enable')
         })
 
+        
         axios.get('<?= site_url('admin_api/user_index') ?>', {
                 /* OPTIONS */
             })
@@ -143,20 +150,66 @@
 
         function populateTable(users) {
             $('tbody').html('')
-            const keys = ['first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'birth_date', 'sex', 'verified_at']
+            const keys = ['first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'birth_date', 'sex', 'verified_at', 'Status']
             for (let i = 0; i < users.length; i++) {
                 let row = $('tbody').append('<tr></tr>')
                 for (let x = 0; x < keys.length; x++) {
-                    if (keys[x] == 'address')
-                        row.append('<td class="p-2">' + users[i]['barangay_name'] + ', ' + users[i]['street'] + '</td>')
-                    else
+                    if (keys[x] == 'Status')
+                        continue
+                    else if (keys[x] != 'address')
                         row.append('<td>' + (keys[x] == 'first_name' ? '&nbsp' : '') + users[i][keys[x]] + '</td>')
+                    else
+                        row.append('<td class="p-2">' + users[i]['barangay_name'] + ', ' + users[i]['street'] + '</td>')
                 }
-                row.append('<td class="text-center"><span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-category" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="mdi mdi-circle-edit-outline fs-3 text-info"></i></span><span class="btn waves-effect waves-info p-1 py-0 shadow-lg me-1">' +
-                    users[i]['is_banned'] == 0 ? '<i class="mdi mdi-delete-restore fs-3 text-info"></i>' : '<i class="mdi mdi-delete fs-3 text-danger"></i>' + '</span></td>')
-            }
 
+                var statuBadge = $('<div></div>').addClass(users[i]['is_banned'] ? 'badge badge-soft-danger rounded-pill my-1' : 'badge badge-soft-success rounded-pill my-1').html(users[i]['is_banned'] ? 'Banned' : 'Active')
+                var statusTD = $('<td></td>').addClass('text-center')
+
+                row.append(statusTD.html(statuBadge))
+                // row.append('<td> ' + users[i]['is_banned'] ? '<span class="badge badge-soft-danger rounded-pill">Banned</span>' : '<span class="badge badge-soft-success rounded-pill">Active</span>' + ' </td>')
+
+                var banSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-reactivate fs-3 text-primary"></i>')
+                var cancelBanSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-remove fs-3 text-danger"></i>')
+                var actionTD = $('<td></td>').addClass('text-center').append(users[i]['is_banned'] ? banSpan : cancelBanSpan)
+                row.append(actionTD)
+            }
         }
+
+        // show uplift ban account confirmation
+        $(document).on('click', '.mdi-account-reactivate', function() {
+            id = $(this).closest('tr').attr('id')
+            Swal.fire({
+                title: 'Uplift Ban for this user??',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Reactivate'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // handleDeleteRestoreSubmit(id, 'restore')
+                }
+            })
+        })
+
+        // show ban account confirmation
+        $(document).on('click', '.mdi-account-remove', function() {
+            id = $(this).closest('tr').attr('id')
+            Swal.fire({
+                title: 'Ban this user??',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ban'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // handleDeleteRestoreSubmit(id, 'Ban')
+                }
+            })
+        })
     </script>
 </body>
 

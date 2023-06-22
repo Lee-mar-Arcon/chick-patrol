@@ -148,14 +148,18 @@ class account extends Controller
 				$this->call->database();
 				$user = $this->db->table('users')->where('email', $this->io->post('email'))->where_not_null('verified_at')->limit(1)->get_all();
 				if (count($user) > 0) {
-					if (password_verify($this->io->post('password'), $user[0]['password'])) {
-						$this->session->set_userdata('user', $user[0]);
-						if ($user[0]['is_admin'])
-							redirect('admin/dashboard');
-						else
-							redirect('customer/home-page');
+					if ($user[0]['is_banned']) {
+						$this->session->set_flashdata(['error' => 'Banned: please contact the administrator.']);
 					} else {
-						$this->session->set_flashdata(['error' => 'Wrong credentials']);
+						if (password_verify($this->io->post('password'), $user[0]['password'])) {
+							$this->session->set_userdata('user', $user[0]);
+							if ($user[0]['is_admin'])
+								redirect('admin/dashboard');
+							else
+								redirect('customer/home-page');
+						} else {
+							$this->session->set_flashdata(['error' => 'Wrong credentials']);
+						}
 					}
 				} else if (count($user) == 0) {
 					$this->session->set_flashdata(['error' => 'User does not exists.']);
