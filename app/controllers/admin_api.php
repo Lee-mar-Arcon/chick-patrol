@@ -23,16 +23,17 @@ class admin_api extends Controller
 			throw new Exception('Not Authorized');
 	}
 
-	function user_index($status, $q)
+	function user_index($page, $status, $q)
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_admin->user_index($status, $q));
+			echo json_encode($this->m_admin->user_index($page, $status, $q));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
 	}
 
+	// template
 	// function user_index()
 	// {
 	// 	try {

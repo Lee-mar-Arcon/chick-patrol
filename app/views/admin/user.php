@@ -71,17 +71,18 @@
                             Users
                         </div>
                         <div class="card-body">
-                            <div class="d-flex justify-content-between my-3">
+                            <div class="d-flex justify-content-between align-items-center my-3">
                                 <div>
                                     <input type="text" class="form-control rounded-pill border-primary" placeholder="Search..." id="user-search">
                                 </div>
                                 <div>
-                                    <div class="btn-group-vertical mb-2">
-                                        <button type="button" class="btn btn-primary fw-bold dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> All <i class="mdi mdi-chevron-down"></i> </button>
+                                    <div class="btn-group-vertical row bg-primary rounded text-white text-center fs-6 fw-bold m-0 p-1">
+                                        <div class="d-flex justify-content-center bg-primary text-white w-100 px-3 py-1">status</div>
+                                        <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> All <i class="mdi mdi-chevron-down"></i> </button>
                                         <div class="dropdown-menu">
-                                            <button class="dropdown-item fw-bold status">All</button>
-                                            <button class="dropdown-item fw-bold status">Banned</button>
-                                            <button class="dropdown-item fw-bold status">Active</button>
+                                            <button class="dropdown-item status">All</button>
+                                            <button class="dropdown-item status">Banned</button>
+                                            <button class="dropdown-item status">Active</button>
                                         </div>
                                     </div>
                                 </div>
@@ -106,6 +107,11 @@
                                     <tbody class="align-middle">
                                     </tbody>
                                 </table>
+                                <nav class="justify-content-end d-flex pt-4 mx-4 p-2">
+                                    <ul class="pagination pagination-rounded">
+
+                                    </ul>
+                                </nav>
                             </div>
                         </div>
                     </div>
@@ -144,27 +150,33 @@
     <script>
         let q = {
             status: 'all',
-            q: 'all'
+            q: 'all',
+            page: 1
         }
 
         $(document).ready(function() {
             handleFetchUsers(q)
         })
 
+        // side navigation toggle
         $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
         $('.toggle-sidebar').on('click', function() {
             $('body').toggleClass('sidebar-enable')
         })
 
+        // status option event
+        $('.status').on('click', statusOptionUpdate)
+
+
         function fetchUsers(q) {
             $('tbody').html('<tr class="align-middle rounded m-1"> <th id="table-loader" colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin"></i></th></tr>')
-            let baseLink = `<?= site_url('admin_api/user_index') ?>/${q.status}/${q.q}/`
-            axios.get(baseLink, {
+            let link = `<?= site_url('admin_api/user_index') ?>/${q.page}/${q.status}/${q.q}/`
+            axios.get(link, {
                     /* OPTIONS */
                 })
                 .then(function(response) {
-                    console.log(response.data)
                     populateTable(response.data)
+                    populatePagination(response.data['pagination'])
                 })
                 .catch(function(error) {
                     console.log(error);
@@ -173,6 +185,7 @@
         }
 
         function populateTable(users) {
+            users = users['users']
             $('tbody').html('');
             const keys = ['first_name', 'middle_name', 'last_name', 'email', 'address', 'contact', 'birth_date', 'sex', 'verified_at', 'Status'];
 
@@ -189,11 +202,9 @@
                         tableTR.append('<td class="p-2">' + users[i]['barangay_name'] + ', ' + users[i]['street'] + '</td>');
                     }
                 }
-
                 const statuBadge = $('<div></div>').addClass(users[i]['is_banned'] ? 'badge text-danger my-1' : 'badge text-success my-1').html(users[i]['is_banned'] ? 'Banned' : 'Active');
                 const statusTD = $('<td></td>').addClass('text-center').append(statuBadge);
                 tableTR.append(statusTD);
-
                 const banSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-reactivate fs-3 text-success"></i>');
                 const cancelBanSpan = $('<span></span>').addClass('btn waves-effect waves-dark p-1 py-0 shadow-lg me-1').html('<i class="mdi p-0 mdi-account-remove fs-3 text-danger"></i>');
                 const actionTD = $('<td></td>').addClass('text-center').append(users[i]['is_banned'] ? banSpan : cancelBanSpan);
@@ -201,33 +212,9 @@
             }
         }
 
-        $('.status').on('click', function() {
-            console.log($(this).html())
-            switch ($(this).html()) {
-                case 'All':
-                    $(this).parent().prev().html(' All <i class="mdi mdi-chevron-down"></i> ')
-                    q.status = 'all'
-                    break;
-
-                case 'Banned':
-                    $(this).parent().prev().html(' Banned <i class="mdi mdi-chevron-down"></i> ')
-                    q.status = '0'
-                    break;
-
-                case 'Active':
-                    $(this).parent().prev().html(' Active <i class="mdi mdi-chevron-down"></i> ')
-                    q.status = '1'
-                    break;
-                default:
-                    break;
-            }
-            handleFetchUsers(q)
-        })
-
         // show uplift ban account confirmation
         $(document).on('click', '.mdi-account-reactivate', function() {
             id = $(this).closest('tr').attr('id')
-            console.log(id)
             Swal.fire({
                 title: 'Uplift Ban for this user??',
                 text: "You won't be able to revert this!",
@@ -246,7 +233,6 @@
         // show ban account confirmation
         $(document).on('click', '.mdi-account-remove', function() {
             id = $(this).closest('tr').attr('id')
-            console.log(id)
             Swal.fire({
                 title: 'Ban this user??',
                 text: "You won't be able to revert this!",
@@ -292,13 +278,94 @@
             form.submit();
         }
 
+        // handle users list request 
         const handleFetchUsers = _.debounce(fetchUsers, 1000);
         $('#user-search').on('input', function() {
             q.q = $(this).val() == '' ? 'all' : $(this).val().trim()
+            q.page = 1
             if (/^\s*$/.test($(this).val()))
                 q.q = 'all'
             handleFetchUsers(q);
         })
+
+        // update status option value
+        function statusOptionUpdate() {
+            q.page = 1
+            switch ($(this).html()) {
+                case 'All':
+                    $(this).parent().prev().html(' All <i class="mdi mdi-chevron-down"></i> ')
+                    q.status = 'all'
+                    break;
+                case 'Banned':
+                    $(this).parent().prev().html(' Banned <i class="mdi mdi-chevron-down"></i> ')
+                    q.status = '0'
+                    break;
+                case 'Active':
+                    $(this).parent().prev().html(' Active <i class="mdi mdi-chevron-down"></i> ')
+                    q.status = '1'
+                    break;
+                default:
+                    break;
+            }
+            handleFetchUsers(q)
+        }
+
+
+        function populatePagination(pagination) {
+            $('.pagination').html('')
+            // current page
+            $('.pagination').append(
+                $('<li></li>').addClass('page-item active')
+                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', 1).html(pagination['currentPage']))
+            )
+            // pages
+            for (let page = 1; page <= pagination['totalPage']; page++) {
+                if (pagination['currentPage'] == page) {
+                    currentPage = page;
+                    previousPages = currentPage - 1;
+                    addedPage = 0;
+                    while (addedPage < 3) {
+                        if (previousPages >= 1)
+                            $('.pagination').prepend(
+                                $('<li></li>').addClass('page-item')
+                                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', previousPages).html(previousPages))
+                            )
+                        previousPages--
+                        addedPage++
+                    }
+                    console.log('-')
+                    addedPage = 0
+                    nextPages = currentPage + 1;
+                    while (addedPage < 3) {
+                        if (nextPages <= pagination['totalPage'])
+                            $('.pagination').append(
+                                $('<li></li>').addClass('page-item')
+                                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', nextPages).html(nextPages))
+                            )
+                        nextPages++
+                        addedPage++
+                    }
+                }
+            }
+            // jump to first page
+            $('.pagination').prepend(
+                $('<li></li>').addClass('page-item')
+                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', 1).html('«&nbsp&nbspfirst'))
+            )
+            // jump to last page
+            $('.pagination').append(
+                $('<li></li>').addClass('page-item')
+                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', pagination['totalPage']).html('last&nbsp&nbsp»'))
+            )
+        }
+
+        // change page
+        $(document).on('click', '.page-link', changePage)
+
+        function changePage() {
+            q.page = $(this).attr('data-page')
+            handleFetchUsers(q);
+        }
     </script>
 </body>
 
