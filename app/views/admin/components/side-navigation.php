@@ -39,6 +39,13 @@
                </a>
             </li>
 
+            <li>
+               <a href="<?= BASE_URL ?>admin/product">
+                  <i class="fas fa-cart"></i>
+                  <span>&nbsp;&nbsp;Products </span>
+               </a>
+            </li>
+
          </ul>
       </div>
       <!-- End Sidebar -->

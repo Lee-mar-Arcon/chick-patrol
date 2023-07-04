@@ -205,6 +205,14 @@ class admin extends Controller
 		]);
 	}
 
+	function product()
+	{
+		$this->call->view('admin/product', [
+			'pageTitle' => 'Admin | Products',
+			'breadCrumb' => 'Products',
+		]);
+	}
+
 	function ban_user()
 	{
 		$this->form_validation
