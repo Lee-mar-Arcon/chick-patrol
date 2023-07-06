@@ -41,7 +41,7 @@
 
             <li>
                <a href="<?= BASE_URL ?>admin/product">
-                  <i class="fas fa-cart"></i>
+                  <i class="fas fa-boxes"></i>
                   <span>&nbsp;&nbsp;Products </span>
                </a>
             </li>

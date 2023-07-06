@@ -27,14 +27,8 @@
             <div class="content">
                 <div class="container-fluid">
                     content here
-                    <button id="add-category" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light m-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Add</button>
-                    <div>
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6xqv6D-Y1xtgjbNFj2Nn7cxozx326y2ijjZLpyVWnJQ&s" alt="" id="productImageCanvas" class="img">
-                        <button id="cropImageButton">crop</button>
-                    </div>
-                    <div>
-                        <div id="croppedImage"></div>
-                    </div>
+
+                    <button id="add-product" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light m-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Add</button>
                 </div>
             </div>
             <footer class="footer">
@@ -49,28 +43,72 @@
     <!-- Off Canvas -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header">
-            <h5 class="fs-3" id="offcanvasRightLabel"></h5>
+            <h5 class="fs-3 ms-2" id="offcanvasRightLabel"></h5>
             <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <form method="post" action="" id="form" class="offcanvas-body">
-            <input type="hidden" id="id" name="id">
 
-
-
-            <label for="example-fileinput" class="form-label text-center w-100 mb-2">Product Image</label>
+            <!-- Image -->
+            <label for="example-fileinput" class="form-label text-center fs-3 w-100">Product Image</label>
             <div class="text-center">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6xqv6D-Y1xtgjbNFj2Nn7cxozx326y2ijjZLpyVWnJQ&s" alt="" id="previewImage" class="img-fluid rounded mb-3">
-                <input type="file" id="imageInput" class="form-control">
+                <img src="<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded my-2 mb-5">
+                <input type="file" id="imageInput" class="form-control" required>
             </div>
 
+            <!-- product name -->
             <div class="mb-3 mt-2">
-                <label for="name" class="form-label">Name<span class="text-danger"> *</span></label>
-                <input type="text" required="" placeholder="Enter category name" class="form-control" id="name" name="name">
+                <label for="name" class="form-label">Product name<span class="text-danger"> *</span></label>
+                <input type="text" placeholder="Enter product name" class="form-control" id="name" name="name" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="category" class="form-label">Category<span class="text-danger"> *</span></label>
+                <select class="form-select form-select-md" name="category" id="category" required>
+                    <?php foreach ($categories as $category) : ?>
+                        <option value="<?= $category['id'] ?>"><?= $category['name'] ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <!-- price -->
+            <div class="mb-3">
+                <label for="price" class="form-label">price<span class="text-danger"> *</span></label>
+                <input type="number" class="form-control" name="price" id="price" placeholder="product price">
+            </div>
+            <!-- description -->
+            <div class="mb-3">
+                <label for="description" class="form-label">description<span class="text-danger"> *</span></label>
+                <textarea class="form-control" name="description" id="description" rows="3"></textarea>
             </div>
             <div class="text-end mt-3">
                 <button id="submit-form" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
             </div>
         </form>
+    </div>
+
+
+    <!-- crop image modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Crop Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <img alt="" id="productImageCanvas" class="img">
+                    </div>
+                    <div>
+                        <div id="croppedImage"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="cropImageButton" class="btn btn-primary">Crop</button>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Vendor -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
@@ -91,52 +129,60 @@
         })
 
         $('#imageInput')[0].addEventListener('change', function() {
+            $('#staticBackdrop').modal('show');
             let inputImage = document.getElementById('imageInput');
             const previewImage = document.getElementById('previewImage');
             const productImageCanvas = document.getElementById('productImageCanvas');
             const file = inputImage.files[0];
             const reader = new FileReader();
-
             reader.onload = function(e) {
-                previewImage.src = e.target.result;
                 productImageCanvas.src = e.target.result;
                 initializeCropper();
             };
             reader.readAsDataURL(file);
+            $('#cropImageModal').modal('show')
         });
 
-        let cropper;
         // init cropper
+        let cropper;
+
         function initializeCropper() {
             if (cropper) {
                 cropper.destroy();
                 cropper = null;
             }
-
             cropper = new Cropper(document.getElementById('productImageCanvas'), {
                 aspectRatio: 1 / 1,
                 viewMode: 1,
-            });
+                minContainerWidth: 450,
+                minContainerHeight: 500,
+                dragMode: 'move',
+                toggleDragModeOnDblclick: false,
+            })
         }
 
         $('#cropImageButton').on('click', function() {
-            uploadImage(passCroppedPhoto());
-        });
-
-        function passCroppedPhoto() {
-            if (!cropper) {
-                return;
-            }
-
             let canvas = cropper.getCroppedCanvas();
             canvas = compressImage(canvas, 300, 300);
             const dataURL = canvas.toDataURL();
             const blob = dataURLtoBlob(dataURL);
-
             const file = new File([blob], 'cropped.jpg', {
                 type: 'image/jpeg'
             });
+            const previewImage = document.getElementById('previewImage');
+            previewImage.src = URL.createObjectURL(file);
+        });
 
+        function passCroppedPhoto() {
+            if (!cropper)
+                return;
+            let canvas = cropper.getCroppedCanvas();
+            canvas = compressImage(canvas, 300, 300);
+            const dataURL = canvas.toDataURL();
+            const blob = dataURLtoBlob(dataURL);
+            const file = new File([blob], 'cropped.jpg', {
+                type: 'image/jpeg'
+            });
             const previewImage = document.getElementById('previewImage');
             previewImage.src = URL.createObjectURL(file);
             return file;
@@ -149,11 +195,9 @@
             const raw = window.atob(parts[1]);
             const rawLength = raw.length;
             const uInt8Array = new Uint8Array(rawLength);
-
             for (let i = 0; i < rawLength; ++i) {
                 uInt8Array[i] = raw.charCodeAt(i);
             }
-
             return new Blob([uInt8Array], {
                 type: contentType
             });
@@ -162,10 +206,8 @@
         function compressImage(image, maxWidth, maxHeight) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
-
             let width = image.width;
             let height = image.height;
-
             if (width > height) {
                 if (width > maxWidth) {
                     height *= maxWidth / width;
@@ -177,37 +219,48 @@
                     height = maxHeight;
                 }
             }
-
             canvas.width = width;
             canvas.height = height;
-
             context.drawImage(image, 0, 0, width, height);
-
             return canvas;
         }
 
         function uploadImage(file) {
             const formData = new FormData();
             formData.append('croppedImage', file);
-
-            // Make a POST request to the server to upload the file
             fetch('/admin_api/upload_image', {
                     method: 'POST',
                     body: formData
                 })
                 .then(response => {
-                    // Handle the response from the server
-                    return response.json(); // Assuming the response is JSON
+                    return response.json();
                 })
                 .then(data => {
-                    // Log the response data in the console
                     console.log(data);
                 })
                 .catch(error => {
-                    // Handle any errors
                     console.error('Error uploading file:', error);
                 });
+        }
 
+        // submit form
+        $('#submit-form').on('click', function() {
+            uploadImage(passCroppedPhoto());
+        })
+
+        // add product button
+        $('#add-product').on('click', function() {
+            resetForm()
+        })
+
+        function resetForm() {
+            $('#offcanvasRightLabel').html('Add new product')
+            $('#name').val('')
+            $('#imageInput').val('')
+            $('#category').val('')
+            $('#price').val('')
+            $('#description').val('')
+            $('#previewImage').attr('src', '<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png')
         }
     </script>
 </body>

@@ -210,6 +210,7 @@ class admin extends Controller
 		$this->call->view('admin/product', [
 			'pageTitle' => 'Admin | Products',
 			'breadCrumb' => 'Products',
+			'categories' => $this->m_admin->category_index()
 		]);
 	}
 

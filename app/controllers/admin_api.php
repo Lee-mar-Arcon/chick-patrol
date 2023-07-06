@@ -36,11 +36,15 @@ class admin_api extends Controller
 	function upload_image()
 	{
 		try {
-			$this->is_authorized();
-			$this->call->library('upload', $_FILES['croppedImage']);
-			$this->upload->max_size(3)->set_dir('public/images/products')->allowed_extensions(array('jpg', 'png'))->is_image()->encrypt_name();
-			$this->upload->do_upload();
-			echo json_encode($this->upload->get_filename());
+			if (isset($_FILES['croppedImage'])) {
+
+				$this->is_authorized();
+				$this->call->library('upload', $_FILES['croppedImage']);
+				$this->upload->max_size(3)->set_dir('public/images/products')->allowed_extensions(array('jpg', 'png'))->is_image()->encrypt_name();
+				$this->upload->do_upload();
+				echo json_encode($this->upload->get_filename());
+			}else
+			echo 0;
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
