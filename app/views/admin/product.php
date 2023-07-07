@@ -15,6 +15,8 @@
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
     <link rel="stylesheet" href="<?= BASE_URL ?>node_modules/cropperjs/dist/cropper.css">
+    <!-- toastr -->
+    <link rel="stylesheet" href="<?= BASE_URL . PUBLIC_DIR ?>/libraries/toastr.css">
 </head>
 
 <!-- body start -->
@@ -52,7 +54,7 @@
             <label for="example-fileinput" class="form-label text-center fs-3 w-100">Product Image</label>
             <div class="text-center">
                 <img src="<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded my-2 mb-5">
-                <input type="file" id="imageInput" class="form-control" required>
+                <input type="file" id="imageInput" class="form-control" required accept="image/png, image/jpg, image/jpeg">
             </div>
 
             <!-- product name -->
@@ -61,6 +63,7 @@
                 <input type="text" placeholder="Enter product name" class="form-control" id="name" name="name" required>
             </div>
 
+            <!-- category -->
             <div class="mb-3">
                 <label for="category" class="form-label">Category<span class="text-danger"> *</span></label>
                 <select class="form-select form-select-md" name="category" id="category" required>
@@ -73,12 +76,12 @@
             <!-- price -->
             <div class="mb-3">
                 <label for="price" class="form-label">price<span class="text-danger"> *</span></label>
-                <input type="number" class="form-control" name="price" id="price" placeholder="product price">
+                <input required type="number" class="form-control" name="price" id="price" placeholder="product price">
             </div>
             <!-- description -->
             <div class="mb-3">
                 <label for="description" class="form-label">description<span class="text-danger"> *</span></label>
-                <textarea class="form-control" name="description" id="description" rows="3"></textarea>
+                <textarea required class="form-control" name="description" id="description" rows="3"></textarea>
             </div>
             <div class="text-end mt-3">
                 <button id="submit-form" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
@@ -86,14 +89,12 @@
         </form>
     </div>
 
-
     <!-- crop image modal -->
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="staticBackdropLabel">Crop Image</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex justify-content-center">
@@ -104,7 +105,6 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" id="cropImageButton" class="btn btn-primary">Crop</button>
                 </div>
             </div>
@@ -122,12 +122,16 @@
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script src="<?= BASE_URL ?>node_modules/cropperjs/dist/cropper.min.js"></script>
+    <!-- taostr -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>F
     <script>
+        // side navigation bar toggle
         $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
         $('.toggle-sidebar').on('click', function() {
             $('body').toggleClass('sidebar-enable')
         })
 
+        // input file click event
         $('#imageInput')[0].addEventListener('change', function() {
             $('#staticBackdrop').modal('show');
             let inputImage = document.getElementById('imageInput');
@@ -143,8 +147,8 @@
             $('#cropImageModal').modal('show')
         });
 
-        // init cropper
-        let cropper;
+        // inititialize cropper
+        let cropper
 
         function initializeCropper() {
             if (cropper) {
@@ -161,9 +165,10 @@
             })
         }
 
+        // crop image button click event
         $('#cropImageButton').on('click', function() {
             let canvas = cropper.getCroppedCanvas();
-            canvas = compressImage(canvas, 300, 300);
+            canvas = compressImage(canvas, 500, 500);
             const dataURL = canvas.toDataURL();
             const blob = dataURLtoBlob(dataURL);
             const file = new File([blob], 'cropped.jpg', {
@@ -171,38 +176,48 @@
             });
             const previewImage = document.getElementById('previewImage');
             previewImage.src = URL.createObjectURL(file);
+            addImageInput(file)
+            $('#staticBackdrop').modal('hide')
         });
 
-        function passCroppedPhoto() {
-            if (!cropper)
-                return;
-            let canvas = cropper.getCroppedCanvas();
-            canvas = compressImage(canvas, 300, 300);
-            const dataURL = canvas.toDataURL();
-            const blob = dataURLtoBlob(dataURL);
-            const file = new File([blob], 'cropped.jpg', {
-                type: 'image/jpeg'
-            });
-            const previewImage = document.getElementById('previewImage');
-            previewImage.src = URL.createObjectURL(file);
-            return file;
+        function addImageInput(file) {
+            const dataURL = URL.createObjectURL(file);
+            removeCroppedImageInput()
+            const input = $('<input/>')
+                .prop('type', 'hidden')
+                .prop('name', 'finalImageInput')
+                .prop('value', dataURL)
+                .attr('id', 'finalImageInput');
+
+            $('#form').prepend(input);
         }
 
-        // Helper function to convert a data URL to a Blob object
-        function dataURLtoBlob(dataURL) {
-            const parts = dataURL.split(';base64,');
-            const contentType = parts[0].split(':')[1];
-            const raw = window.atob(parts[1]);
-            const rawLength = raw.length;
-            const uInt8Array = new Uint8Array(rawLength);
-            for (let i = 0; i < rawLength; ++i) {
-                uInt8Array[i] = raw.charCodeAt(i);
-            }
-            return new Blob([uInt8Array], {
-                type: contentType
-            });
+        // add product button
+        $('#add-product').on('click', function() {
+            removeCroppedImageInput()
+            resetForm()
+        })
+
+        // reset form values
+        function resetForm(mod) {
+            const addProductLink = '<?= site_url('admin/product_store')?>'
+            $('#form').attr('action', addProductLink)
+            $('#offcanvasRightLabel').html('Add new product')
+            $('#name').val('')
+            $('#imageInput').val('')
+            $('#category').val('')
+            $('#price').val('')
+            $('#description').val('')
+            $('#previewImage').attr('src', '<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png')
         }
 
+        // remove croppedImageInput
+        function removeCroppedImageInput() {
+            if ($('input[name="removeCroppedImageInput"]').length > 0)
+                $('input[name="removeCroppedImageInput"]').remove();
+        }
+
+        // compress cropped image
         function compressImage(image, maxWidth, maxHeight) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
@@ -225,42 +240,19 @@
             return canvas;
         }
 
-        function uploadImage(file) {
-            const formData = new FormData();
-            formData.append('croppedImage', file);
-            fetch('/admin_api/upload_image', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    return response.json();
-                })
-                .then(data => {
-                    console.log(data);
-                })
-                .catch(error => {
-                    console.error('Error uploading file:', error);
-                });
-        }
-
-        // submit form
-        $('#submit-form').on('click', function() {
-            uploadImage(passCroppedPhoto());
-        })
-
-        // add product button
-        $('#add-product').on('click', function() {
-            resetForm()
-        })
-
-        function resetForm() {
-            $('#offcanvasRightLabel').html('Add new product')
-            $('#name').val('')
-            $('#imageInput').val('')
-            $('#category').val('')
-            $('#price').val('')
-            $('#description').val('')
-            $('#previewImage').attr('src', '<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png')
+        // Helper function to convert a data URL to a Blob object
+        function dataURLtoBlob(dataURL) {
+            const parts = dataURL.split(';base64,');
+            const contentType = parts[0].split(':')[1];
+            const raw = window.atob(parts[1]);
+            const rawLength = raw.length;
+            const uInt8Array = new Uint8Array(rawLength);
+            for (let i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+            return new Blob([uInt8Array], {
+                type: contentType
+            });
         }
     </script>
 </body>

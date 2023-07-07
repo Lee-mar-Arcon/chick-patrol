@@ -36,15 +36,19 @@ class admin_api extends Controller
 	function upload_image()
 	{
 		try {
-			if (isset($_FILES['croppedImage'])) {
 
+			if (isset($_FILES['croppedImage'])) {
 				$this->is_authorized();
 				$this->call->library('upload', $_FILES['croppedImage']);
 				$this->upload->max_size(3)->set_dir('public/images/products')->allowed_extensions(array('jpg', 'png'))->is_image()->encrypt_name();
 				$this->upload->do_upload();
+
+				$fileToDelete = 'public/images/products/' . $_POST['toDeleteImage'];
+				if (file_exists($fileToDelete))
+					unlink($fileToDelete);
 				echo json_encode($this->upload->get_filename());
-			}else
-			echo 0;
+			} else
+				echo 0;
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

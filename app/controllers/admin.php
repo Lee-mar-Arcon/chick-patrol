@@ -17,6 +17,7 @@ class admin extends Controller
 			redirect('account/login');
 	}
 
+	// OTHERS
 	public function dashboard()
 	{
 		$this->call->view('admin/dashboard', [
@@ -25,7 +26,16 @@ class admin extends Controller
 		]);
 	}
 
-	// BARANGAY FUNCTIONS 
+	public function paginator($total, $records_per_page, $page, $link)
+	{
+		$this->call->library('pagination');
+		$this->pagination->initialize($total, $records_per_page, $page, $link);
+		return $this->pagination->paginate();
+	}
+
+
+
+	// BARANGAY
 	public function barangay()
 	{
 		$barangays = $this->m_admin->barangay_index();
@@ -126,6 +136,8 @@ class admin extends Controller
 		}
 	}
 
+
+
 	// CATEGORY
 	function category()
 	{
@@ -205,6 +217,9 @@ class admin extends Controller
 		]);
 	}
 
+
+	
+	// PRODUCT
 	function product()
 	{
 		$this->call->view('admin/product', [
@@ -246,11 +261,7 @@ class admin extends Controller
 		}
 	}
 
-	// INITIALIZE PAGINATION
-	public function paginator($total, $records_per_page, $page, $link)
-	{
-		$this->call->library('pagination');
-		$this->pagination->initialize($total, $records_per_page, $page, $link);
-		return $this->pagination->paginate();
+	function product_store() {
+		var_dump($_FILES,$_POST);
 	}
 }
