@@ -67,7 +67,7 @@
                                     <input type="text" class="form-control rounded-pill border-primary" placeholder="Search..." id="product-search">
                                 </div>
                                 <div>
-                                    <!-- <div class="btn-group-vertical row bg-primary rounded text-white text-center fs-6 fw-bold m-0 p-1">
+                                    <div class="btn-group-vertical row bg-primary rounded text-white text-center fs-6 fw-bold m-0 p-1">
                                         <div class="d-flex justify-content-center bg-primary text-white w-100 px-3 py-1">status</div>
                                         <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> All <i class="mdi mdi-chevron-down"></i> </button>
                                         <div class="dropdown-menu">
@@ -75,7 +75,7 @@
                                             <button class="dropdown-item status">Banned</button>
                                             <button class="dropdown-item status">Active</button>
                                         </div>
-                                    </div> -->
+                                    </div>
                                 </div>
                             </div>
                             <div class="table-responsive">
@@ -470,6 +470,15 @@
             q.page = $(this).attr('data-page')
             handleFetchProducts(q);
         }
+
+        // search product
+        $('#product-search').on('input', function() {
+            q.q = $(this).val() == '' ? 'all' : $(this).val().trim()
+            q.page = 1
+            if (/^\s*$/.test($(this).val()))
+                q.q = 'all'
+            handleFetchProducts(q);
+        })
     </script>
 </body>
 
