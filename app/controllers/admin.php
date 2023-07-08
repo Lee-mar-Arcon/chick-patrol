@@ -225,8 +225,6 @@ class admin extends Controller
 		]);
 	}
 
-
-
 	// PRODUCT
 	function product()
 	{
@@ -236,38 +234,6 @@ class admin extends Controller
 			'categories' => $this->m_admin->category_index(),
 			'formMessage' => $this->session->flashdata('formMessage') !== null ? $this->session->flashdata('formMessage') : null,
 		]);
-	}
-
-	function ban_user()
-	{
-		$this->form_validation
-			->name('id')->required('ID is required.');
-
-		if ($this->form_validation->run()) {
-			$this->call->model('m_encrypt');
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
-			$this->db->table('users')->where('id', $id)->update(['is_banned' => 1]);
-			$this->session->set_flashdata(['formMessage' => 'deleted']);
-			redirect('admin/user');
-		} else {
-			echo 'ID is required';
-		}
-	}
-
-	function reactivate_user()
-	{
-		$this->form_validation
-			->name('id')->required('ID is required.');
-
-		if ($this->form_validation->run()) {
-			$this->call->model('m_encrypt');
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
-			$this->db->table('users')->where('id', $id)->update(['is_banned' => 0]);
-			$this->session->set_flashdata(['formMessage' => 'deleted']);
-			redirect('admin/user');
-		} else {
-			echo 'ID is required';
-		}
 	}
 
 	function product_store()
@@ -320,5 +286,38 @@ class admin extends Controller
 		$savePath = 'public/images/products/cropped/' . $filename;
 		file_put_contents($savePath, $imageData);
 		return $filename;
+	}
+
+	// USER
+	function ban_user()
+	{
+		$this->form_validation
+			->name('id')->required('ID is required.');
+
+		if ($this->form_validation->run()) {
+			$this->call->model('m_encrypt');
+			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->db->table('users')->where('id', $id)->update(['is_banned' => 1]);
+			$this->session->set_flashdata(['formMessage' => 'deleted']);
+			redirect('admin/user');
+		} else {
+			echo 'ID is required';
+		}
+	}
+
+	function reactivate_user()
+	{
+		$this->form_validation
+			->name('id')->required('ID is required.');
+
+		if ($this->form_validation->run()) {
+			$this->call->model('m_encrypt');
+			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->db->table('users')->where('id', $id)->update(['is_banned' => 0]);
+			$this->session->set_flashdata(['formMessage' => 'deleted']);
+			redirect('admin/user');
+		} else {
+			echo 'ID is required';
+		}
 	}
 }

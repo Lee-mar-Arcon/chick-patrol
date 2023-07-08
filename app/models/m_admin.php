@@ -105,22 +105,29 @@ class m_admin extends Model
 		$this->db->table('products')->insert($bind);
 	}
 
-	function product_index($page, $q)
+	function product_index($page, $q, $category)
 	{
+		if (ctype_space($category) || $category == 'all')
+			$category = '%%';
+		else {
+			$category = $this->m_encrypt->decrypt($category);
+			$category = '%' . trim($category) . '%';
+		}
+
 		if (ctype_space($q) || $q == 'all')
 			$q = '%%';
 		else
 			$q = '%' . trim($q) . '%';
 
 		$totalRows = $this->db->raw(
-			"SELECT COUNT(p.id) as total FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ?",
-			[$q]
+			"SELECT COUNT(p.id) as total FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? AND p.category LIKE ?",
+			[$q, $category]
 		)[0]['total'];
 
 		return [
 			'products' => $this->m_encrypt->encrypt($this->db->raw(
-				"SELECT p.*, c.name as category_name FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? order by p.name LIMIT 10 OFFSET ?",
-				[$q, ($page - 1)  * 10]
+				"SELECT p.*, c.name as category_name FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? AND p.category LIKE ? order by p.name LIMIT 10 OFFSET ?",
+				[$q, $category, ($page - 1)  * 10]
 			)),
 			'pagination' => [
 				'totalRows' => $totalRows,

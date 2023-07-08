@@ -55,11 +55,11 @@ class admin_api extends Controller
 	}
 
 	// PRODUCT
-	function product_index($page, $q)
+	function product_index($page, $q, $category)
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_admin->product_index($page, $q));
+			echo json_encode($this->m_admin->product_index($page, $q, $category));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

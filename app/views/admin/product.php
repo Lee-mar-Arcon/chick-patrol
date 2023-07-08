@@ -68,12 +68,13 @@
                                 </div>
                                 <div>
                                     <div class="btn-group-vertical row bg-primary rounded text-white text-center fs-6 fw-bold m-0 p-1">
-                                        <div class="d-flex justify-content-center bg-primary text-white w-100 px-3 py-1">status</div>
+                                        <div class="d-flex justify-content-center bg-primary text-white w-100 px-3 py-1">Category</div>
                                         <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> All <i class="mdi mdi-chevron-down"></i> </button>
                                         <div class="dropdown-menu">
-                                            <button class="dropdown-item status">All</button>
-                                            <button class="dropdown-item status">Banned</button>
-                                            <button class="dropdown-item status">Active</button>
+                                            <button class="dropdown-item option-category" data-id="all">All</button>
+                                            <?php foreach ($categories as $category) : ?>
+                                                <button class="dropdown-item option-category" data-id="<?= ucwords($category['id']) ?>"><?= ucwords($category['name']) ?></button>
+                                            <?php endforeach; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -204,7 +205,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         let q = {
-            // status: 'all',
+            category: 'all',
             q: 'all',
             page: 1
         }
@@ -219,14 +220,14 @@
         // product request
         function fetchProducts(q) {
             $('tbody').html('<tr class="align-middle rounded m-1"> <th colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin my-5 fs-1"></i></th></tr>')
-            let link = `<?= site_url('admin_api/product_index') ?>/${q.page}/${q.q}/`
+            let link = `<?= site_url('admin_api/product_index') ?>/${q.page}/${q.q}/${q.category}`
             axios.get(link, {
                     /* OPTIONS */
                 })
                 .then(function(response) {
+
                     populateTable(response.data)
                     populatePagination(response.data['pagination'])
-                    console.log(response)
                 })
                 .catch(function(error) {
                     console.log(error);
@@ -466,6 +467,7 @@
 
         // change page
         $(document).on('click', '.page-link', changePage)
+
         function changePage() {
             q.page = $(this).attr('data-page')
             handleFetchProducts(q);
@@ -478,6 +480,13 @@
             if (/^\s*$/.test($(this).val()))
                 q.q = 'all'
             handleFetchProducts(q);
+        })
+
+        // category option event
+        $('.option-category').on('click', function() {
+            q.category = $(this).attr('data-id')
+            console.log(q)
+            handleFetchProducts(q)
         })
     </script>
 </body>
