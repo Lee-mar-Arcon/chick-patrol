@@ -17,6 +17,34 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>node_modules/cropperjs/dist/cropper.css">
     <!-- toastr -->
     <link rel="stylesheet" href="<?= BASE_URL . PUBLIC_DIR ?>/libraries/toastr.css">
+    <!-- Sweet alert -->
+    <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        thead {
+            background-color: #71b6f94d;
+        }
+
+        thead th:first-child {
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        thead th:last-child {
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(255, 255, 255, .6);
+            box-shadow: rgba(17, 17, 26, 0.2) 0px 0px 5px;
+            transition: all 0.2s;
+        }
+    </style>
 </head>
 
 <!-- body start -->
@@ -28,9 +56,52 @@
         <div class="content-page">
             <div class="content">
                 <div class="container-fluid">
-                    content here
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>Products</div>
+                            <button id="add-product" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Add</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center my-3">
+                                <div>
+                                    <input type="text" class="form-control rounded-pill border-primary" placeholder="Search..." id="product-search">
+                                </div>
+                                <div>
+                                    <!-- <div class="btn-group-vertical row bg-primary rounded text-white text-center fs-6 fw-bold m-0 p-1">
+                                        <div class="d-flex justify-content-center bg-primary text-white w-100 px-3 py-1">status</div>
+                                        <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> All <i class="mdi mdi-chevron-down"></i> </button>
+                                        <div class="dropdown-menu">
+                                            <button class="dropdown-item status">All</button>
+                                            <button class="dropdown-item status">Banned</button>
+                                            <button class="dropdown-item status">Active</button>
+                                        </div>
+                                    </div> -->
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-borderless mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 100px;"></th>
+                                            <th>Name</th>
+                                            <th>Price</th>
+                                            <th>Category</th>
+                                            <th style="width: 130px;">Date added</th>
+                                            <th style="width: 130px;">Updated at</th>
+                                            <th class="text-center" style="width: 120px;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="align-middle">
+                                    </tbody>
+                                </table>
+                                <nav class="justify-content-end d-flex pt-4 mx-4 p-2">
+                                    <ul class="pagination pagination-rounded">
 
-                    <button id="add-product" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light m-2" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Add</button>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <footer class="footer">
@@ -48,13 +119,13 @@
             <h5 class="fs-3 ms-2" id="offcanvasRightLabel"></h5>
             <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <form method="post" action="" id="form" class="offcanvas-body">
+        <form method="post" action="" id="form" class="offcanvas-body" enctype="multipart/form-data">
 
             <!-- Image -->
             <label for="example-fileinput" class="form-label text-center fs-3 w-100">Product Image</label>
             <div class="text-center">
                 <img src="<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded my-2 mb-5">
-                <input type="file" id="imageInput" class="form-control" required accept="image/png, image/jpg, image/jpeg">
+                <input type="file" id="imageInput" name="imageInput" class="form-control" required accept="image/png, image/jpg, image/jpeg">
             </div>
 
             <!-- product name -->
@@ -76,8 +147,9 @@
             <!-- price -->
             <div class="mb-3">
                 <label for="price" class="form-label">price<span class="text-danger"> *</span></label>
-                <input required type="number" class="form-control" name="price" id="price" placeholder="product price">
+                <input required type="number" class="form-control" name="price" id="price" step="0.01" placeholder="product price">
             </div>
+
             <!-- description -->
             <div class="mb-3">
                 <label for="description" class="form-label">description<span class="text-danger"> *</span></label>
@@ -123,8 +195,151 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script src="<?= BASE_URL ?>node_modules/cropperjs/dist/cropper.min.js"></script>
     <!-- taostr -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>F
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Sweet Alerts js -->
+    <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
+    <!-- loadash -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <!-- axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        let q = {
+            // status: 'all',
+            q: 'all',
+            page: 1
+        }
+
+        $(document).ready(function() {
+            handleFetchProducts(q)
+        })
+
+        // handle product request
+        const handleFetchProducts = _.debounce(fetchProducts, 1000);
+
+        // product request
+        function fetchProducts(q) {
+            $('tbody').html('<tr class="align-middle rounded m-1"> <th colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin my-5 fs-1"></i></th></tr>')
+            let link = `<?= site_url('admin_api/product_index') ?>/${q.page}/${q.q}/`
+            axios.get(link, {
+                    /* OPTIONS */
+                })
+                .then(function(response) {
+                    populateTable(response.data)
+                    populatePagination(response.data['pagination'])
+                    console.log(response)
+                })
+                .catch(function(error) {
+                    console.log(error);
+                })
+                .finally(function() {});
+        }
+
+        function populatePagination(pagination) {
+            $('.pagination').html('')
+            // current page
+            $('.pagination').append(
+                $('<li></li>').addClass('page-item active')
+                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', 1).html(pagination['currentPage']))
+            )
+            // pages
+            for (let page = 1; page <= pagination['totalPage']; page++) {
+                if (pagination['currentPage'] == page) {
+                    currentPage = page;
+                    previousPages = currentPage - 1;
+                    addedPage = 0;
+                    while (addedPage < 3) {
+                        if (previousPages >= 1)
+                            $('.pagination').prepend(
+                                $('<li></li>').addClass('page-item')
+                                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', previousPages).html(previousPages))
+                            )
+                        previousPages--
+                        addedPage++
+                    }
+                    console.log('-')
+                    addedPage = 0
+                    nextPages = currentPage + 1;
+                    while (addedPage < 3) {
+                        if (nextPages <= pagination['totalPage'])
+                            $('.pagination').append(
+                                $('<li></li>').addClass('page-item')
+                                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', nextPages).html(nextPages))
+                            )
+                        nextPages++
+                        addedPage++
+                    }
+                }
+            }
+            // jump to first page
+            $('.pagination').prepend(
+                $('<li></li>').addClass('page-item')
+                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', 1).html('«&nbsp&nbspfirst'))
+            )
+            // jump to last page
+            $('.pagination').append(
+                $('<li></li>').addClass('page-item')
+                .append($('<div></div>').addClass('page-link').css('cursor', 'pointer').attr('data-page', pagination['totalPage']).html('last&nbsp&nbsp»'))
+            )
+        }
+
+        function populateTable(products) {
+            products = products['products']
+            $('tbody').html('');
+            const keys = ['name', 'price', 'category_name', 'updated_at', 'date_added'];
+            let imagelink = '<?= BASE_URL . 'public/images/products/cropped/' ?>'
+            for (let i = 0; i < products.length; i++) {
+                const tableTR = $('<tr></tr>').attr('id', products[i]['id']);
+                $('tbody').append(tableTR);
+                tableTR.append('<td><img src="' + imagelink + products[i]['image'] + '" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded"></td>')
+                for (let x = 0; x < keys.length; x++) {
+                    tableTR.append('<td> ' + products[i][keys[x]] + ' </td>')
+                }
+                tableTR.append(`                                                        
+                    <td class="text-center">
+                        <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-category" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                            <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
+                        </span>
+                    </td>`)
+                let description = '<div class="mb-3">' + products[i]['description'] + '</div>';
+                $('tbody').append($('<tr></tr>').append(`
+                <td class="p-0" colspan="100">                         
+                    <div class="accordion accordion-flush" id="accordion-${products[i]['id']}">
+                        <div class="accordion-item bg-light rounded">
+                            <h2 class="accordion-header m-0" id="flush-headingOne">
+                                <button class="accordion-button collapsed fw-bold  bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#flush-accordion-${products[i]['id']}" aria-expanded="true" aria-controls="flush-accordion-${products[i]['id']}">
+                                    Description
+                                </button>
+                            </h2>
+                            <div id="flush-accordion-${products[i]['id']}" class="accordion-collapse collapse bg-light" aria-labelledby="flush-headingOne" data-bs-parent="#accordion-${products[i]['id']}">
+                                <div class="accordion-body">
+                                ${products[i]['description']}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>`));
+            }
+        }
+
+        // form validation response handler
+        const formMessage = '<?= $formMessage ?>'
+        switch (formMessage) {
+            case '':
+                break;
+            case 'success':
+                toastr.success('New product added.')
+                break;
+            case 'exists':
+                toastr.info('Category already exists.')
+                break;
+            case 'restored':
+                toastr.info('Category restored.')
+                break;
+            case 'updated':
+                toastr.info('Category updated.')
+                break;
+        }
+
         // side navigation bar toggle
         $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
         $('.toggle-sidebar').on('click', function() {
@@ -176,31 +391,31 @@
             });
             const previewImage = document.getElementById('previewImage');
             previewImage.src = URL.createObjectURL(file);
-            addImageInput(file)
+            addCroppedImageInput(dataURL)
             $('#staticBackdrop').modal('hide')
         });
 
-        function addImageInput(file) {
-            const dataURL = URL.createObjectURL(file);
-            removeCroppedImageInput()
-            const input = $('<input/>')
-                .prop('type', 'hidden')
-                .prop('name', 'finalImageInput')
-                .prop('value', dataURL)
-                .attr('id', 'finalImageInput');
-
-            $('#form').prepend(input);
+        // add input for cropped image
+        function addCroppedImageInput(dataURL) {
+            // deletes the input if exists
+            if ($('input[name="croppedImage"]').length > 0)
+                $('input[name="croppedImage"]').remove();
+            const inputText = document.createElement('input');
+            inputText.type = 'text';
+            inputText.value = dataURL;
+            inputText.name = 'croppedImage';
+            document.getElementById('form').prepend(inputText);
+            $('input[name="croppedImage"]').prop('readonly', true)
+            $('input[name="croppedImage"]').prop('hidden', true)
         }
-
         // add product button
         $('#add-product').on('click', function() {
-            removeCroppedImageInput()
             resetForm()
         })
 
         // reset form values
         function resetForm(mod) {
-            const addProductLink = '<?= site_url('admin/product_store')?>'
+            const addProductLink = '<?= site_url('admin/product_store') ?>'
             $('#form').attr('action', addProductLink)
             $('#offcanvasRightLabel').html('Add new product')
             $('#name').val('')
@@ -209,12 +424,6 @@
             $('#price').val('')
             $('#description').val('')
             $('#previewImage').attr('src', '<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png')
-        }
-
-        // remove croppedImageInput
-        function removeCroppedImageInput() {
-            if ($('input[name="removeCroppedImageInput"]').length > 0)
-                $('input[name="removeCroppedImageInput"]').remove();
         }
 
         // compress cropped image
@@ -253,6 +462,13 @@
             return new Blob([uInt8Array], {
                 type: contentType
             });
+        }
+
+        // change page
+        $(document).on('click', '.page-link', changePage)
+        function changePage() {
+            q.page = $(this).attr('data-page')
+            handleFetchProducts(q);
         }
     </script>
 </body>

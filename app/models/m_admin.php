@@ -75,45 +75,52 @@ class m_admin extends Model
 			$q = '%' . trim($q) . '%';
 
 		$totalRows = $this->db->raw(
-			"
-			SELECT
-			COUNT(u.id) as total
-			FROM
-			users AS u
-			INNER JOIN barangays AS b ON u.barangay = b.id
-			WHERE
-			u.is_admin = 0
-			AND u.is_banned NOT LIKE ?
-			AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?)
-		",
+			"SELECT COUNT(u.id) as total FROM users AS u INNER JOIN barangays AS b ON u.barangay = b.id WHERE u.is_admin = 0 AND u.is_banned NOT LIKE ? AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?)",
 			[$status, $q, $q, $q]
 		)[0]['total'];
 
 		return [
 			'users' => $this->m_encrypt->encrypt($this->db->raw(
-				"
-				SELECT
-				u.id AS id,
-				u.first_name AS first_name,
-				u.middle_name AS middle_name,
-				u.last_name AS last_name,
-				u.email AS email,
-				b.name AS barangay_name,
-				u.street,
-				u.contact,
-				u.birth_date,
-				u.sex,
-				u.verified_at,
-				u.is_banned
-				FROM
-				users AS u
-				INNER JOIN barangays AS b ON u.barangay = b.id
-				WHERE
-				u.is_admin = 0
-				AND u.is_banned NOT LIKE ?
-				AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) order by u.first_name LIMIT 10 OFFSET ? 
-			",
+				" SELECT u.id AS id, u.first_name AS first_name, u.middle_name AS middle_name, u.last_name AS last_name, u.email AS email, b.name AS barangay_name, u.street, u.contact, u.birth_date, u.sex, u.verified_at, u.is_banned FROM users AS u INNER JOIN barangays AS b ON u.barangay = b.id WHERE u.is_admin = 0 AND u.is_banned NOT LIKE ? AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) order by u.first_name LIMIT 10 OFFSET ?",
 				[$status, $q, $q, $q, ($page - 1)  * 10]
+			)),
+			'pagination' => [
+				'totalRows' => $totalRows,
+				'totalPage' => ceil($totalRows / 10),
+				'currentPage' => (int)$page
+			]
+		];
+	}
+
+	// PRODUCT FUNCTIONS
+	function product_store($name, $category, $price, $description, $filename)
+	{
+		$bind = array(
+			'name' => $name,
+			'category' => $this->m_encrypt->decrypt($category),
+			'price' => $price,
+			'description' => $description,
+			'image' => $filename
+		);
+		$this->db->table('products')->insert($bind);
+	}
+
+	function product_index($page, $q)
+	{
+		if (ctype_space($q) || $q == 'all')
+			$q = '%%';
+		else
+			$q = '%' . trim($q) . '%';
+
+		$totalRows = $this->db->raw(
+			"SELECT COUNT(p.id) as total FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ?",
+			[$q]
+		)[0]['total'];
+
+		return [
+			'products' => $this->m_encrypt->encrypt($this->db->raw(
+				"SELECT p.*, c.name as category_name FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? order by p.name LIMIT 10 OFFSET ?",
+				[$q, ($page - 1)  * 10]
 			)),
 			'pagination' => [
 				'totalRows' => $totalRows,

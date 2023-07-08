@@ -1,10 +1,6 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
 $LAVA = lava_instance();
-
-// form validation response data
-// $LAVA->session->flashdata('formMessage') ? $formMessage = $LAVA->session->flashdata('formMessage') : $formMessage = null;
-// $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('formData') : $formData = null;
 ?>
 
 <!DOCTYPE html>

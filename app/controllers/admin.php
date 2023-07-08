@@ -33,7 +33,15 @@ class admin extends Controller
 		return $this->pagination->paginate();
 	}
 
-
+	// UPLOAD IMAGE 
+	function uploadOriginalImage()
+	{
+		$this->call->library('upload', $_FILES['imageInput']);
+		$this->upload->max_size(3)->set_dir('public/images/products/original')->allowed_extensions(array('jpg', 'png'))->is_image()->encrypt_name();
+		if ($this->upload->do_upload()) {
+			return $this->upload->get_filename();
+		}
+	}
 
 	// BARANGAY
 	public function barangay()
@@ -218,14 +226,15 @@ class admin extends Controller
 	}
 
 
-	
+
 	// PRODUCT
 	function product()
 	{
 		$this->call->view('admin/product', [
 			'pageTitle' => 'Admin | Products',
 			'breadCrumb' => 'Products',
-			'categories' => $this->m_admin->category_index()
+			'categories' => $this->m_admin->category_index(),
+			'formMessage' => $this->session->flashdata('formMessage') !== null ? $this->session->flashdata('formMessage') : null,
 		]);
 	}
 
@@ -261,7 +270,55 @@ class admin extends Controller
 		}
 	}
 
-	function product_store() {
-		var_dump($_FILES,$_POST);
+	function product_store()
+	{
+
+		$filePresent = false;
+		if (isset($_FILES["imageInput"]))
+			$filePresent = true;
+		else {
+			// balik sa product tas labas ang sweetalert na adding product failed
+		}
+
+		if ($filePresent) {
+			$this->form_validation
+				->name('name')
+				->required('Must be 1-100 characters in length only.')
+				->min_length(1, 'Must be 1-100 characters in length only.')
+				->max_length(100, 'Must be 1-100 characters in length only.')
+				->name('category')
+				->required('Category is required')
+				->name('price')
+				->numeric('Price is required')
+				->required('Price is required')
+				->name('description')
+				->required('Description is required')
+				->min_length(1, 'Must be 1-800 characters in length only.')
+				->max_length(800, 'Must be 1-800 characters in length only.');
+			if ($this->form_validation->run()) {
+				$filename = $this->upload_cropped_image($this->uploadOriginalImage());
+				$this->m_admin->product_store(
+					$this->io->post('name'),
+					$this->io->post('category'),
+					$this->io->post('price'),
+					$this->io->post('description'),
+					$filename
+				);
+				$this->session->set_flashdata(['formMessage' => 'success']);
+				redirect('admin/product');
+			} else {
+				echo var_dump($this->form_validation->get_errors());
+			}
+		}
+	}
+
+	function upload_cropped_image($filename)
+	{
+		$base64Image = $_POST['croppedImage'];
+		$data = str_replace('data:image/png;base64,', '', $base64Image);
+		$imageData = base64_decode($data);
+		$savePath = 'public/images/products/cropped/' . $filename;
+		file_put_contents($savePath, $imageData);
+		return $filename;
 	}
 }

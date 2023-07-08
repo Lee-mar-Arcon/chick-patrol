@@ -42,15 +42,6 @@
             box-shadow: rgba(17, 17, 26, 0.2) 0px 0px 5px;
             transition: all 0.2s;
         }
-
-        #table-loader {
-            font-size: 45pt;
-            text-align: center;
-            height: 60vh;
-            color: #0000ff9c;
-            background-color: rgba(17, 17, 26, 0.2);
-            font-weight: bolder;
-        }
     </style>
 </head>
 
@@ -116,7 +107,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <!-- Footer Start -->
@@ -169,7 +159,7 @@
 
 
         function fetchUsers(q) {
-            $('tbody').html('<tr class="align-middle rounded m-1"> <th id="table-loader" colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin"></i></th></tr>')
+            $('tbody').html('<tr class="align-middle rounded m-1"> <th colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin my-5 fs-1"></i></th></tr>')
             let link = `<?= site_url('admin_api/user_index') ?>/${q.page}/${q.status}/${q.q}/`
             axios.get(link, {
                     /* OPTIONS */
@@ -309,7 +299,6 @@
             }
             handleFetchUsers(q)
         }
-
 
         function populatePagination(pagination) {
             $('.pagination').html('')
