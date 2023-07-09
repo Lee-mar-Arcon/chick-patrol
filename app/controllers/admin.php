@@ -59,10 +59,15 @@ class admin extends Controller
 	{
 		$this->form_validation
 			->name('name')
+			->required()
 			->min_length(1, 'Must be 1-100 characters in length only.')
-			->max_length(100, 'Must be 1-100 characters in length only.');
+			->max_length(100, 'Must be 1-100 characters in length only.')
+			->name('delivery_fee')
+			->required('Delivery fee is required.')
+			->numeric('Delivery fee is required.');
 		if ($this->form_validation->run()) {
 			$name = $this->io->post('name');
+			$delivery_fee = $this->io->post('delivery_fee');
 
 			$exists = $this->db->table('barangays')->where('LOWER(name)', strtolower($name))->get();
 			if ($exists) {
@@ -74,7 +79,7 @@ class admin extends Controller
 					$this->session->set_flashdata(['formMessage' => 'restored']);
 				}
 			} else {
-				$this->db->table('barangays')->insert(['name' => $name]);
+				$this->db->table('barangays')->insert(['name' => $name, 'delivery_fee' => $delivery_fee]);
 				$this->session->set_flashdata(['formMessage' => 'success']);
 			}
 		} else {
@@ -90,20 +95,37 @@ class admin extends Controller
 			->name('id')->required('ID is required.')
 			->name('name')
 			->min_length(1, 'Must be 1-100 characters in length only.')
-			->max_length(100, 'Must be 1-100 characters in length only.');
+			->max_length(100, 'Must be 1-100 characters in length only.')
+			->name('delivery_fee')
+			->required('Delivery fee is required')
+			->numeric('Delivery fee is required');
 
 
 		if ($this->form_validation->run()) {
 			$this->call->model('m_encrypt');
 			$id = $this->m_encrypt->decrypt($this->io->post('id'));
 			$name = $this->io->post('name');
-			$exists = $this->db->table('barangays')->where('LOWER(name)', strtolower($name))->not_where('id', $id)->get();
+			$delivery_fee = $this->io->post('delivery_fee');
 
-			if ($exists) {
+			$currentRow = $this->db->table('barangays')->where('id', $id)->get();
+			$exists = $this->db->table('barangays')->where('LOWER(name)', strtolower($name))->not_where('id', $id)->get();
+			echo var_dump($exists);
+			// update row if delivery fee is only changed
+			if ($currentRow['name'] == $name && $currentRow['delivery_fee'] != $delivery_fee) {
+				$this->session->set_flashdata(['formMessage' => 'updated']);
+				$this->db->table('delivery_fee_history')->insert(['barangay_id' => $id, 'delivery_fee' => $delivery_fee]);
+				$this->db->table('barangays')->where('id', $id)->update(['delivery_fee' => $delivery_fee]);
+			}
+			// send error if new name exists 
+			else if ($exists) {
 				$this->session->set_flashdata(['formMessage' => 'Name already exists']);
 				$this->session->set_flashdata(['formData' => $_POST]);
-			} else {
-				$this->db->table('barangays')->where('id', $id)->update(['name' => $name]);
+			}
+			// update row if new name is unique
+			else {
+				if ($currentRow['delivery_fee'] != $delivery_fee)
+					$this->db->table('delivery_fee_history')->insert(['barangay_id' => $id, 'delivery_fee' => $delivery_fee]);
+				$this->db->table('barangays')->where('id', $id)->update(['name' => $name, 'delivery_fee' => $delivery_fee]);
 				$this->session->set_flashdata(['formMessage' => 'updated']);
 			}
 		} else {

@@ -56,7 +56,10 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                             <thead>
                                                 <tr>
                                                     <th>Name</th>
+                                                    <th style="width: 150px;">Delivery fee</th>
                                                     <th style="width: 150px;">Deleted at</th>
+                                                    <th style="width: 150px;">Updated at</th>
+                                                    <th style="width: 150px;">Added at</th>
                                                     <th class="text-center" style="width: 120px;">Action</th>
                                                 </tr>
                                             </thead>
@@ -67,10 +70,18 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                                             <span><?= $barangay['name'] ?></span>
                                                             <?= $barangay['deleted_at'] ? ' <span class="badge badge-soft-danger rounded-pill px-1 py-1 ms-2">Deleted</span>' : '' ?>
                                                         </td>
-                                                        <td class="align-middle">
+                                                        <td class="align-middle"><?= number_format($barangay['delivery_fee'], 2) ?></td>
+                                                        <td class="align-middle text-danger">
                                                             <?= $barangay['deleted_at'] ?
                                                                 date('M-d Y h:i:s A', strtotime($barangay['deleted_at'])) :
-                                                                '' ?></td>
+                                                                '' ?>
+                                                        </td>
+                                                        <td class="align-middle">
+                                                            <?= date('M-d Y h:i:s A', strtotime($barangay['updated_at'])) ?>
+                                                        </td>
+                                                        <td class="align-middle">
+                                                            <?= date('M-d Y h:i:s A', strtotime($barangay['added_at'])) ?>
+                                                        </td>
                                                         <td class="text-center">
                                                             <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-barangay" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                                                 <i class="mdi mdi-home-edit fs-3 text-info"></i>
@@ -115,7 +126,11 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             <input type="hidden" id="id" name="id">
             <div class="mb-3 mt-2">
                 <label for="name" class="form-label">Name<span class="text-danger"> *</span></label>
-                <input type="text" required="" placeholder="Enter Barangay name" class="form-control" id="name" name="name">
+                <input type="text" required placeholder="Enter Barangay name" class="form-control" id="name" name="name">
+            </div>
+            <div class="mb-3 mt-2">
+                <label for="delivery_fee" class="form-label">Delivery Fee<span class="text-danger"> *</span></label>
+                <input type="number" required step="0.01" placeholder="Enter deliver fee" class="form-control" id="delivery_fee" name="delivery_fee">
             </div>
             <div class="text-end mt-3">
                 <button id="submit-form" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
@@ -162,8 +177,12 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 const url = '<?= BASE_URL ?>admin/barangay_store'
                 $('#form').attr('action', url)
                 $('#add-barangay').click()
+                console.log(formMessage)
                 $('#name').val(formData.name)
-                $('<div class="ms-1 text-danger form-error-message">' + formMessage + '</div>').insertAfter('#name')
+                $('#delivery_fee').val(formData.delivery_fee)
+                let inputElement = '#' + ((formMessage == 'Delivery fee is required.') ? 'delivery_fee' : 'name')
+                console.log(inputElement)
+                $('<div class="ms-1 text-danger form-error-message">' + formMessage + '</div>').insertAfter(inputElement)
                 break;
         }
 
@@ -183,7 +202,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             $('#form').attr('action', url)
             $('#offcanvasRightLabel').html('Edit barangay')
             $('#offcanvasRightLabel').html('Edit barangay')
-            $('#name').val($(this).closest('td').prev().prev().find('span:first').html())
+            let delivery_fee = parseFloat($(this).closest('td').prev().prev().prev().prev().html().replace(/,/g, ""))
+            $('#delivery_fee').val(delivery_fee)
+            $('#name').val($(this).closest('td').prev().prev().prev().prev().prev().find('span:first').html())
             $('#id').val($(this).closest('tr').attr('id'))
         })
 
