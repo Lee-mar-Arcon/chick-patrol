@@ -121,7 +121,7 @@
             <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <form method="post" action="" id="form" class="offcanvas-body" enctype="multipart/form-data">
-
+            <input type="hidden" id="id" name="id">
             <!-- Image -->
             <label for="example-fileinput" class="form-label text-center fs-3 w-100">Product Image</label>
             <div class="text-center">
@@ -219,7 +219,7 @@
             handleFetchProducts(q)
 
             // form validation response handler
-            console.log(formErrors)
+            console.log(formData)
             switch (formMessage) {
                 case 'failed':
                     // populate form with formData
@@ -241,11 +241,22 @@
                     $('#description').val(formData.description)
                     displayErrors()
                     break;
+                case 'update exists':
+                    toastr.error('Product name already exists.')
+                    formErrors.name = 'name already exists'
+                    $('#offcanvasRight').offcanvas('show');
+                    $('#form').attr('action', '<?= site_url('admin/product_update') ?>')
+                    $('#id').val(formData.id)
+                    $('#name').val(formData.name)
+                    $('#price').val(formData.price)
+                    $('#description').val(formData.description)
+                    displayErrors()
+                    break;
+                case 'updated':
+                    toastr.info('Product updated.')
+                    break;
                     // case 'restored':
-                    //     toastr.info('Category restored.')s
-                    //     break;
-                    // case 'updated':
-                    //     toastr.info('Category updated.')
+                    //     toastr.info('Category restored.')
                     //     break;
             }
         })
@@ -330,7 +341,7 @@
         function populateTable(products) {
             products = products['products']
             $('tbody').html('');
-            const keys = ['name', 'price', 'category_name', 'updated_at', 'date_added'];
+            const keys = ['name', 'price', 'category_name', 'date_added', 'updated_at'];
             let imagelink = '<?= BASE_URL . 'public/images/products/cropped/' ?>'
             for (let i = 0; i < products.length; i++) {
                 const tableTR = $('<tr></tr>').attr('id', products[i]['id']);
@@ -341,7 +352,7 @@
                 }
                 tableTR.append(`                                                        
                     <td class="text-center">
-                        <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-category" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                        <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-product" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                             <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
                         </span>
                     </td>`)
@@ -379,7 +390,6 @@
                 initializeCropper();
             };
             reader.readAsDataURL(file);
-            $('#cropImageModal').modal('show')
         });
 
         // inititialize cropper
@@ -435,9 +445,9 @@
         })
 
         // edit product button event
-        $(document).on('click', '.mdi-circle-edit-outline', function() {
-            resetForm('update', this)
-        })
+        $(document).on('click', '.edit-product', function() {
+            resetForm('update', this);
+        });
 
         // reset form values
         function resetForm(mode, element = null) {
@@ -454,6 +464,7 @@
                 $('#offcanvasRightLabel').html('Add new product')
                 $('#form').attr('action', addProductLink)
             } else {
+
                 $('#form').attr('action', updateProductLink)
                 $('#offcanvasRightLabel').html('Update product')
                 name = $(element).closest('td').prev().prev().prev().prev().prev().html().trim()
@@ -467,6 +478,7 @@
                 previewImage = $(element).closest('td').prev().prev().prev().prev().prev().prev().find('img.img-fluid').prop('src').trim()
                 imageInputRequired = false
             }
+            $('#id').val($(element).closest('tr').attr('id'))
             $('#name').val(name)
             $('#price').val(price)
             $('#category').val(category)
