@@ -242,7 +242,7 @@
                     displayErrors()
                     break;
                     // case 'restored':
-                    //     toastr.info('Category restored.')
+                    //     toastr.info('Category restored.')s
                     //     break;
                     // case 'updated':
                     //     toastr.info('Category updated.')
