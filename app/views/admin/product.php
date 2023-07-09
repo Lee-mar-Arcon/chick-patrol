@@ -126,19 +126,19 @@
             <label for="example-fileinput" class="form-label text-center fs-3 w-100">Product Image</label>
             <div class="text-center">
                 <img src="<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded my-2 mb-5">
-                <input type="file" id="imageInput" name="imageInput" class="form-control" required accept="image/png, image/jpg, image/jpeg">
+                <input type="file" id="imageInput" name="imageInput" class="form-control" accept="image/png, image/jpg, image/jpeg">
             </div>
 
             <!-- product name -->
             <div class="mb-3 mt-2">
                 <label for="name" class="form-label">Product name<span class="text-danger"> *</span></label>
-                <input type="text" placeholder="Enter product name" class="form-control" id="name" name="name" required>
+                <input type="text" placeholder="Enter product name" class="form-control" id="name" name="name">
             </div>
 
             <!-- category -->
             <div class="mb-3">
                 <label for="category" class="form-label">Category<span class="text-danger"> *</span></label>
-                <select class="form-select form-select-md" name="category" id="category" required>
+                <select class="form-select form-select-md" name="category" id="category">
                     <?php foreach ($categories as $category) : ?>
                         <option value="<?= $category['id'] ?>"><?= $category['name'] ?></option>
                     <?php endforeach; ?>
@@ -148,13 +148,13 @@
             <!-- price -->
             <div class="mb-3">
                 <label for="price" class="form-label">price<span class="text-danger"> *</span></label>
-                <input required type="number" class="form-control" name="price" id="price" step="0.01" placeholder="product price">
+                <input type="number" class="form-control" name="price" id="price" step="0.01" placeholder="product price">
             </div>
 
             <!-- description -->
             <div class="mb-3">
                 <label for="description" class="form-label">description<span class="text-danger"> *</span></label>
-                <textarea required class="form-control" name="description" id="description" rows="3"></textarea>
+                <textarea class="form-control" name="description" id="description" rows="12"></textarea>
             </div>
             <div class="text-end mt-3">
                 <button id="submit-form" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
@@ -204,17 +204,60 @@
     <!-- axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
+        // form response data 
+        const formMessage = '<?= $formMessage ?>'
+        const formErrors = JSON.parse('<?= json_encode($formErrors) ?>')
+        const formData = JSON.parse('<?= json_encode($formData) ?>')
+
+        // side navigation bar toggle
+        $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
+        $('.toggle-sidebar').on('click', function() {
+            $('body').toggleClass('sidebar-enable')
+        })
+
+        $(document).ready(function() {
+            handleFetchProducts(q)
+
+            // form validation response handler
+            console.log(formErrors)
+            switch (formMessage) {
+                case 'failed':
+                    // populate form with formData
+                    $("#add-product").click();
+                    $('#name').val(formData.name)
+                    $('#price').val(formData.price)
+                    $('#description').val(formData.description)
+                    displayErrors()
+                    break;
+                case 'success':
+                    toastr.success('New product added.')
+                    break;
+                case 'add exists':
+                    toastr.error('Product name already exists.')
+                    $("#add-product").click();
+                    formErrors.name = 'name already exists'
+                    $('#name').val(formData.name)
+                    $('#price').val(formData.price)
+                    $('#description').val(formData.description)
+                    displayErrors()
+                    break;
+                    // case 'restored':
+                    //     toastr.info('Category restored.')
+                    //     break;
+                    // case 'updated':
+                    //     toastr.info('Category updated.')
+                    //     break;
+            }
+        })
+
+        // Query data
         let q = {
             category: 'all',
             q: 'all',
             page: 1
         }
 
-        $(document).ready(function() {
-            handleFetchProducts(q)
-        })
-
-        // handle product request
+        // handle product list request
         const handleFetchProducts = _.debounce(fetchProducts, 1000);
 
         // product request
@@ -225,7 +268,6 @@
                     /* OPTIONS */
                 })
                 .then(function(response) {
-
                     populateTable(response.data)
                     populatePagination(response.data['pagination'])
                 })
@@ -235,6 +277,7 @@
                 .finally(function() {});
         }
 
+        // render pagination links
         function populatePagination(pagination) {
             $('.pagination').html('')
             // current page
@@ -283,6 +326,7 @@
             )
         }
 
+        // render product list to table
         function populateTable(products) {
             products = products['products']
             $('tbody').html('');
@@ -291,7 +335,7 @@
             for (let i = 0; i < products.length; i++) {
                 const tableTR = $('<tr></tr>').attr('id', products[i]['id']);
                 $('tbody').append(tableTR);
-                tableTR.append('<td><img src="' + imagelink + products[i]['image'] + '" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded"></td>')
+                tableTR.append('<td><img src="' + imagelink + products[i]['image'] + '" alt="" height="150" width="150" class="img-fluid rounded"></td>')
                 for (let x = 0; x < keys.length; x++) {
                     tableTR.append('<td> ' + products[i][keys[x]] + ' </td>')
                 }
@@ -313,7 +357,7 @@
                             </h2>
                             <div id="flush-accordion-${products[i]['id']}" class="accordion-collapse collapse bg-light" aria-labelledby="flush-headingOne" data-bs-parent="#accordion-${products[i]['id']}">
                                 <div class="accordion-body">
-                                ${products[i]['description']}
+                                &emsp; &emsp; ${products[i]['description']}
                                 </div>
                             </div>
                         </div>
@@ -322,32 +366,7 @@
             }
         }
 
-        // form validation response handler
-        const formMessage = '<?= $formMessage ?>'
-        switch (formMessage) {
-            case '':
-                break;
-            case 'success':
-                toastr.success('New product added.')
-                break;
-            case 'exists':
-                toastr.info('Category already exists.')
-                break;
-            case 'restored':
-                toastr.info('Category restored.')
-                break;
-            case 'updated':
-                toastr.info('Category updated.')
-                break;
-        }
-
-        // side navigation bar toggle
-        $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
-        $('.toggle-sidebar').on('click', function() {
-            $('body').toggleClass('sidebar-enable')
-        })
-
-        // input file click event
+        // product image input on change event
         $('#imageInput')[0].addEventListener('change', function() {
             $('#staticBackdrop').modal('show');
             let inputImage = document.getElementById('imageInput');
@@ -381,7 +400,7 @@
             })
         }
 
-        // crop image button click event
+        // compress image, pass to preview and make new input for base64 image
         $('#cropImageButton').on('click', function() {
             let canvas = cropper.getCroppedCanvas();
             canvas = compressImage(canvas, 500, 500);
@@ -409,22 +428,51 @@
             $('input[name="croppedImage"]').prop('readonly', true)
             $('input[name="croppedImage"]').prop('hidden', true)
         }
-        // add product button
+
+        // add product button event
         $('#add-product').on('click', function() {
-            resetForm()
+            resetForm('add', this)
+        })
+
+        // edit product button event
+        $(document).on('click', '.mdi-circle-edit-outline', function() {
+            resetForm('update', this)
         })
 
         // reset form values
-        function resetForm(mod) {
+        function resetForm(mode, element = null) {
+            $('.form-error-message').remove()
             const addProductLink = '<?= site_url('admin/product_store') ?>'
-            $('#form').attr('action', addProductLink)
-            $('#offcanvasRightLabel').html('Add new product')
-            $('#name').val('')
-            $('#imageInput').val('')
-            $('#category').val('')
-            $('#price').val('')
-            $('#description').val('')
-            $('#previewImage').attr('src', '<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png')
+            const updateProductLink = '<?= site_url('admin/product_update') ?>'
+            let previewImage = '<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png'
+            let imageInputRequired = true
+            let name = ''
+            let price = null;
+            let category = $('#category option:first').val();
+            let description = ''
+            if (mode == 'add') {
+                $('#offcanvasRightLabel').html('Add new product')
+                $('#form').attr('action', addProductLink)
+            } else {
+                $('#form').attr('action', updateProductLink)
+                $('#offcanvasRightLabel').html('Update product')
+                name = $(element).closest('td').prev().prev().prev().prev().prev().html().trim()
+                price = $(element).closest('td').prev().prev().prev().prev().html().trim()
+                category = $(element).closest('td').prev().prev().prev().html().trim()
+                category = $('#category option').map(function() {
+                    if ($(this).html() == category)
+                        return $(this).val()
+                }).get();
+                description = $(element).closest('tr').next().children('td').find('div.accordion-body').html().trim();
+                previewImage = $(element).closest('td').prev().prev().prev().prev().prev().prev().find('img.img-fluid').prop('src').trim()
+                imageInputRequired = false
+            }
+            $('#name').val(name)
+            $('#price').val(price)
+            $('#category').val(category)
+            $('#description').val(description)
+            $('#previewImage').attr('src', previewImage)
+            $('#imageInput').prop('required', imageInputRequired)
         }
 
         // compress cropped image
@@ -486,8 +534,15 @@
         $('.option-category').on('click', function() {
             q.category = $(this).attr('data-id')
             console.log(q)
+            q.page = 1
             handleFetchProducts(q)
         })
+
+        // add form error
+        function displayErrors() {
+            for (let key in formErrors)
+                $('<div class="ms-1 text-danger form-error-message">' + formErrors[key] + '</div>').insertAfter($(`#${key}`))
+        }
     </script>
 </body>
 

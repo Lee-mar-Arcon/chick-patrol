@@ -26,6 +26,14 @@ class admin extends Controller
 		]);
 	}
 
+	function check_input($input)
+	{
+		$this->form_validation->run();
+		$result = isset($this->form_validation->get_errors()[0]) ? $this->form_validation->get_errors()[0] : null;
+		$this->form_validation->errors = array();
+		return $result;
+	}
+
 	public function paginator($total, $records_per_page, $page, $link)
 	{
 		$this->call->library('pagination');
@@ -255,48 +263,125 @@ class admin extends Controller
 			'breadCrumb' => 'Products',
 			'categories' => $this->m_admin->category_index(),
 			'formMessage' => $this->session->flashdata('formMessage') !== null ? $this->session->flashdata('formMessage') : null,
+			'formData' => $this->session->flashdata('formData') !== null ? $this->session->flashdata('formData') : null,
+			'formErrors' => $this->session->flashdata('formErrors') !== null ? $this->session->flashdata('formErrors') : null,
 		]);
 	}
 
 	function product_store()
 	{
-
-		$filePresent = false;
-		if (isset($_FILES["imageInput"]))
-			$filePresent = true;
-		else {
-			// balik sa product tas labas ang sweetalert na adding product failed
-		}
-
-		if ($filePresent) {
+		if ($this->form_validation->submitted()) {
+			$errors = array();
+			// name
 			$this->form_validation
 				->name('name')
-				->required('Must be 1-100 characters in length only.')
-				->min_length(1, 'Must be 1-100 characters in length only.')
-				->max_length(100, 'Must be 1-100 characters in length only.')
+				->required('required.')
+				->min_length(1, 'required..')
+				->max_length(100, 'must be less than 100 characters only.');
+			$result = $this->check_input('name');
+			$result != null ? $errors['name'] = $result : '';
+			// category
+			$this->form_validation
 				->name('category')
-				->required('Category is required')
+				->required('required.');
+			$result = $this->check_input('category');
+			$result != null ? $errors['category'] = $result : '';
+			// price
+			$this->form_validation
 				->name('price')
-				->numeric('Price is required')
-				->required('Price is required')
+				->required('required.')
+				->numeric('invalid value');
+			$result = $this->check_input('price');
+			$result != null ? $errors['price'] = $result : '';
+			// description
+			$this->form_validation
 				->name('description')
-				->required('Description is required')
-				->min_length(1, 'Must be 1-800 characters in length only.')
-				->max_length(800, 'Must be 1-800 characters in length only.');
-			if ($this->form_validation->run()) {
-				$filename = $this->upload_cropped_image($this->uploadOriginalImage());
-				$this->m_admin->product_store(
-					$this->io->post('name'),
-					$this->io->post('category'),
-					$this->io->post('price'),
-					$this->io->post('description'),
-					$filename
-				);
-				$this->session->set_flashdata(['formMessage' => 'success']);
-				redirect('admin/product');
+				->required('required.')
+				->min_length(0, 'required')
+				->max_length(800, 'must be less than 800 characters, current length is ' . strlen($this->io->post('description')) . '.');
+			$result = $this->check_input('description');
+			$result != null ? $errors['description'] = $result : '';
+			// product image
+			if (strlen($_FILES['imageInput']['name']) == 0)
+				$errors['imageInput'] = 'upload failed.';
+
+			$exists = $this->db->table('products')->where('name', $this->io->post('name'))->get();
+
+			if ($exists) {
+				$this->session->set_flashdata(['formErrors' => $errors]);
+				$this->session->set_flashdata(['formMessage' => 'add exists']);
+				$this->session->set_flashdata(['formData' => $_POST]);
+			} else if (count($errors) > 0) {
+				$this->session->set_flashdata(['formErrors' => $errors]);
+				$this->session->set_flashdata(['formMessage' => 'failed']);
+				$this->session->set_flashdata(['formData' => $_POST]);
 			} else {
-				echo var_dump($this->form_validation->get_errors());
+				if ($this->form_validation->run()) {
+					$filename = $this->upload_cropped_image($this->uploadOriginalImage());
+					$this->m_admin->product_store(
+						$this->io->post('name'),
+						$this->io->post('category'),
+						$this->io->post('price'),
+						$this->io->post('description'),
+						$filename
+					);
+					$this->session->set_flashdata(['formMessage' => 'success']);
+				} else {
+					echo var_dump($this->form_validation->get_errors());
+				}
 			}
+		} else
+			echo 'error';
+		redirect('admin/product');
+	}
+
+	function product_update()
+	{
+		$errors = array();
+		$filePresent = false;
+		if (strlen($_FILES["imageInput"]['name']) > 0)
+			$filePresent = true;
+		else
+			$this->session->set_flashdata(['formMessage' => 'image required']);
+
+		// name
+		$this->form_validation
+			->name('name')
+			->required('required.')
+			->min_length(1, 'required..')
+			->max_length(100, 'must be less than 100 characters only.');
+		$this->form_validation->run();
+		isset($this->form_validation->get_errors()[0]) ? $errors['name'] = $this->form_validation->get_errors()[0] : null;
+		$this->form_validation->errors = array();
+		// category
+		$this->form_validation
+			->name('category')
+			->required('required.');
+		$this->form_validation->run();
+		isset($this->form_validation->get_errors()[0]) ? $errors['category'] = $this->form_validation->get_errors()[0] : null;
+		$this->form_validation->errors = array();
+		// price
+		$this->form_validation
+			->name('price')
+			->required('required.')
+			->numeric('invalid value');
+		$this->form_validation->run();
+		isset($this->form_validation->get_errors()[0]) ? $errors['price'] = $this->form_validation->get_errors()[0] : null;
+		$this->form_validation->errors = array();
+		// description
+		$this->form_validation
+			->name('description')
+			->required('required.')
+			->min_length(0, 'required')
+			->max_length(800, 'must be less than 800 characters, current length is ' . strlen($this->io->post('description')) . '.');
+		$this->form_validation->run();
+		isset($this->form_validation->get_errors()[0]) ? $errors['description'] = $this->form_validation->get_errors()[0] : null;
+		$this->form_validation->errors = array();
+
+
+		echo var_dump($errors);
+		if ($this->form_validation->run()) {
+		} else {
 		}
 	}
 
