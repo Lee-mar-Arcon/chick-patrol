@@ -221,7 +221,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 confirmButtonText: 'Restore'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    handleDeleteRestoreSubmit(id, 'restore')
+                    handleDeleteRestoreSubmit(id, 'continue')
                 }
             })
         })

@@ -26,6 +26,16 @@ class admin extends Controller
 		]);
 	}
 
+	function upload_cropped_image($filename)
+	{
+		$base64Image = $_POST['croppedImage'];
+		$data = str_replace('data:image/png;base64,', '', $base64Image);
+		$imageData = base64_decode($data);
+		$savePath = 'public/images/products/cropped/' . $filename;
+		file_put_contents($savePath, $imageData);
+		return $filename;
+	}
+
 	function check_input($input)
 	{
 		$this->form_validation->run();
@@ -405,14 +415,34 @@ class admin extends Controller
 		redirect('admin/product');
 	}
 
-	function upload_cropped_image($filename)
+	function product_available()
 	{
-		$base64Image = $_POST['croppedImage'];
-		$data = str_replace('data:image/png;base64,', '', $base64Image);
-		$imageData = base64_decode($data);
-		$savePath = 'public/images/products/cropped/' . $filename;
-		file_put_contents($savePath, $imageData);
-		return $filename;
+		$this->form_validation
+			->name('id')->required('ID is required.');
+		if ($this->form_validation->run()) {
+			$this->call->model('m_encrypt');
+			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->db->table('products')->where('id', $id)->update(['available' => 1]);
+			$this->session->set_flashdata(['formMessage' => 'available']);
+			redirect('admin/product');
+		} else {
+			echo 'ID is required';
+		}
+	}
+
+	function product_unavailable()
+	{
+		$this->form_validation
+			->name('id')->required('ID is required.');
+		if ($this->form_validation->run()) {
+			$this->call->model('m_encrypt');
+			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->db->table('products')->where('id', $id)->update(['available' => 0]);
+			$this->session->set_flashdata(['formMessage' => 'unavailable']);
+			redirect('admin/product');
+		} else {
+			echo 'ID is required';
+		}
 	}
 
 	// USER

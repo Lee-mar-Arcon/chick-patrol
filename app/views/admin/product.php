@@ -89,6 +89,7 @@
                                             <th>Category</th>
                                             <th style="width: 130px;">Date added</th>
                                             <th style="width: 130px;">Updated at</th>
+                                            <th class="text-center" style="width: 130px;">available</th>
                                             <th class="text-center" style="width: 120px;">Action</th>
                                         </tr>
                                     </thead>
@@ -183,6 +184,7 @@
             </div>
         </div>
     </div>
+    <div id="available-unavailable-form"></div>
     <!-- Vendor -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -255,9 +257,12 @@
                 case 'updated':
                     toastr.info('Product updated.')
                     break;
-                    // case 'restored':
-                    //     toastr.info('Category restored.')
-                    //     break;
+                case 'available':
+                    toastr.success('Product made available.')
+                    break;
+                case 'unavailable':
+                    toastr.info('Product made unavailable.')
+                    break;
             }
         })
 
@@ -350,13 +355,27 @@
                 for (let x = 0; x < keys.length; x++) {
                     tableTR.append('<td> ' + products[i][keys[x]] + ' </td>')
                 }
+
+                // available
+                tableTR.append(
+                    '<td class="text-center">' +
+                    (products[i]['available'] ? '<span class="badge badge-soft-success rounded-pill px-1 py-1 ms-2">Available   </span>' : '<span class="badge badge-soft-danger rounded-pill px-1 py-1 ms-2">Deleted</span>') +
+                    '</td>'
+                )
+                // action
+                const isAvailableClass = products[i]['available'] ? 'make-product-uavailable' : 'make-product-unavailable'
+                const isAvailableIcon = !products[i]['available'] ? '<i class="mdi mdi-delete-restore fs-3 text-info"></i>' : '<i class="mdi mdi-delete fs-3 text-danger"></i>'
                 tableTR.append(`                                                        
                     <td class="text-center">
+                        <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 ${isAvailableClass}">
+                            ${isAvailableIcon}
+                        </span>
                         <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-product" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                             <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
                         </span>
                     </td>`)
-                let description = '<div class="mb-3">' + products[i]['description'] + '</div>';
+
+                // table row for description
                 $('tbody').append($('<tr></tr>').append(`
                 <td class="p-0" colspan="100">                         
                     <div class="accordion accordion-flush" id="accordion-${products[i]['id']}">
@@ -464,18 +483,17 @@
                 $('#offcanvasRightLabel').html('Add new product')
                 $('#form').attr('action', addProductLink)
             } else {
-
                 $('#form').attr('action', updateProductLink)
                 $('#offcanvasRightLabel').html('Update product')
-                name = $(element).closest('td').prev().prev().prev().prev().prev().html().trim()
-                price = $(element).closest('td').prev().prev().prev().prev().html().trim()
-                category = $(element).closest('td').prev().prev().prev().html().trim()
+                name = $(element).closest('td').prev().prev().prev().prev().prev().prev().html().trim()
+                price = $(element).closest('td').prev().prev().prev().prev().prev().html().trim()
+                category = $(element).closest('td').prev().prev().prev().prev().html().trim()
                 category = $('#category option').map(function() {
                     if ($(this).html() == category)
-                        return $(this).val()
+                    return $(this).val()
                 }).get();
                 description = $(element).closest('tr').next().children('td').find('div.accordion-body').html().trim();
-                previewImage = $(element).closest('td').prev().prev().prev().prev().prev().prev().find('img.img-fluid').prop('src').trim()
+                previewImage = $(element).closest('td').prev().prev().prev().prev().prev().prev().find('img.img-fluid').prop('src')
                 imageInputRequired = false
             }
             $('#id').val($(element).closest('tr').attr('id'))
@@ -554,6 +572,70 @@
         function displayErrors() {
             for (let key in formErrors)
                 $('<div class="ms-1 text-danger form-error-message">' + formErrors[key] + '</div>').insertAfter($(`#${key}`))
+        }
+
+        // show restore confirmation
+        $(document).on('click', '.mdi-delete-restore', function() {
+            id = $(this).closest('tr').attr('id')
+            Swal.fire({
+                title: 'Make product available again?',
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Restore'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleDeleteRestoreSubmit(id, 'available')
+                }
+            })
+        })
+
+        // show delete confirmation
+        $(document).on('click', '.mdi-delete', function() {
+            id = $(this).closest('tr').attr('id')
+            Swal.fire({
+                title: 'Make product unavaialble??',
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Continue'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleDeleteRestoreSubmit(id, 'unavailable')
+                }
+            })
+        })
+
+        // form restore and delete submit handler
+        function handleDeleteRestoreSubmit(id, httpMethod) {
+            const unavailableUrl = '<?= BASE_URL ?>admin/product_unavailable';
+            const availableUrl = '<?= BASE_URL ?>admin/product_available';
+
+            var form = $('<form>');
+
+            form.attr({
+                method: 'POST',
+                action: httpMethod == 'unavailable' ? unavailableUrl : availableUrl
+            });
+
+            var idInput = $('<input>').attr({
+                type: 'text',
+                name: 'id',
+                placeholder: 'Enter your username',
+                value: id
+            });
+            form.append(idInput);
+            var submitBtn = $('<input>').attr({
+                type: 'submit',
+                value: 'Submit'
+            });
+            $('#available-unavailable-form').append(form);
+            form.append(submitBtn);
+            form.submit();
         }
     </script>
 </body>
