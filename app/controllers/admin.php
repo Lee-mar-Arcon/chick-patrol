@@ -118,7 +118,6 @@ class admin extends Controller
 			->required('Delivery fee is required')
 			->numeric('Delivery fee is required');
 
-
 		if ($this->form_validation->run()) {
 			$this->call->model('m_encrypt');
 			$id = $this->m_encrypt->decrypt($this->io->post('id'));
@@ -127,12 +126,11 @@ class admin extends Controller
 
 			$currentRow = $this->db->table('barangays')->where('id', $id)->get();
 			$exists = $this->db->table('barangays')->where('LOWER(name)', strtolower($name))->not_where('id', $id)->get();
-			echo var_dump($exists);
 			// update row if delivery fee is only changed
 			if ($currentRow['name'] == $name && $currentRow['delivery_fee'] != $delivery_fee) {
 				$this->session->set_flashdata(['formMessage' => 'updated']);
-				$this->db->table('delivery_fee_history')->insert(['barangay_id' => $id, 'delivery_fee' => $delivery_fee]);
-				$this->db->table('barangays')->where('id', $id)->update(['delivery_fee' => $delivery_fee]);
+				$this->db->table('delivery_fee_history')->insert(['barangay_id' => $id, 'delivery_fee' => $currentRow['delivery_fee'], 'added_at' => $currentRow['updated_at']]);
+				$this->db->table('barangays')->where('id', $id)->update(['delivery_fee' => $delivery_fee, 'updated_at' => date('Y-m-d H:i:s')]);
 			}
 			// send error if new name exists 
 			else if ($exists) {
@@ -142,8 +140,8 @@ class admin extends Controller
 			// update row if new name is unique
 			else {
 				if ($currentRow['delivery_fee'] != $delivery_fee)
-					$this->db->table('delivery_fee_history')->insert(['barangay_id' => $id, 'delivery_fee' => $delivery_fee]);
-				$this->db->table('barangays')->where('id', $id)->update(['name' => $name, 'delivery_fee' => $delivery_fee]);
+					$this->db->table('delivery_fee_history')->insert(['barangay_id' => $id, 'delivery_fee' => $currentRow['delivery_fee'], 'added_at' => $currentRow['updated_at']]);
+				$this->db->table('barangays')->where('id', $id)->update(['delivery_fee' => $delivery_fee, 'updated_at' => date('Y-m-d H:i:s')]);
 				$this->session->set_flashdata(['formMessage' => 'updated']);
 			}
 		} else {
