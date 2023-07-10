@@ -27,23 +27,44 @@
 
         <div class="content-page">
             <div class="content">
-
                 <div class="container-fluid">
                     <div class="row">
-                        <div class="col-sm-12 col-lg-6">
-                            <div class="card">
-                                <div class="card-header bg-light">
-                                    Barangay
+                        <div class="col-sm-12 col-lg-6 p-3">
+                            <div class="card" style="min-height: 800px;">
+                                <div class="card-header bg-primary">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="d-flex align-items-center text-white fs-4 fw-bold">
+                                            Barangay
+                                        </div>
+                                        <div>
+                                            <input type="text" class="form-control rounded-pill bg-white border-light" placeholder="Search...">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body p-sm-0 p-md-4">
                                     <div id="barangayChart"></div>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-sm-12 col-lg-6 p-3">
+                            <div class="card" style="min-height: 800px;">
+                                <div class="card-header bg-primary">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="d-flex align-items-center text-white fs-4 fw-bold">
+                                            Category
+                                        </div>
+                                        <div>
+                                            <input type="text" class="form-control rounded-pill bg-white border-light" placeholder="Search...">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body p-sm-0 p-md-4">
+                                    <div id="categoryChart"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    content here
                 </div>
-
             </div>
 
             <!-- Footer Start -->
@@ -69,45 +90,99 @@
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
     <!-- apex charts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
         $('.toggle-sidebar').on('click', function() {
             $('body').toggleClass('sidebar-enable')
         })
+        $(document).ready(function() {
+            fetchChartData(`<?= site_url('admin_api/barangay_chart_data') ?>`, renderBarangayChart)
+            fetchChartData(`<?= site_url('admin_api/category_chart_data') ?>`, renderCategoryChart)
+        })
+        // chart variables
 
+        function fetchChartData(link, renderChart) {
+            return axios.get(link, {
+                    /* OPTIONS */
+                })
+                .then(function(response) {
+                    renderChart(response.data)
+                })
+                .catch(function(error) {
+                    console.log(error);
+                })
+                .finally(function(response) {});
+        }
 
-
-        var barangayOptions = {
-            chart: {
-                type: 'donut'
-            },
-            legend: {
-                posiposition: 'top',
-            },
-            plotOptions: {
-                pie: {
-                    donut: {
-                        size: '45%',
-                        labels: {
-                            show: true
-                        }
-                    },
-                    labels: {
-                        show: true,
-                        name: {
-
+        function renderBarangayChart(data) {
+            let labels = []
+            let series = []
+            for (let i = 0; i < data.length; i++) {
+                labels.push(data[i]['name'])
+                series.push(data[i]['total'])
+            }
+            barangayOptions = {
+                chart: {
+                    type: 'donut'
+                },
+                legend: {
+                    position: 'top',
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '45%',
+                            labels: {
+                                show: true
+                            }
                         },
-                        value: {
-
+                        labels: {
+                            show: true,
                         }
                     }
-                }
-            },
-            series: [30, 40, 35, 50],
-            labels: ['Apple', 'Mango', 'Orange', 'Wat123123132ermelon']
+                },
+                series: series,
+                labels: labels
+            }
+            barangayChart = new ApexCharts(document.querySelector("#barangayChart"), barangayOptions);
+            barangayChart.render();
         }
-        var barangayChart = new ApexCharts(document.querySelector("#barangayChart"), barangayOptions);
-        barangayChart.render();
+
+        function renderCategoryChart(data) {
+            let labels = []
+            let series = []
+            for (let i = 0; i < data.length; i++) {
+                labels.push(data[i]['name'])
+                series.push(data[i]['total'])
+            }
+            var categoryOptions = {
+                chart: {
+                    type: 'donut'
+                },
+                legend: {
+                    position: 'top',
+                },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '45%',
+                            labels: {
+                                show: true
+                            }
+                        },
+                        labels: {
+                            show: true,
+                        }
+                    }
+                },
+                series: series,
+                labels: labels
+            }
+            var categoryChart = new ApexCharts(document.querySelector("#categoryChart"), categoryOptions);
+            categoryChart.render();
+        }
     </script>
 </body>
 

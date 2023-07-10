@@ -64,6 +64,34 @@ class admin_api extends Controller
 			echo $e->getMessage();
 		}
 	}
+
+
+	// barangay chart data
+	function barangay_chart_data()
+	{
+		$this->call->database();
+
+		try {
+			$this->is_authorized();
+			echo json_encode($this->db->table('users as u')->inner_join('barangays as b', 'u.barangay = b.id')->group_by('u.barangay')->select('count(u.id) as total, b.name')->get_all());
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	// category chart data
+	function category_chart_data()
+	{
+		$this->call->database();
+
+		try {
+			$this->is_authorized();
+			echo json_encode($this->db->table('products as p')->inner_join('categories as c', 'p.category = c.id')->group_by('p.category')->select('count(p.id) as total, c.name')->get_all());
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	// template
 	// function user_index()
 	// {
