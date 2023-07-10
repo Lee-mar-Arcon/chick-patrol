@@ -105,8 +105,14 @@ class m_admin extends Model
 		$this->db->table('products')->insert($bind);
 	}
 
-	function product_index($page, $q, $category)
+	function product_index($page, $q, $category, $availability)
 	{
+		if (ctype_space($availability) || $availability == 'all')
+			$availability = '%%';
+		else {
+			$availability = '%' . trim($availability) . '%';
+		}
+
 		if (ctype_space($category) || $category == 'all')
 			$category = '%%';
 		else {
@@ -120,14 +126,14 @@ class m_admin extends Model
 			$q = '%' . trim($q) . '%';
 
 		$totalRows = $this->db->raw(
-			"SELECT COUNT(p.id) as total FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? AND p.category LIKE ?",
-			[$q, $category]
+			"SELECT COUNT(p.id) as total FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? AND p.category LIKE ? AND p.available LIKE ?",
+			[$q, $category, $availability]
 		)[0]['total'];
 
 		return [
 			'products' => $this->m_encrypt->encrypt($this->db->raw(
-				"SELECT p.*, c.name as category_name FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? AND p.category LIKE ? order by p.name LIMIT 10 OFFSET ?",
-				[$q, $category, ($page - 1)  * 10]
+				"SELECT p.*, c.name as category_name FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? AND p.category LIKE ? AND p.available LIKE ? order by p.name LIMIT 10 OFFSET ?",
+				[$q, $category, $availability, ($page - 1)  * 10]
 			)),
 			'pagination' => [
 				'totalRows' => $totalRows,

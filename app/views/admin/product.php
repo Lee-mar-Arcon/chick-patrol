@@ -66,10 +66,21 @@
                                 <div>
                                     <input type="text" class="form-control rounded-pill border-primary" placeholder="Search..." id="product-search">
                                 </div>
-                                <div>
+                                <div class="d-flex justify-content-center">
+                                    <div class="me-2">
+                                        <div class="btn-group-vertical row bg-primary rounded text-white text-center fs-6 fw-bold m-0 p-1">
+                                            <div class="d-flex justify-content-center bg-primary text-white w-100 px-3 py-1">Availability</div>
+                                            <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> <span>All</span> <i class="mdi mdi-chevron-down"></i> </button>
+                                            <div class="dropdown-menu">
+                                                <button class="dropdown-item option-availability" data-value="all">All</button>
+                                                <button class="dropdown-item option-availability" data-value="1">Available</button>
+                                                <button class="dropdown-item option-availability" data-value="0">Unavailable</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="btn-group-vertical row bg-primary rounded text-white text-center fs-6 fw-bold m-0 p-1">
                                         <div class="d-flex justify-content-center bg-primary text-white w-100 px-3 py-1">Category</div>
-                                        <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> All <i class="mdi mdi-chevron-down"></i> </button>
+                                        <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> <span>All</span> <i class="mdi mdi-chevron-down"></i> </button>
                                         <div class="dropdown-menu">
                                             <button class="dropdown-item option-category" data-id="all">All</button>
                                             <?php foreach ($categories as $category) : ?>
@@ -268,6 +279,7 @@
 
         // Query data
         let q = {
+            availability: 'all',
             category: 'all',
             q: 'all',
             page: 1
@@ -279,7 +291,7 @@
         // product request
         function fetchProducts(q) {
             $('tbody').html('<tr class="align-middle rounded m-1"> <th colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin my-5 fs-1"></i></th></tr>')
-            let link = `<?= site_url('admin_api/product_index') ?>/${q.page}/${q.q}/${q.category}`
+            let link = `<?= site_url('admin_api/product_index') ?>/${q.page}/${q.q}/${q.category}/${q.availability}`
             axios.get(link, {
                     /* OPTIONS */
                 })
@@ -490,7 +502,7 @@
                 category = $(element).closest('td').prev().prev().prev().prev().html().trim()
                 category = $('#category option').map(function() {
                     if ($(this).html() == category)
-                    return $(this).val()
+                        return $(this).val()
                 }).get();
                 description = $(element).closest('tr').next().children('td').find('div.accordion-body').html().trim();
                 previewImage = $(element).closest('td').prev().prev().prev().prev().prev().prev().find('img.img-fluid').prop('src')
@@ -561,9 +573,18 @@
         })
 
         // category option event
-        $('.option-category').on('click', function() {
+        $(document).on('click', '.option-category', function() {
             q.category = $(this).attr('data-id')
-            console.log(q)
+            $(this).parent().prev().find('span:eq(0)').html($(this).html())
+            q.page = 1
+            handleFetchProducts(q)
+
+        })
+
+
+        $('.option-availability').on('click', function() {
+            q.availability = $(this).attr('data-value')
+            $(this).parent().prev().find('span:eq(0)').html($(this).html())
             q.page = 1
             handleFetchProducts(q)
         })
