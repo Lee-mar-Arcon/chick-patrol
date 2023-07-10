@@ -266,10 +266,13 @@ class admin extends Controller
 	// PRODUCT
 	function product()
 	{
+		$this->call->model('m_encrypt');
+		$categoriesForForm = $this->m_encrypt->encrypt($this->db->table('categories')->where_null('deleted_at')->get_all());
 		$this->call->view('admin/product', [
 			'pageTitle' => 'Admin | Products',
 			'breadCrumb' => 'Products',
 			'categories' => $this->m_admin->category_index(),
+			'categoriesForForm' => $categoriesForForm,
 			'formMessage' => $this->session->flashdata('formMessage') !== null ? $this->session->flashdata('formMessage') : null,
 			'formData' => $this->session->flashdata('formData') !== null ? $this->session->flashdata('formData') : null,
 			'formErrors' => $this->session->flashdata('formErrors') !== null ? $this->session->flashdata('formErrors') : null,

@@ -18,18 +18,18 @@ class m_encrypt extends Model
       return $iv;
    }
 
+   function modify_id_with_offset($cipher, $key, $iv, $item)
+   {
+      $ciphertext = openssl_encrypt($item['id'], $cipher, $key, 0, $iv);
+      $item['id'] = preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($iv . $ciphertext));
+      return $item;
+   }
 
    public function encrypt($data)
    {
 
       if (is_array($data)) {
-         function modify_id_with_offset($cipher, $key, $iv, $item)
-         {
-            $ciphertext = openssl_encrypt($item['id'], $cipher, $key, 0, $iv);
-            $item['id'] = preg_replace('/[^a-zA-Z0-9]/', '', base64_encode($iv . $ciphertext));
-            return $item;
-         }
-         $data = array_map(fn ($item) => modify_id_with_offset($this->cipher, $this->key, $this->generate_iv(), $item), $data);
+         $data = array_map(fn ($item) => $this->modify_id_with_offset($this->cipher, $this->key, $this->generate_iv(), $item), $data);
       } else {
          $iv = $this->generate_iv();
          $ciphertext = openssl_encrypt($data, $this->cipher, $this->key, 0, $iv);

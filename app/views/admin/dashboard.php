@@ -29,9 +29,19 @@
             <div class="content">
 
                 <div class="container-fluid">
-
+                    <div class="row">
+                        <div class="col-sm-12 col-lg-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    Barangay
+                                </div>
+                                <div class="card-body">
+                                    <div id="barangayChart"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     content here
-
                 </div>
 
             </div>
@@ -57,11 +67,47 @@
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/feather-icons/feather.min.js"></script>
     <!-- App js -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
+    <!-- apex charts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         $('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
         $('.toggle-sidebar').on('click', function() {
             $('body').toggleClass('sidebar-enable')
         })
+
+
+
+        var barangayOptions = {
+            chart: {
+                type: 'donut'
+            },
+            legend: {
+                posiposition: 'top',
+            },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '45%',
+                        labels: {
+                            show: true
+                        }
+                    },
+                    labels: {
+                        show: true,
+                        name: {
+
+                        },
+                        value: {
+
+                        }
+                    }
+                }
+            },
+            series: [30, 40, 35, 50],
+            labels: ['Apple', 'Mango', 'Orange', 'Wat123123132ermelon']
+        }
+        var barangayChart = new ApexCharts(document.querySelector("#barangayChart"), barangayOptions);
+        barangayChart.render();
     </script>
 </body>
 

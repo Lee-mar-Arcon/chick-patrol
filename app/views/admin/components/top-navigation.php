@@ -13,7 +13,7 @@
       </li>
 
       <li class="dropdown notification-list topbar-dropdown">
-         <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+         <a class="nav-link dropdown-toggle nav-user me-0 waves-effect waves-light" data-bs-toggle="dropdown" href="" role="button" aria-haspopup="false" aria-expanded="false">
             <img src="<?= BASE_URL . PUBLIC_DIR ?>/logo.png" alt="user-image" class="rounded-circle">
             <span class="pro-user-name ms-1">
                Administrator <i class="mdi mdi-chevron-down"></i>
@@ -58,15 +58,15 @@
 
    <!-- LOGO -->
    <div class="logo-box">
-      <a href="index.html" class="logo logo-light text-center">
+      <a href="<?= site_url('admin/dashboard') ?>" class="logo logo-light text-center">
          <span class="logo-sm">
             <img src="<?= BASE_URL . PUBLIC_DIR ?>/logo.png" alt="" height="22">
          </span>
          <span class="logo-lg">
-            <img src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/images/logo-light.png" alt="" height="16">
+            <img src="<?= BASE_URL . PUBLIC_DIR ?>/logo.png" alt="" height="16">
          </span>
       </a>
-      <a href="index.html" class="logo logo-dark text-center">
+      <a href="<?= site_url('admin/dashboard') ?>" class="logo logo-dark text-center">
          <span class="logo-sm">
             <img src="<?= BASE_URL . PUBLIC_DIR ?>/logo.png" alt="" height="22">
          </span>

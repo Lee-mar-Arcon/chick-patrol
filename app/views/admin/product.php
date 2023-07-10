@@ -151,7 +151,7 @@
             <div class="mb-3">
                 <label for="category" class="form-label">Category<span class="text-danger"> *</span></label>
                 <select class="form-select form-select-md" name="category" id="category">
-                    <?php foreach ($categories as $category) : ?>
+                    <?php foreach ($categoriesForForm as $category) : ?>
                         <option value="<?= $category['id'] ?>"><?= $category['name'] ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -575,6 +575,7 @@
         // category option event
         $(document).on('click', '.option-category', function() {
             q.category = $(this).attr('data-id')
+            console.log(q)
             $(this).parent().prev().find('span:eq(0)').html($(this).html())
             q.page = 1
             handleFetchProducts(q)
