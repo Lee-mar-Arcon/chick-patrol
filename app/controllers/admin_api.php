@@ -92,6 +92,27 @@ class admin_api extends Controller
 		}
 	}
 
+	// product search in dashboard
+	function product_search($q = '')
+	{
+		try {
+			$this->is_authorized();
+			echo json_encode($this->m_admin->product_search($q));
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function barangay_search($q = '')
+	{
+		try {
+			$this->is_authorized();
+			echo json_encode($this->m_admin->barangay_search($q));
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	// template
 	// function user_index()
 	// {

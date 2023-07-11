@@ -142,4 +142,18 @@ class m_admin extends Model
 			]
 		];
 	}
+
+	function product_search($q)
+	{
+		if (strlen($q) == 0) $q = '%%';
+		else $q = '%' . $q . '%';	
+		return $this->m_encrypt->encrypt($this->db->table('products')->select('name, id')->like('name', $q)->limit(10)->get_all());
+	}
+
+	function barangay_search($q)
+	{
+		if (strlen($q) == 0) $q = '%%';
+		else $q = '%' . $q . '%';	
+		return $this->m_encrypt->encrypt($this->db->table('barangays')->select('name, id')->like('name', $q)->limit(10)->get_all());
+	}
 }
