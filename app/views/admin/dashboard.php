@@ -71,7 +71,12 @@
 											Delivery fee price History
 										</div>
 										<div>
-											<input type="text" class="form-control rounded-pill bg-white border-light" placeholder="Search...">
+											<div class="dropdown">
+												<input class="text-start btn btn-light dropdown-toggle" type="text" id="barangay-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												<div class="dropdown-menu">
+													<div class="dropdown-item">haha</div>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
@@ -79,6 +84,15 @@
 									<div id="delivery-fee-history"></div>
 								</div>
 							</div>
+						</div>
+					</div>
+				</div>
+				product
+				<div>
+					<div class="dropdown">
+						<input class="text-start btn btn-light dropdown-toggle" type="text" id="product-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<div class="dropdown-menu">
+							<div class="dropdown-item">haha</div>
 						</div>
 					</div>
 				</div>
@@ -109,6 +123,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 	<!-- axios -->
 	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+	<!-- loadash -->
+	<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 	<script>
 		$('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
 		$('.toggle-sidebar').on('click', function() {
@@ -288,6 +304,32 @@
 
 			DeliveryFeeHistoryChart = new ApexCharts(document.querySelector("#delivery-fee-history"), DeliveryFeeHistoryOptions);
 			DeliveryFeeHistoryChart.render();
+		}
+
+		$('#barangay-search-dropdown').on('input', function() {
+			handleFetchSearch('barangay', $(this).val())
+		})
+
+		$('#product-search-dropdown').on('input', function() {
+			handleFetchSearch('product', $(this).val())
+		})
+
+		const handleFetchSearch = _.debounce((table, q) => fetchSearch(table, q), 1000);
+
+
+		function fetchSearch(table, q) {
+			let barangayLink = `<?= site_url('admin_api/barangay_search') ?>/${q}`
+			let productLink = `<?= site_url('admin_api/product_search') ?>/${q}`
+			axios.get(table == 'barangay' ? barangayLink : productLink, {
+					/* OPTIONS */
+				})
+				.then(function(response) {
+					console.log(response.data)
+				})
+				.catch(function(error) {
+					console.log(error);
+				})
+				.finally(function() {});
 		}
 	</script>
 </body>
