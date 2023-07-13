@@ -195,6 +195,24 @@
             </div>
         </div>
     </div>
+
+    <!-- image preview modal -->
+    <div id="preview-image-modal" class="modal fade" tabindex="-1" aria-labelledby="standard-modalLabel" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="preview-image-label"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex justify-content-center">
+                    <img class="img-fluid" src="" alt="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="available-unavailable-form"></div>
     <!-- Vendor -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
@@ -363,7 +381,7 @@
             for (let i = 0; i < products.length; i++) {
                 const tableTR = $('<tr></tr>').attr('id', products[i]['id']);
                 $('tbody').append(tableTR);
-                tableTR.append('<td><img src="' + imagelink + products[i]['image'] + '" alt="" height="150" width="150" class="img-fluid rounded"></td>')
+                tableTR.append('<td><img src="' + imagelink + products[i]['image'] + '" alt="" height="150" width="150" class="img-fluid rounded product-image" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#preview-image-modal"></td>')
                 for (let x = 0; x < keys.length; x++) {
                     tableTR.append('<td> ' + products[i][keys[x]] + ' </td>')
                 }
@@ -659,6 +677,12 @@
             form.append(submitBtn);
             form.submit();
         }
+
+        $(document).on('click', '.product-image', function() {
+            console.log()
+            $('#preview-image-label').html($(this).parent().next().html())
+            $('#preview-image-modal').find('img:eq(0)').attr('src', $(this).attr('src'))
+        })
     </script>
 </body>
 
