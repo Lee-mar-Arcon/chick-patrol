@@ -156,7 +156,7 @@ class account extends Controller
 							if ($user[0]['is_admin'])
 								redirect('admin/dashboard');
 							else
-								redirect('customer/home-page');
+								redirect('customer/homepage');
 						} else {
 							$this->session->set_flashdata(['error' => 'Wrong credentials']);
 						}

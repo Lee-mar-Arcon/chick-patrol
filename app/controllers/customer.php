@@ -14,10 +14,10 @@ class customer extends Controller
 			if ($this->session->userdata('user')['is_admin'])
 			redirect('account/login');
 	}
-	public function home_page()
+	public function homepage()
 	{
-		// $this->call->view('admin/dashboard', [
-		// 	'pageTitle' => 'Dashboard'
-		// ]);
+		$this->call->view('customer/homepage', [
+			'pageTitle' => 'Home'
+		]);
 	}
 }
