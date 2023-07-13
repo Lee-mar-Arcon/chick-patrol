@@ -250,7 +250,6 @@
             handleFetchProducts(q)
 
             // form validation response handler
-            console.log(formData)
             switch (formMessage) {
                 case 'failed':
                     // populate form with formData

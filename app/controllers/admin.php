@@ -26,12 +26,12 @@ class admin extends Controller
 		]);
 	}
 
-	function upload_cropped_image($filename)
+	function upload_cropped_image($filename, $table)
 	{
 		$base64Image = $_POST['croppedImage'];
 		$data = str_replace('data:image/png;base64,', '', $base64Image);
 		$imageData = base64_decode($data);
-		$savePath = 'public/images/products/cropped/' . $filename;
+		$savePath = $table == 'product' ? 'public/images/products/cropped/' . $filename : 'public/images/category/cropped/' . $filename;
 		file_put_contents($savePath, $imageData);
 		return $filename;
 	}
@@ -52,10 +52,11 @@ class admin extends Controller
 	}
 
 	// UPLOAD IMAGE 
-	function uploadOriginalImage()
+	function uploadOriginalImage($table)
 	{
+		$directory = $table == 'product' ? 'public/images/products/original' : 'public/images/category/original';
 		$this->call->library('upload', $_FILES['imageInput']);
-		$this->upload->max_size(10)->set_dir('public/images/products/original')->allowed_extensions(array('jpg', 'png'))->is_image()->encrypt_name();
+		$this->upload->max_size(10)->set_dir($directory)->allowed_extensions(array('jpg', 'png'))->is_image()->encrypt_name();
 		if ($this->upload->do_upload()) {
 			return $this->upload->get_filename();
 		}
@@ -199,17 +200,50 @@ class admin extends Controller
 
 	function category_store()
 	{
-		$this->form_validation
-			->name('name')
-			->min_length(1, 'Must be 1-100 characters in length only.')
-			->max_length(100, 'Must be 1-100 characters in length only.');
-		if ($this->form_validation->run()) {
-			$this->m_admin->category_store($this->io->post('name'));
-		} else {
-			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
-			$this->session->set_flashdata(['formData' => $_POST]);
+		// sa product
+		if ($this->form_validation->submitted()) {
+			$imageUploaded = true;
+
+			$this->form_validation
+				->name('name')
+				->min_length(1, 'Must be 1-100 characters in length only.')
+				->max_length(100, 'Must be 1-100 characters in length only.');
+			// product image
+			if (strlen($_FILES['imageInput']['name']) == 0)
+				$imageUploaded = false;
+
+
+
+			if ($imageUploaded)
+				if ($this->form_validation->run()) {
+					$filename = $this->upload_cropped_image($this->uploadOriginalImage('category'), 'category');
+					$this->m_admin->category_store($this->io->post('name'), $filename);
+				} else {
+					$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
+					$this->session->set_flashdata(['formData' => $_POST]);
+				}
+			else
+				$this->session->set_flashdata(['formMessage' => 'upload error']);
+			redirect('admin/category');
+
+
+
+
+
+
+
+			// $this->form_validation
+			// 	->name('name')
+			// 	->min_length(1, 'Must be 1-100 characters in length only.')
+			// 	->max_length(100, 'Must be 1-100 characters in length only.');
+			// if ($this->form_validation->run()) {
+			// 	$this->m_admin->category_store($this->io->post('name'));
+			// } else {
+			// 	$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
+			// 	$this->session->set_flashdata(['formData' => $_POST]);
+			// }
+			// redirect('admin/category');
 		}
-		redirect('admin/category');
 	}
 
 	function category_update()
@@ -222,7 +256,17 @@ class admin extends Controller
 
 
 		if ($this->form_validation->run()) {
-			$this->m_admin->category_update($this->io->post('id'), $this->io->post('name'));
+			// perform file handling if new image is added
+			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$currentCategory = $this->db->table('categories')->where('id', $id)->get();
+			$filename = $currentCategory['image'];
+			if (strlen($_FILES['imageInput']['name']) > 0) {
+				unlink('././public/images/category/cropped/' . $currentCategory['image']);
+				unlink('././public/images/category/original/' . $currentCategory['image']);
+				$filename = $this->upload_cropped_image($this->uploadOriginalImage('category'), 'category');
+			}
+
+			$this->m_admin->category_update($this->io->post('id'), $this->io->post('name'), $filename);
 		} else {
 			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
 			$this->session->set_flashdata(['formData' => $_POST]);
@@ -328,7 +372,7 @@ class admin extends Controller
 				$this->session->set_flashdata(['formData' => $_POST]);
 			} else {
 				if ($this->form_validation->run()) {
-					$filename = $this->upload_cropped_image($this->uploadOriginalImage());
+					$filename = $this->upload_cropped_image($this->uploadOriginalImage('product'), 'product');
 					$this->m_admin->product_store(
 						$this->io->post('name'),
 						$this->io->post('category'),
@@ -348,9 +392,9 @@ class admin extends Controller
 
 	function product_update()
 	{
-		$id = $this->m_encrypt->decrypt($this->io->post('id'));
-		$category = $this->m_encrypt->decrypt($this->io->post('category'));
 		if ($this->form_validation->submitted()) {
+			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$category = $this->m_encrypt->decrypt($this->io->post('category'));
 			$errors = array();
 			// name
 			$this->form_validation
@@ -398,7 +442,7 @@ class admin extends Controller
 				if (strlen($_FILES['imageInput']['name']) > 0) {
 					unlink('././public/images/products/cropped/' . $currentProductInfo['image']);
 					unlink('././public/images/products/original/' . $currentProductInfo['image']);
-					$filename = $this->upload_cropped_image($this->uploadOriginalImage());
+					$filename = $this->upload_cropped_image($this->uploadOriginalImage('product'), 'product');
 				}
 
 				$this->db->table('products')->where('id', $id)->update(array(

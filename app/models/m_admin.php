@@ -20,7 +20,7 @@ class m_admin extends Model
 		return $this->m_encrypt->encrypt($this->db->table('categories')->order_by('name', 'asc')->get_all());
 	}
 
-	function category_store($name)
+	function category_store($name, $image)
 	{
 		$exists = $this->db->table('categories')->where('LOWER(name)', strtolower($name))->get();
 		if ($exists) {
@@ -32,12 +32,12 @@ class m_admin extends Model
 				$this->session->set_flashdata(['formMessage' => 'restored']);
 			}
 		} else {
-			$this->db->table('categories')->insert(['name' => $name]);
+			$this->db->table('categories')->insert(['name' => $name, 'image' => $image]);
 			$this->session->set_flashdata(['formMessage' => 'success']);
 		}
 	}
 
-	function category_update($id, $name)
+	function category_update($id, $name, $filename)
 	{
 		$id = $this->m_encrypt->decrypt($id);
 		$name = $name;
@@ -47,7 +47,7 @@ class m_admin extends Model
 			$this->session->set_flashdata(['formMessage' => 'exists']);
 			$this->session->set_flashdata(['formData' => $_POST]);
 		} else {
-			$this->db->table('categories')->where('id', $id)->update(['name' => $name]);
+			$this->db->table('categories')->where('id', $id)->update(['name' => $name, 'image' => $filename]);
 			$this->session->set_flashdata(['formMessage' => 'updated']);
 		}
 	}
