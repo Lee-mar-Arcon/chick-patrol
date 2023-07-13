@@ -55,7 +55,7 @@ class admin extends Controller
 	function uploadOriginalImage()
 	{
 		$this->call->library('upload', $_FILES['imageInput']);
-		$this->upload->max_size(3)->set_dir('public/images/products/original')->allowed_extensions(array('jpg', 'png'))->is_image()->encrypt_name();
+		$this->upload->max_size(10)->set_dir('public/images/products/original')->allowed_extensions(array('jpg', 'png'))->is_image()->encrypt_name();
 		if ($this->upload->do_upload()) {
 			return $this->upload->get_filename();
 		}
@@ -130,7 +130,7 @@ class admin extends Controller
 			if ($currentRow['name'] == $name && $currentRow['delivery_fee'] != $delivery_fee) {
 				$this->session->set_flashdata(['formMessage' => 'updated']);
 				$this->db->table('delivery_fee_history')->insert(['barangay_id' => $id, 'delivery_fee' => $currentRow['delivery_fee'], 'added_at' => $currentRow['updated_at']]);
-				$this->db->table('barangays')->where('id', $id)->update(['delivery_fee' => $delivery_fee, 'updated_at' => date('Y-m-d H:i:s')]);
+				$this->db->table('barangays')->where('id', $id)->update(['delivery_fee' => $delivery_fee, 'updated_at' => date('Y-m-d H:i:s'), 'name' => $this->io->post('name')]);
 			}
 			// send error if new name exists 
 			else if ($exists) {
@@ -141,7 +141,7 @@ class admin extends Controller
 			else {
 				if ($currentRow['delivery_fee'] != $delivery_fee)
 					$this->db->table('delivery_fee_history')->insert(['barangay_id' => $id, 'delivery_fee' => $currentRow['delivery_fee'], 'added_at' => $currentRow['updated_at']]);
-				$this->db->table('barangays')->where('id', $id)->update(['delivery_fee' => $delivery_fee, 'updated_at' => date('Y-m-d H:i:s')]);
+				$this->db->table('barangays')->where('id', $id)->update(['delivery_fee' => $delivery_fee, 'updated_at' => date('Y-m-d H:i:s'), 'name' => $this->io->post('name')]);
 				$this->session->set_flashdata(['formMessage' => 'updated']);
 			}
 		} else {

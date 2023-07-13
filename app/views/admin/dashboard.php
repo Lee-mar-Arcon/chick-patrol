@@ -36,9 +36,6 @@
 										<div class="d-flex align-items-center text-white fs-4 fw-bold">
 											Barangay
 										</div>
-										<!-- <div>
-                                            <input type="text" class="form-control rounded-pill bg-white border-light" placeholder="Search...">
-                                        </div> -->
 									</div>
 								</div>
 								<div class="card-body p-sm-0 p-md-4">
@@ -53,9 +50,6 @@
 										<div class="d-flex align-items-center text-white fs-4 fw-bold">
 											Category
 										</div>
-										<!-- <div>
-                                            <input type="text" class="form-control rounded-pill bg-white border-light" placeholder="Search...">
-                                        </div> -->
 									</div>
 								</div>
 								<div class="card-body p-sm-0 p-md-4">
@@ -70,11 +64,14 @@
 										<div class="d-flex align-items-center text-white fs-4 fw-bold">
 											Delivery fee price History
 										</div>
-										<div>
+										<div class="d-flex">
+											<span class="form-control d-flex align-items-center p-0 ps-2 me-1">
+												<span class="p-0">Year:</span>
+												<input class="form-control border-0 m-0" style="width: 80px;" id="barangay-search-year" type="number" step="1" value="<?= date('Y') ?>">
+											</span>
 											<div class="dropdown">
-												<input class="text-start btn btn-light dropdown-toggle" type="text" id="barangay-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-												<div class="dropdown-menu">
-													<div class="dropdown-item">haha</div>
+												<input class="text-start btn btn-light dropdown-toggle" type="text" style="cursor:text" id="barangay-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" placeholder="search barangay">
+												<div class="dropdown-menu" style="cursor: pointer;">
 												</div>
 											</div>
 										</div>
@@ -85,15 +82,53 @@
 								</div>
 							</div>
 						</div>
-					</div>
-				</div>
-				product
-				<div>
-					<div class="dropdown">
-						<input class="text-start btn btn-light dropdown-toggle" type="text" id="product-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-						<div class="dropdown-menu">
-							<div class="dropdown-item">haha</div>
+
+
+
+
+
+
+
+
+
+
+
+						<div class="col-sm-12 col-lg-6 p-3">
+							<div class="card" style="min-height: 800px;">
+								<div class="card-header bg-primary">
+									<div class="d-flex justify-content-between">
+										<div class="d-flex align-items-center text-white fs-4 fw-bold">
+											Product price History
+										</div>
+										<div class="d-flex">
+											<span class="form-control d-flex align-items-center p-0 ps-2 me-1">
+												<span class="p-0">Month:</span>
+												<input class="form-control border-0 m-0" style="width: 120px;" id="product-search-month" type="month" step="1" value="<?= date('Y-m') ?>">
+											</span>
+											<div class="dropdown">
+												<input class="text-start btn btn-light dropdown-toggle" type="text" style="cursor:text" id="product-search-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" placeholder="search product" aria-expanded="false">
+												<div class="dropdown-menu" style="cursor: pointer;">
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="card-body p-sm-0 p-md-4">
+									<div id="product-price-history"></div>
+								</div>
+							</div>
 						</div>
+
+
+
+
+
+
+
+
+
+
+
 					</div>
 				</div>
 			</div>
@@ -104,7 +139,6 @@
 				</div>
 			</footer>
 			<!-- end Footer -->
-
 		</div>
 	</div>
 
@@ -131,22 +165,19 @@
 			$('body').toggleClass('sidebar-enable')
 		})
 		$(document).ready(function() {
+
+			setTimeout(function() {
+				handleFetchSearch('product', '')
+			}, 2000)
+			handleFetchSearch('barangay', '')
 			fetchChartData(`<?= site_url('admin_api/barangay_chart_data') ?>`, renderBarangayChart)
 			fetchChartData(`<?= site_url('admin_api/category_chart_data') ?>`, renderCategoryChart)
-			renderDeliveryFeeHistory([{
-				name: '1',
-				fee: 2
-			}, {
-				name: '1',
-				fee: 10
-			}, {
-				name: '1',
-				fee: 11
-			}])
 		})
 		// chart variables
 		let DeliveryFeeHistoryOptions = {}
 		let DeliveryFeeHistoryChart = ''
+		let productPriceHistoryOptions = {}
+		let productPriceHistoryChart = ''
 
 		function fetchChartData(link, renderChart) {
 			return axios.get(link, {
@@ -239,9 +270,13 @@
 
 			DeliveryFeeHistoryOptions = {
 				series: [{
-					name: "Session Duration",
+					name: "",
 					data: series
-				}, ],
+				}],
+				title: {
+					text: '',
+					align: 'left'
+				},
 				chart: {
 					height: 350,
 					type: 'line',
@@ -269,15 +304,13 @@
 					}
 				},
 				xaxis: {
-					categories: ['01 Jan', '02 Jan', '03 Jan', '04 Jan', '05 Jan', '06 Jan', '07 Jan', '08 Jan', '09 Jan',
-						'10 Jan', '11 Jan', '12 Jan'
-					],
+					categories: [],
 				},
 				tooltip: {
 					y: [{
 							title: {
 								formatter: function(val) {
-									return val + " (mins)"
+									return val
 								}
 							}
 						},
@@ -306,6 +339,87 @@
 			DeliveryFeeHistoryChart.render();
 		}
 
+
+		// product price history chart render
+		function productPriceHistory(data) {
+			let labels = []
+			let series = []
+			for (let i = 0; i < data.length; i++) {
+				labels.push(data[i]['name'])
+				series.push(data[i]['fee'])
+			}
+
+			productPriceHistoryOptions = {
+				series: [{
+					name: "",
+					data: series
+				}],
+				title: {
+					text: '',
+					align: 'left'
+				},
+				chart: {
+					height: 350,
+					type: 'line',
+					zoom: {
+						enabled: false
+					},
+				},
+				dataLabels: {
+					enabled: false
+				},
+				stroke: {
+					width: [5, 7, 5],
+					curve: 'straight',
+					dashArray: [0, 8, 5]
+				},
+				legend: {
+					tooltipHoverFormatter: function(val, opts) {
+						return val + ' - ' + opts.w.globals.series[opts.seriesIndex][opts.dataPointIndex] + ''
+					}
+				},
+				markers: {
+					size: 0,
+					hover: {
+						sizeOffset: 6
+					}
+				},
+				xaxis: {
+					categories: [],
+				},
+				tooltip: {
+					y: [{
+							title: {
+								formatter: function(val) {
+									return val
+								}
+							}
+						},
+						{
+							title: {
+								formatter: function(val) {
+									return val + " per session"
+								}
+							}
+						},
+						{
+							title: {
+								formatter: function(val) {
+									return val;
+								}
+							}
+						}
+					]
+				},
+				grid: {
+					borderColor: '#f1f1f1',
+				}
+			};
+
+			productPriceHistoryChart = new ApexCharts(document.querySelector("#product-price-history"), DeliveryFeeHistoryOptions);
+			productPriceHistoryChart.render();
+		}
+
 		$('#barangay-search-dropdown').on('input', function() {
 			handleFetchSearch('barangay', $(this).val())
 		})
@@ -314,23 +428,113 @@
 			handleFetchSearch('product', $(this).val())
 		})
 
+		$(document).on('click', '.dropdown-item', function() {
+			$(this).parent().prev().val($(this).html()).attr('data-id', $(this).attr('data-id'))
+			if ($(this).parent().prev().attr('id').indexOf('barangay') == 0)
+				handleFetchHistory('barangay', $(this).attr('data-id'), $('#barangay-search-year').val())
+			else
+				handleFetchHistory('product', $(this).attr('data-id'), $('#product-search-month').val())
+		})
+
 		const handleFetchSearch = _.debounce((table, q) => fetchSearch(table, q), 1000);
+		const handleFetchHistory = _.debounce((table, id, date) => fetchHistory(table, id, date), 1000);
 
-
-		function fetchSearch(table, q) {
+		function fetchSearch(table, q = '') {
 			let barangayLink = `<?= site_url('admin_api/barangay_search') ?>/${q}`
 			let productLink = `<?= site_url('admin_api/product_search') ?>/${q}`
 			axios.get(table == 'barangay' ? barangayLink : productLink, {
 					/* OPTIONS */
 				})
 				.then(function(response) {
-					console.log(response.data)
+					populateDropdown(response.data, table)
+					if (table == 'barangay') {
+						renderDeliveryFeeHistory([])
+						handleFetchHistory('barangay', $('#barangay-search-dropdown').next().find('.dropdown-item:eq(0)').attr('data-id'), $('#barangay-search-year').val())
+					} else {
+						productPriceHistory([])	
+						handleFetchHistory('product', $('#product-search-dropdown').next().find('.dropdown-item:eq(0)').attr('data-id'), $('#product-search-month').val())
+					}
+
 				})
 				.catch(function(error) {
 					console.log(error);
 				})
 				.finally(function() {});
 		}
+
+		function populateDropdown(data, searchbar) {
+			let searchbarId = '#';
+			if (searchbar == 'barangay')
+				searchbarId += 'barangay-search-dropdown'
+			else
+				searchbarId += 'product-search-dropdown'
+			let dropdownListContainer = $(searchbarId).next()
+			dropdownListContainer.html('')
+			for (let i = 0; i < data.length; i++)
+				dropdownListContainer.append(`<div data-id="${data[i]['id']}" class="dropdown-item">${data[i]['name']}</div>`)
+		}
+
+		function fetchHistory(table, id, date) {
+			console.log(date)
+			let barangayLink = `<?= site_url('admin_api/delivery_fee_history') ?>/${id}/${date}`
+			let productLink = `<?= site_url('admin_api/product_price_history') ?>/${id}/${date}`
+			axios.get(table == 'barangay' ? barangayLink : productLink, {
+					/* OPTIONS */
+				})
+				.then(function(response) {
+					let history = response.data['history']
+					series = []
+					categories = []
+					if (table == 'barangay') {
+						for (let i = 0; i < history.length; i++) {
+							series.push(history[i]['delivery_fee'])
+							categories.push(history[i]['added_at'])
+						}
+						DeliveryFeeHistoryChart.updateOptions({
+							series: [{
+								name: "Delivery fee",
+								data: series
+							}],
+							xaxis: {
+								categories: categories,
+							},
+							title: {
+								text: response.data['barangay']['name'],
+							},
+						})
+					} else {
+						console.log(response.data)
+						for (let i = 0; i < history.length; i++) {
+							series.push(history[i]['price'])
+							categories.push(history[i]['added_at'])
+						}
+						productPriceHistoryChart.updateOptions({
+							series: [{
+								name: "Price",
+								data: series
+							}],
+							xaxis: {
+								categories: categories,
+							},
+							title: {
+								text: response.data['product']['name'],
+							},
+						})
+					}
+				})
+				.catch(function(error) {
+					console.log(error);
+				})
+				.finally(function() {});
+		}
+
+		$('#barangay-search-year').on('change', function() {
+			handleFetchHistory('barangay', $('#barangay-search-dropdown').attr('data-id'), $('#barangay-search-year').val())
+		})
+
+		$('#product-search-month').on('change', function() {
+			handleFetchHistory('product', $('#product-search-dropdown').attr('data-id'), $('#product-search-month').val())
+		})
 	</script>
 </body>
 

@@ -113,6 +113,25 @@ class admin_api extends Controller
 		}
 	}
 
+	function delivery_fee_history($id, $date)
+	{
+		try {
+			$this->is_authorized();
+			echo json_encode($this->m_admin->delivery_fee_history($id, $date));
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function product_price_history($id, $date)
+	{
+		try {
+			$this->is_authorized();
+			echo json_encode($this->m_admin->product_price_history($id, $date));
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 	// template
 	// function user_index()
 	// {

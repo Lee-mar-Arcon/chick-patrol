@@ -138,7 +138,7 @@
             <label for="example-fileinput" class="form-label text-center fs-3 w-100">Product Image</label>
             <div class="text-center">
                 <img src="<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded my-2 mb-5">
-                <input type="file" id="imageInput" name="imageInput" class="form-control" accept="image/png, image/jpg, image/jpeg">
+                <input type="file" id="imageInput" name="imageInput" class="form-control" accept="image/png, image/jpg, image/jpeg, image/webp">
             </div>
 
             <!-- product name -->
@@ -433,7 +433,7 @@
             }
             cropper = new Cropper(document.getElementById('productImageCanvas'), {
                 aspectRatio: 1 / 1,
-                viewMode: 1,
+                viewMode: 0,
                 minContainerWidth: 450,
                 minContainerHeight: 500,
                 dragMode: 'move',

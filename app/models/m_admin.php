@@ -146,14 +146,30 @@ class m_admin extends Model
 	function product_search($q)
 	{
 		if (strlen($q) == 0) $q = '%%';
-		else $q = '%' . $q . '%';	
-		return $this->m_encrypt->encrypt($this->db->table('products')->select('name, id')->like('name', $q)->limit(10)->get_all());
+		else $q = '%' . $q . '%';
+		return $this->m_encrypt->encrypt($this->db->table('products')->select('name, id')->like('name', $q)->order_by('name', 'ASC')->limit(10)->get_all());
 	}
 
 	function barangay_search($q)
 	{
 		if (strlen($q) == 0) $q = '%%';
-		else $q = '%' . $q . '%';	
-		return $this->m_encrypt->encrypt($this->db->table('barangays')->select('name, id')->like('name', $q)->limit(10)->get_all());
+		else $q = '%' . $q . '%';
+		return $this->m_encrypt->encrypt($this->db->table('barangays')->select('name, id')->like('name', $q)->order_by('name', 'ASC')->limit(10)->get_all());
+	}
+
+	function delivery_fee_history($id, $date)
+	{
+		$date .= '%';
+		$result['history'] = $this->db->table('delivery_fee_history as d')->select("DATE_FORMAT(d.added_at, '%b %d') as added_at, d.delivery_fee")->where('barangay_id', $this->m_encrypt->decrypt($id))->like('added_at', $date)->order_by('added_at', 'ASC')->get_all();
+		$result['barangay'] = $this->db->table('barangays')->where('id', $this->m_encrypt->decrypt($id))->get();
+		return $result;
+	}
+
+	function product_price_history($id, $date)
+	{
+		$date .= '%';
+		$result['history'] = $this->db->table('product_price_history as p')->select("DATE_FORMAT(p.added_at, '%b %d') as added_at, p.price")->where('product_id', $this->m_encrypt->decrypt($id))->like('added_at', $date)->order_by('added_at', 'ASC')->get_all();
+		$result['product'] = $this->db->table('products as p')->select('p.name, p.price, categories.name as category')->inner_join('categories', 'p.category=categories.id')->where('p.id', $this->m_encrypt->decrypt($id))->get();
+		return $result;
 	}
 }
