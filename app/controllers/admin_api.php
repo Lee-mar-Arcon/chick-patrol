@@ -11,6 +11,15 @@ class admin_api extends Controller
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
 		$this->call->model('m_admin');
+		$this->call->model('m_encrypt');
+	}
+
+	function check_input($input)
+	{
+		$this->form_validation->run();
+		$result = isset($this->form_validation->get_errors()[0]) ? $this->form_validation->get_errors()[0] : null;
+		$this->form_validation->errors = array();
+		return $result;
 	}
 
 	function is_authorized()
@@ -128,6 +137,61 @@ class admin_api extends Controller
 		try {
 			$this->is_authorized();
 			echo json_encode($this->m_admin->product_price_history($id, $date));
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	// update inventory 
+	function update_inventory()
+	{
+		try {
+			$this->is_authorized();
+			$errors = array();
+			// id
+			$this->form_validation
+				->name('update_id')
+				->required('required.');
+			$result = $this->check_input('update_id');
+			$result != null ? $errors['update_id'] = $result : '';
+			// inventory type
+			if ($this->io->post('update_inventory_type') !== null) {
+				if ($this->io->post('update_inventory_type') != 'durable' && $this->io->post('update_inventory_type') != 'perishable')
+					$errors['update_inventory_type'] = 'invalid';
+			} else
+				$errors['update_inventory_type'] = 'invalid';
+			// price
+			$this->form_validation
+				->name('update_price')
+				->required('required.')
+				->numeric('invalid');
+			$result = $this->check_input('update_price');
+			$result != null ? $errors['update_price'] = $result : '';
+			// quantity
+			if ($this->io->post('update_inventory_type') == 'durable') {
+				$this->form_validation
+					->name('update_quantity')
+					->required('required.')
+					->numeric('invalid');
+				$result = $this->check_input('update_quantity');
+				$result != null ? $errors['update_quantity'] = $result : '';
+			}
+
+			$currentProduct = $this->db->table('products')->where('id', $this->m_encrypt->decrypt($this->io->post('update_id')))->get();
+			if (count($errors) == 0 && (($this->io->post('update_quantity') - $currentProduct['quantity']) != 0)) {
+				$this->call->database();
+				$this->db->table('products')->where('id', $this->m_encrypt->decrypt($this->io->post('update_id')))->update(array(
+					'quantity' => $this->io->post('update_inventory_type') == 'durable' ? $this->io->post('update_quantity') : null,
+					'price' => $this->io->post('update_price')
+				));
+				$this->db->table('inventory_adjustment_history')->insert(array(
+					'product_id' => $this->m_encrypt->decrypt($this->io->post('update_id')),
+					'price' => $this->io->post('update_price'),
+					'quantity_changed' => $this->io->post('update_quantity') - $currentProduct['quantity']
+				));
+				echo json_encode(array('status' => 'success'));
+			} else
+				echo json_encode(array('status' => 'error', 'errors' => $errors));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

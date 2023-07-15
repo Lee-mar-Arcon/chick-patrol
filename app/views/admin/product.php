@@ -102,7 +102,7 @@
                                             <th style="width: 130px;">Date added</th>
                                             <th style="width: 130px;">Updated at</th>
                                             <th class="text-center" style="width: 130px;">available</th>
-                                            <th class="text-center" style="width: 120px;">Action</th>
+                                            <th class="text-center" style="width: 180px;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="align-middle">
@@ -182,6 +182,44 @@
                 <button id="submit-form" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
             </div>
         </form>
+    </div>
+
+    <!-- Off Canvas for quantity update -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="edit-quantity-offcanvas" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+            <h5 class="fs-3 ms-2" id="edit-quantity-offcanvasLabel">Update product quantity</h5>
+            <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <input type="hidden" id="update_id" name="id">
+
+            <!-- inventory type -->
+            <div class="mb-3">
+                <label for="inventory-type" class="form-label">Inventory type<span class="text-danger"> *</span></label>
+                <select class="form-select form-select-md" name="update_inventory_type" id="update_inventory_type">
+                    <option value="perishable" selected>Perishable</option>
+                    <option value="durable">Durable goods</option>
+                </select>
+            </div>
+
+            <!-- quantity -->
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity
+                    <span class="text-danger"> *</span>
+                </label>
+                <input data-toggle="tooltip" data-placement="top" title="Tooltip Content" type="number" class="form-control" required name="update_quantity" id="update_quantity" step="0.01" placeholder="product price">
+            </div>
+
+            <!-- price -->
+            <div class="mb-3">
+                <label for="price" class="form-label">price<span class="text-danger"> *</span></label>
+                <input type="number" class="form-control" name="update_price" id="update_price" step="0.01" placeholder="product price">
+            </div>
+
+            <div class="text-end mt-3">
+                <button id="updateSubmitForm" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
+            </div>
+        </div>
     </div>
 
     <!-- crop image modal -->
@@ -408,12 +446,15 @@
                     '</td>'
                 )
                 // action
-                const isAvailableClass = products[i]['available'] ? 'make-product-uavailable' : 'make-product-unavailable'
+                const isAvailableClass = products[i]['available'] ? 'make-product-available' : 'make-product-unavailable'
                 const isAvailableIcon = !products[i]['available'] ? '<i class="mdi mdi-delete-restore fs-3 text-info"></i>' : '<i class="mdi mdi-delete fs-3 text-danger"></i>'
                 tableTR.append(`                                                        
                     <td class="text-center">
                         <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 ${isAvailableClass}">
                             ${isAvailableIcon}
+                        </span>
+                        <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-quantity" data-bs-toggle="offcanvas" data-bs-target="#edit-quantity-offcanvas" aria-controls="edit-quantity-offcanvas">
+                            <i class="mdi mdi-package fs-3 text-info"></i>
                         </span>
                         <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-product" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                             <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
@@ -544,7 +585,7 @@
                     // add new quantity input
                     if ($('#inventory-type').parent().next().find('#quantity').attr('id') == 'quantity')
                         $('#inventory-type').parent().next().remove()
-                    $('#inventory-type').parent().after($('<div class="mb-3"><label for="quantity" class="form-label">Quantity<span class="text-danger"> *</span></label><input style="cursor:not-allowed" disabled type="number" class="form-control" required name="quantity" value="'+$(element).closest('td').prev().prev().prev().prev().html().trim()+'" id="quantity" step="0.01" placeholder="product price"></div>'))
+                    $('#inventory-type').parent().after($('<div class="mb-3"><label for="quantity" class="form-label">Quantity<span class="text-danger"> *</span></label><input style="cursor:not-allowed" disabled type="number" class="form-control" required name="quantity" value="' + $(element).closest('td').prev().prev().prev().prev().html().trim() + '" id="quantity" step="0.01" placeholder="product price"></div>'))
                 }
                 $('#inventory-type').attr('disabled', true)
 
@@ -717,20 +758,85 @@
             $('#preview-image-modal').find('img:eq(0)').attr('src', $(this).attr('src'))
         })
 
-        $('#inventory-type').on('change', function() {
-            if ($(this).val() == 'durable')
-                $(this).closest('select').parent().after($(`            
+        $('#inventory-type, #update_inventory_type').on('change', function() {
+            let element = "#" + $(this).attr('id')
+            quantityId = $(this).attr('id') == 'inventory-type' ? 'quantity' : 'update_quantity'
+            if ($(element).val() == 'durable')
+                $(element).closest('select').parent().after($(`            
                 <div class="mb-3">
                     <label for="quantity" class="form-label">Quantity<span class="text-danger"> *</span></label>
-                    <input type="number" class="form-control" required name="quantity" id="quantity" step="0.01" placeholder="product price">
+                    <input type="number" class="form-control" required name="${quantityId}" id="${quantityId}" step="0.01" placeholder="product price">
                 </div>`))
             else {
-                console.log($(this).closest('select').parent().next().find('#quantity').attr('id'))
-                if ($(this).closest('select').parent().next().find('#quantity').attr('id') == 'quantity') {
-                    $(this).closest('select').parent().next().remove()
+                console.log($(element).closest('select').parent().next().find('#quantity').attr('id'))
+                if ($(element).closest('select').parent().next().find(`#${quantityId}`).attr('id') == quantityId) {
+                    $(element).closest('select').parent().next().remove()
                 }
             }
         })
+
+
+        $(document).on('click', '.edit-quantity', function() {
+            const id = $(this).closest('tr').attr('id')
+            const quantity = parseFloat($(this).closest('tr').find('td:eq(4)').html())
+            const price = parseFloat($(this).closest('tr').find('td:eq(2)').html())
+            $('#update_price').val(price)
+            $('#update_inventory_type').val(isNaN(quantity) ? 'perishable' : 'durable')
+
+            $('#update_id').val(id)
+            // if isNaN is true, the product is perishable good
+            if (isNaN(quantity)) {
+                $('#update_quantity').parent().prop('hidden', true)
+                $('#update_quantity').val(price)
+            } else {
+                $('#update_quantity').parent().prop('hidden', false).val(quantity)
+                $('#update_quantity').val(quantity)
+            }
+        })
+
+        $('#updateSubmitForm').on('click', function() {
+            const id = $('#update_id').val()
+            const inventoryType = $('#update_inventory_type').val()
+            const quantity = inventoryType == 'durable' ? $('#update_quantity').val() : 0;
+            const price = $('#update_price').val()
+            updateInventoryRequest(id, inventoryType, quantity, price)
+        })
+
+        function updateInventoryRequest(id, inventoryType, quantity, price) {
+            console.log('asd')
+            $.post('<?= site_url('admin_api/update-inventory') ?>', {
+                    update_id: id,
+                    update_inventory_type: inventoryType,
+                    update_quantity: quantity,
+                    update_price: price
+                })
+                .then(function(response) {
+                    // Success: Handle the response
+                    console.log(response.data)
+                    if (response.status == 'success') {
+                        Swal.fire({
+                            title: 'Product update success',
+                            text: "",
+                            icon: 'success',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            confirmButtonText: 'Understood!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '<?= site_url('admin/product') ?>'
+                            }
+                        })
+                    } else {
+                        $('.form-error-message').remove()
+                        for (let key in response.errors) {
+                            if (response.errors.hasOwnProperty(key)) {
+                                $('<div class="ms-1 text-danger form-error-message">' + response.errors[key] + '</div>').insertAfter($(`#${key}`))
+                                console.log(response.errors)
+                            }
+                        }
+                    }
+                })
+        }
     </script>
 </body>
 
