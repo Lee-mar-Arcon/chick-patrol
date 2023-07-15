@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zxx">
+
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="Ogani Template">
@@ -110,7 +111,7 @@
                         <ul>
                             <li class="active" data-filter="*">All</li>
                             <?php foreach ($categories as $category) : ?>
-                                <li data-filter=".<?= $category['name'] ?>"><?= $category['name'] ?></li>
+                                <li data-filter=".<?= str_replace(' ', '', $category['name']) ?>"><?= $category['name'] ?></li>
                             <?php endforeach; ?>
 
                         </ul>
@@ -119,7 +120,7 @@
             </div>
             <div class="row featured__filter">
                 <?php foreach ($products as $product) : ?>
-                    <div class="col-lg-3 col-md-4 col-sm-6 mix <?= $product['category_name'] ?>">
+                    <div class="col-lg-3 col-md-4 col-sm-6 mix <?= str_replace(' ', '', $product['category_name']) ?>">
                         <div class="featured__item">
                             <div class="featured__item__pic set-bg" data-setbg="<?= BASE_URL . PUBLIC_DIR . '/images/products/cropped/' . $product['image'] ?>">
                                 <ul class="featured__item__pic__hover">

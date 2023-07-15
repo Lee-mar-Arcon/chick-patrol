@@ -777,6 +777,7 @@
 
 
         $(document).on('click', '.edit-quantity', function() {
+            $('.form-error-message').remove()
             const id = $(this).closest('tr').attr('id')
             const quantity = parseFloat($(this).closest('tr').find('td:eq(4)').html())
             const price = parseFloat($(this).closest('tr').find('td:eq(2)').html())

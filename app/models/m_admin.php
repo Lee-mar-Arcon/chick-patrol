@@ -140,6 +140,9 @@ class m_admin extends Model
 				'totalRows' => $totalRows,
 				'totalPage' => ceil($totalRows / 10),
 				'currentPage' => (int)$page
+			],
+			'q' => [
+				$page, $q, $category, $availability
 			]
 		];
 	}
