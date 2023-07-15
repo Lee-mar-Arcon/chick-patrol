@@ -356,6 +356,21 @@ class admin extends Controller
 				->max_length(800, 'must be less than 800 characters, current length is ' . strlen($this->io->post('description')) . '.');
 			$result = $this->check_input('description');
 			$result != null ? $errors['description'] = $result : '';
+			// inventory type
+			$this->form_validation
+				->name('inventory-type')
+				->required('required.');
+			$result = $this->check_input('inventory-type');
+			$result != null ? $errors['inventory-type'] = $result : '';
+			// quantity
+			if ($this->io->post('inventory-type') == 'durable') {
+				$this->form_validation
+					->name('quantity')
+					->required('required.')
+					->numeric('invalid value');
+				$result = $this->check_input('quantity');
+				$result != null ? $errors['quantity'] = $result : '';
+			}
 			// product image
 			if (strlen($_FILES['imageInput']['name']) == 0)
 				$errors['imageInput'] = 'upload failed.';
@@ -372,13 +387,16 @@ class admin extends Controller
 				$this->session->set_flashdata(['formData' => $_POST]);
 			} else {
 				if ($this->form_validation->run()) {
+					($this->io->post('inventory-type') == 'durable') ?
+						$quantity = strlen($this->io->post('quantity')) == 0 ? '' : $this->io->post('quantity') : $quantity = null;
 					$filename = $this->upload_cropped_image($this->uploadOriginalImage('product'), 'product');
 					$this->m_admin->product_store(
 						$this->io->post('name'),
 						$this->io->post('category'),
 						$this->io->post('price'),
 						$this->io->post('description'),
-						$filename
+						$filename,
+						$quantity
 					);
 					$this->session->set_flashdata(['formMessage' => 'success']);
 				} else {
@@ -417,6 +435,7 @@ class admin extends Controller
 				->numeric('invalid value');
 			$result = $this->check_input('price');
 			$result != null ? $errors['price'] = $result : '';
+			
 			// description
 			$this->form_validation
 				->name('description')

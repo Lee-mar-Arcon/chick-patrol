@@ -93,14 +93,15 @@ class m_admin extends Model
 	}
 
 	// PRODUCT FUNCTIONS
-	function product_store($name, $category, $price, $description, $filename)
+	function product_store($name, $category, $price, $description, $filename, $quantity = null)
 	{
 		$bind = array(
 			'name' => $name,
 			'category' => $this->m_encrypt->decrypt($category),
 			'price' => $price,
 			'description' => $description,
-			'image' => $filename
+			'image' => $filename,
+			'quantity' => $quantity
 		);
 		$this->db->table('products')->insert($bind);
 	}

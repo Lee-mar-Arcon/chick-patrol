@@ -131,7 +131,7 @@ $LAVA = lava_instance();
             <label for="example-fileinput" class="form-label text-center fs-3 w-100">Category Image</label>
             <div class="text-center">
                 <img src="<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded my-2 mb-5">
-                <input type="file" id="imageInput" name="imageInput" class="form-control" accept="image/png, image/jpg, image/jpeg, image/webp">
+                <input type="file" id="imageInput" required name="imageInput" class="form-control" accept="image/png, image/jpg, image/jpeg, image/webp">
             </div>
             <div class="mb-3 mt-2">
                 <label for="name" class="form-label">Name<span class="text-danger"> *</span></label>
@@ -227,12 +227,14 @@ $LAVA = lava_instance();
         }
 
         $('#add-category').on('click', function() {
+            $('#imageInput').prop('required', true)
             updateForm('<?= BASE_URL ?>admin/category_store', 'Add new category')
         })
 
         $('.edit-category').on('click', function() {
+            $('#imageInput').prop('required', false)
             $('#offcanvasRightLabel').html('Edit category')
-            updateForm('<?= BASE_URL ?>admin/category_update', 'Update category', $('.edit-category').closest('td').prev().prev().prev().find('img:eq(0)').attr('src'))
+            updateForm('<?= BASE_URL ?>admin/category_update', 'Update category', $(this).closest('td').prev().prev().prev().find('img:eq(0)').attr('src'))
             $('#id').val($(this).closest('tr').attr('id'))
             $('#name').val($(this).closest('td').prev().prev().children('span:first-child').html())
         })

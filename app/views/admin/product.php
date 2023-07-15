@@ -98,6 +98,7 @@
                                             <th>Name</th>
                                             <th>Price</th>
                                             <th>Category</th>
+                                            <th>Quantity(pcs)</th>
                                             <th style="width: 130px;">Date added</th>
                                             <th style="width: 130px;">Updated at</th>
                                             <th class="text-center" style="width: 130px;">available</th>
@@ -154,6 +155,15 @@
                     <?php foreach ($categoriesForForm as $category) : ?>
                         <option value="<?= $category['id'] ?>"><?= $category['name'] ?></option>
                     <?php endforeach; ?>
+                </select>
+            </div>
+
+            <!-- inventory type -->
+            <div class="mb-3">
+                <label for="inventory-type" class="form-label">Inventory type<span class="text-danger"> *</span></label>
+                <select class="form-select form-select-md" name="inventory-type" id="inventory-type">
+                    <option value="perishable" selected>Perishable</option>
+                    <option value="durable">Durable goods</option>
                 </select>
             </div>
 
@@ -375,14 +385,20 @@
         function populateTable(products) {
             products = products['products']
             $('tbody').html('');
-            const keys = ['name', 'price', 'category_name', 'date_added', 'updated_at'];
+            const keys = ['name', 'price', 'category_name', 'quantity', 'date_added', 'updated_at'];
             let imagelink = '<?= BASE_URL . 'public/images/products/cropped/' ?>'
             for (let i = 0; i < products.length; i++) {
                 const tableTR = $('<tr></tr>').attr('id', products[i]['id']);
                 $('tbody').append(tableTR);
                 tableTR.append('<td><img src="' + imagelink + products[i]['image'] + '" alt="" height="150" width="150" class="img-fluid rounded product-image" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#preview-image-modal"></td>')
                 for (let x = 0; x < keys.length; x++) {
-                    tableTR.append('<td> ' + products[i][keys[x]] + ' </td>')
+                    if (keys[x] == 'quantity')
+                        if (products[i][keys[x]] == null)
+                            tableTR.append('<td> ' + '<span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">perishable</span>' + ' </td>')
+                    else
+                        tableTR.append('<td> ' + products[i][keys[x]] + ' </td>')
+                    else
+                        tableTR.append('<td> ' + products[i][keys[x]] + ' </td>')
                 }
 
                 // available
@@ -511,18 +527,36 @@
             if (mode == 'add') {
                 $('#offcanvasRightLabel').html('Add new product')
                 $('#form').attr('action', addProductLink)
+                $('#inventory-type').attr('disabled', false)
+                $('#inventory-type').val('perishable')
+                if ($('#inventory-type').parent().next().find('#quantity').attr('id') == 'quantity') {
+                    $('#inventory-type').parent().next().remove()
+                }
             } else {
                 $('#form').attr('action', updateProductLink)
                 $('#offcanvasRightLabel').html('Update product')
-                name = $(element).closest('td').prev().prev().prev().prev().prev().prev().html().trim()
-                price = $(element).closest('td').prev().prev().prev().prev().prev().html().trim()
-                category = $(element).closest('td').prev().prev().prev().prev().html().trim()
+                // set inventory type value
+                inventoryType = parseFloat($(element).closest('td').prev().prev().prev().prev().html().trim())
+                if (isNaN(inventoryType))
+                    $('#inventory-type').val('perishable')
+                else {
+                    $('#inventory-type').val('durable')
+                    // add new quantity input
+                    if ($('#inventory-type').parent().next().find('#quantity').attr('id') == 'quantity')
+                        $('#inventory-type').parent().next().remove()
+                    $('#inventory-type').parent().after($('<div class="mb-3"><label for="quantity" class="form-label">Quantity<span class="text-danger"> *</span></label><input style="cursor:not-allowed" disabled type="number" class="form-control" required name="quantity" value="'+$(element).closest('td').prev().prev().prev().prev().html().trim()+'" id="quantity" step="0.01" placeholder="product price"></div>'))
+                }
+                $('#inventory-type').attr('disabled', true)
+
+                name = $(element).closest('td').prev().prev().prev().prev().prev().prev().prev().html().trim()
+                price = $(element).closest('td').prev().prev().prev().prev().prev().prev().html().trim()
+                category = $(element).closest('td').prev().prev().prev().prev().prev().html().trim()
                 category = $('#category option').map(function() {
                     if ($(this).html() == category)
                         return $(this).val()
                 }).get();
                 description = $(element).closest('tr').next().children('td').find('div.accordion-body').html().trim();
-                previewImage = $(element).closest('td').prev().prev().prev().prev().prev().prev().find('img.img-fluid').prop('src')
+                previewImage = $(element).closest('tr').find('td:eq(0)').find('img:eq(0)').prop('src')
                 imageInputRequired = false
             }
             $('#id').val($(element).closest('tr').attr('id'))
@@ -681,6 +715,21 @@
             console.log()
             $('#preview-image-label').html($(this).parent().next().html())
             $('#preview-image-modal').find('img:eq(0)').attr('src', $(this).attr('src'))
+        })
+
+        $('#inventory-type').on('change', function() {
+            if ($(this).val() == 'durable')
+                $(this).closest('select').parent().after($(`            
+                <div class="mb-3">
+                    <label for="quantity" class="form-label">Quantity<span class="text-danger"> *</span></label>
+                    <input type="number" class="form-control" required name="quantity" id="quantity" step="0.01" placeholder="product price">
+                </div>`))
+            else {
+                console.log($(this).closest('select').parent().next().find('#quantity').attr('id'))
+                if ($(this).closest('select').parent().next().find('#quantity').attr('id') == 'quantity') {
+                    $(this).closest('select').parent().next().remove()
+                }
+            }
         })
     </script>
 </body>
