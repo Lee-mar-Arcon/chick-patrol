@@ -754,20 +754,17 @@
             $('#preview-image-modal').find('img:eq(0)').attr('src', $(this).attr('src'))
         })
 
+        // let updateQuantityOffcanvas = 0
         $('#inventory-type, #update_inventory_type').on('change', function() {
             let element = "#" + $(this).attr('id')
+            let updateQuantityOffcanvas = parseFloat($('#' + $('#update_id').val()).find('td:eq(4)').html())
             quantityId = $(this).attr('id') == 'inventory-type' ? 'quantity' : 'update_quantity'
-            if ($(element).val() == 'durable')
-                $(element).closest('select').parent().after($(`            
-                <div class="mb-3">
-                    <label for="quantity" class="form-label">Quantity<span class="text-danger"> *</span></label>
-                    <input type="number" class="form-control" required name="${quantityId}" id="${quantityId}" step="0.01" placeholder="product price">
-                </div>`))
-            else {
-                if ($(element).closest('select').parent().next().find(`#${quantityId}`).attr('id') == quantityId) {
-                    $(element).closest('select').parent().next().remove()
-                }
+            if ($(element).val() == 'perishable') {
+                $('#update_quantity').parent().prop('hidden', true)
+            } else {
+                $('#update_quantity').parent().prop('hidden', false)
             }
+            $('#update_quantity').val(updateQuantityOffcanvas)
         })
 
 
@@ -785,7 +782,7 @@
                 $('#update_quantity').parent().prop('hidden', true)
                 $('#update_quantity').val(price)
             } else {
-                $('#update_quantity').parent().prop('hidden', false).val(quantity)
+                $('#update_quantity').parent().prop('hidden', false)
                 $('#update_quantity').val(quantity)
             }
         })
