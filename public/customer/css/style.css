@@ -897,7 +897,7 @@ ol {
 	transform: rotate(360deg);
 }
 
-.featured__item__pic__hover li a {
+.featured__item__pic__hover li div {
 	font-size: 16px;
 	color: #1c1c1c;
 	height: 40px;
@@ -915,7 +915,7 @@ ol {
 	transition: all, 0.5s;
 }
 
-.featured__item__pic__hover li a i {
+.featured__item__pic__hover li div i {
 	position: relative;
 	transform: rotate(0);
 	-webkit-transition: all, 0.3s;

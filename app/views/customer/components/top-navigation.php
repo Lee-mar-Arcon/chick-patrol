@@ -18,7 +18,11 @@
        </div>
        <div class="humberger__menu__widget">
           <div class="header__top__right__auth">
-             <a href="#"><i class="fa fa-user"></i> Login</a>
+             <?php if ($user == null) : ?>
+                <a href="<?= site_url('account/login') ?>"><i class="fa fa-user"></i> Login</a>
+             <?php else : ?>
+                <a href="<?= site_url('customer/profile') ?>"><i class="fa fa-user"></i> Profile</a>
+             <?php endif; ?>
           </div>
        </div>
        <nav class="humberger__menu__nav mobile-menu">
@@ -46,7 +50,7 @@
        </div>
        <div class="humberger__menu__contact">
           <ul>
-             <li><i class="fa fa-envelope"></i> <?= $user['email'] ?></li>
+             <li><i class="fa fa-envelope"></i> <?= isset($user['email']) ? $user['email'] : 'You are not logged in' ?></li>
              <!-- <li>Free Shipping for all Order of $99</li> -->
           </ul>
        </div>
@@ -61,7 +65,7 @@
                 <div class="col-lg-6 col-md-6">
                    <div class="header__top__left">
                       <ul>
-                         <li><i class="fa fa-envelope"></i> <?= $user['email'] ?></li>
+                         <li><i class="fa fa-envelope"></i> <?= isset($user['email']) ? $user['email'] : 'You are not logged in' ?></li>
                          <!-- <li>Free Shipping for all Order of $99</li> -->
                       </ul>
                    </div>
@@ -75,7 +79,11 @@
                          <a href="#"><i class="fa fa-pinterest-p"></i></a>
                       </div>
                       <div class="header__top__right__auth">
-                         <a href="#"><i class="fa fa-user"></i> Login</a>
+                         <?php if ($user == null) : ?>
+                            <a href="<?= site_url('account/login') ?>"><i class="fa fa-user"></i> Login</a>
+                         <?php else : ?>
+                            <a href="<?= site_url('customer/profile') ?>"><i class="fa fa-user"></i> Profile</a>
+                         <?php endif; ?>
                       </div>
                    </div>
                 </div>

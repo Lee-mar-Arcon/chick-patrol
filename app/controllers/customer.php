@@ -7,22 +7,25 @@ class customer extends Controller
 	{
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
-
+		$this->call->model('m_encrypt');
+	}
+	public function loggedIn()
+	{
 		if (!$this->session->has_userdata('user'))
 			redirect('account/login');
 		else
 			if ($this->session->userdata('user')['is_admin'])
 			redirect('account/login');
 	}
+
 	public function homepage()
 	{
 		$this->call->database();
-
 		$this->call->view('customer/homepage', [
 			'pageTitle' => 'Home',
 			'categories' => $this->db->table('categories')->get_all(),
-			'products' => $this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price')->inner_join('categories as c', 'p.category=c.id')->get_all(),
-			'user' => $this->session->userdata('user')
+			'products' => $this->m_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.available, p.quantity')->inner_join('categories as c', 'p.category=c.id')->get_all()),
+			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null
 		]);
 	}
 }
