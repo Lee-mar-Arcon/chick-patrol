@@ -806,6 +806,7 @@
                     update_price: price
                 })
                 .then(function(response) {
+                    console.log(response)
                     // Success: Handle the response
                     if (response.status == 'success') {
                         Swal.fire({
