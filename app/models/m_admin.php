@@ -118,7 +118,7 @@ class m_admin extends Model
 			$category = '%%';
 		else {
 			$category = $this->m_encrypt->decrypt($category);
-			$category = '%' . trim($category) . '%';
+			$category = '%' . $category . '%';
 		}
 
 		if (ctype_space($q) || $q == 'all')

@@ -139,7 +139,7 @@
             <label for="example-fileinput" class="form-label text-center fs-3 w-100">Product Image</label>
             <div class="text-center">
                 <img src="<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded my-2 mb-5">
-                <input type="file" id="imageInput" name="imageInput" class="form-control" accept="image/png, image/jpg, image/jpeg, image/webp">
+                <input type="file" id="imageInput" name="imageInput" class="form-control" accept="image/png, image/jpg, image/jpeg">
             </div>
 
             <!-- product name -->
@@ -393,7 +393,6 @@
                         previousPages--
                         addedPage++
                     }
-                    console.log('-')
                     addedPage = 0
                     nextPages = currentPage + 1;
                     while (addedPage < 3) {
@@ -667,11 +666,9 @@
         // category option event
         $(document).on('click', '.option-category', function() {
             q.category = $(this).attr('data-id')
-            console.log(q)
             $(this).parent().prev().find('span:eq(0)').html($(this).html())
             q.page = 1
             handleFetchProducts(q)
-
         })
 
 
@@ -753,7 +750,6 @@
         }
 
         $(document).on('click', '.product-image', function() {
-            console.log()
             $('#preview-image-label').html($(this).parent().next().html())
             $('#preview-image-modal').find('img:eq(0)').attr('src', $(this).attr('src'))
         })
@@ -768,7 +764,6 @@
                     <input type="number" class="form-control" required name="${quantityId}" id="${quantityId}" step="0.01" placeholder="product price">
                 </div>`))
             else {
-                console.log($(element).closest('select').parent().next().find('#quantity').attr('id'))
                 if ($(element).closest('select').parent().next().find(`#${quantityId}`).attr('id') == quantityId) {
                     $(element).closest('select').parent().next().remove()
                 }
@@ -804,7 +799,6 @@
         })
 
         function updateInventoryRequest(id, inventoryType, quantity, price) {
-            console.log('asd')
             $.post('<?= site_url('admin_api/update-inventory') ?>', {
                     update_id: id,
                     update_inventory_type: inventoryType,
@@ -813,7 +807,6 @@
                 })
                 .then(function(response) {
                     // Success: Handle the response
-                    console.log(response.data)
                     if (response.status == 'success') {
                         Swal.fire({
                             title: 'Product update success',
@@ -832,7 +825,6 @@
                         for (let key in response.errors) {
                             if (response.errors.hasOwnProperty(key)) {
                                 $('<div class="ms-1 text-danger form-error-message">' + response.errors[key] + '</div>').insertAfter($(`#${key}`))
-                                console.log(response.errors)
                             }
                         }
                     }
