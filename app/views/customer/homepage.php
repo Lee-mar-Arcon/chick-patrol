@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>public/customer/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="<?= BASE_URL ?>public/customer/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="<?= BASE_URL ?>public/customer/css/style.css" type="text/css">
+    <!-- toastify -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 
 <body>
@@ -125,7 +127,7 @@
                                 <?php if ($product['quantity'] > 0 || ($product['available'] && $product['quantity'] == '')) : ?>
                                     <ul class="featured__item__pic__hover">
                                         <li>
-                                            <div data-id="<?= $product['id'] ?>" class="add-to-cart"><i class="fa fa-shopping-cart"></i></div>
+                                            <div style="cursor: pointer;" data-id="<?= $product['id'] ?>" class="add-to-cart"><i class="fa fa-shopping-cart cursor-pointer"></i></div>
                                         </li>
                                     </ul>
                                 <?php endif; ?>
@@ -510,12 +512,87 @@
     <script src="<?= BASE_URL ?>public/customer/js/mixitup.min.js"></script>
     <script src="<?= BASE_URL ?>public/customer/js/owl.carousel.min.js"></script>
     <script src="<?= BASE_URL ?>public/customer/js/main.js"></script>
+    <!-- toastify -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
 
     <script>
-        $(document).on('click', '.add-to-cart', function() {
-            console.log($(this).attr('data-id'))
+        $(document).ready(function() {
+            updateCartBadge()
         })
+
+        const isLoggedIn = <?= $user == null ? 0 : 1 ?>;
+        $(document).on('click', '.add-to-cart', function() {
+            AddToCart($(this))
+        })
+
+        function AddToCart(element) {
+            // not logged in toast
+            if (!isLoggedIn) {
+                Toastify({
+                    text: "Log in first!",
+                    duration: 1500,
+                    newWindow: true,
+                    close: true,
+                    gravity: "bottom",
+                    position: "center",
+                    stopOnFocus: true,
+                    style: {
+                        background: "linear-gradient(to right, #0d6982, #02768e)",
+                    },
+                }).showToast();
+            } else {
+                let id = element.attr('data-id')
+                $.post('<?= site_url('customer_api/add_to_cart') ?>', {
+                        id: id,
+                    })
+                    .then(function(response) {
+                        // show error if product exists
+                        if (response == 'product exists')
+                            Toastify({
+                                text: "Product already in cart!",
+                                duration: 1500,
+                                newWindow: true,
+                                close: true,
+                                gravity: "bottom",
+                                position: "center",
+                                stopOnFocus: true,
+                                style: {
+                                    background: "linear-gradient(to right, #ac1414, #f12b00)",
+                                },
+                            }).showToast();
+                        updateCartBadge()
+                        // show toast if product added
+                        if (response == 'product added')
+                            Toastify({
+                                text: "Product added!",
+                                duration: 1500,
+                                newWindow: true,
+                                close: true,
+                                gravity: "bottom",
+                                position: "center",
+                                stopOnFocus: true,
+                                style: {
+                                    background: "linear-gradient(to right, #14ac34, #3ab902)",
+                                },
+                            }).showToast();
+                    })
+            }
+        }
+
+
+        function updateCartBadge() {
+
+            $.post('<?= site_url('customer_api/get_cart_total') ?>', {})
+                .then(function(response) {
+                    console.log(response)
+                    if (response == false)
+                        $('.fa-shopping-bag').next().html(`0`)
+                    else
+                        $('.fa-shopping-bag').next().html(response)
+
+                })
+        }
     </script>
 </body>
 

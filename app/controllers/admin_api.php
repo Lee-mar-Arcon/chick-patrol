@@ -202,7 +202,7 @@ class admin_api extends Controller
 						'quantity_changed' => $updateInventoryType == 'durable' ? $newQuantity - $currentProduct['quantity'] : $currentProduct['quantity'],
 						'updated_at' => $currentProduct['updated_at']
 					));
-					
+
 					echo json_encode(array('status' => 'success'));
 				}
 			} else
@@ -211,6 +211,7 @@ class admin_api extends Controller
 			echo $e->getMessage();
 		}
 	}
+
 	// template
 	// function user_index()
 	// {
@@ -221,4 +222,6 @@ class admin_api extends Controller
 	// 		echo $e->getMessage();
 	// 	}
 	// }
+
+
 }
