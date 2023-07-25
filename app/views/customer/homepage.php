@@ -7,7 +7,7 @@
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Ogani | Template</title>
+    <title><?= $pageTitle ?></title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
@@ -547,6 +547,7 @@
                         id: id,
                     })
                     .then(function(response) {
+                        console.log(response)
                         // show error if product exists
                         if (response == 'product exists')
                             Toastify({
@@ -580,15 +581,12 @@
             }
         }
 
-
         function updateCartBadge() {
 
             $.post('<?= site_url('customer_api/get_cart_total') ?>', {})
                 .then(function(response) {
-                    console.log(response)
-                    if (response == false)
-                        $('.fa-shopping-bag').next().html(`0`)
-                    else
+                    $('.fa-shopping-bag').next().html('0')
+                    if (parseInt(response))
                         $('.fa-shopping-bag').next().html(response)
 
                 })
