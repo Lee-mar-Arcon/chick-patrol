@@ -46,6 +46,15 @@
                </a>
             </li>
 
+            <li class="menu-title">Orders</li>
+
+            <li>
+               <a href="<?= BASE_URL ?>admin/approval">
+                  <i class="fas fa-shopping-cart"></i>
+                  <span>&nbsp;&nbsp;For Approval</span>
+               </a>
+            </li>
+
          </ul>
       </div>
       <!-- End Sidebar -->

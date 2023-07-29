@@ -225,24 +225,6 @@ class admin extends Controller
 			else
 				$this->session->set_flashdata(['formMessage' => 'upload error']);
 			redirect('admin/category');
-
-
-
-
-
-
-
-			// $this->form_validation
-			// 	->name('name')
-			// 	->min_length(1, 'Must be 1-100 characters in length only.')
-			// 	->max_length(100, 'Must be 1-100 characters in length only.');
-			// if ($this->form_validation->run()) {
-			// 	$this->m_admin->category_store($this->io->post('name'));
-			// } else {
-			// 	$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
-			// 	$this->session->set_flashdata(['formData' => $_POST]);
-			// }
-			// redirect('admin/category');
 		}
 	}
 
@@ -435,7 +417,7 @@ class admin extends Controller
 				->numeric('invalid value');
 			$result = $this->check_input('price');
 			$result != null ? $errors['price'] = $result : '';
-			
+
 			// description
 			$this->form_validation
 				->name('description')
@@ -540,5 +522,13 @@ class admin extends Controller
 		} else {
 			echo 'ID is required';
 		}
+	}
+
+	function approval()
+	{
+		$this->call->view('admin/for-approval', [
+			'pageTitle' => 'Admin | For Approval',
+			'breadCrumb' => 'For Approval'
+		]);
 	}
 }

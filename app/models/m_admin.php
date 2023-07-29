@@ -176,4 +176,26 @@ class m_admin extends Model
 		$result['product'] = $this->db->table('products as p')->select('p.name, p.price, categories.name as category')->inner_join('categories', 'p.category=categories.id')->where('p.id', $this->m_encrypt->decrypt($id))->get();
 		return $result;
 	}
+
+	function for_approval_index($page, $q)
+	{
+		if (ctype_space($q) || $q == 'all')
+			$q = '%%';
+		else
+			$q = '%' . trim($q) . '%';
+
+		$totalRows = $this->db->raw('select count(u.id) as total from users as u inner join cart as c on u.id=c.user_id where c.status = "for approval" and (u.first_name like ? or u.middle_name like ? or u.last_name like ?)', array($q, $q, $q))[0]['total'];
+
+		return [
+			'forApprovalList' => $this->m_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.for_approval_at, "%b %d, %Y %h:%i %p") as for_approval_at FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "for approval" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.for_approval_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
+			'pagination' => [
+				'totalRows' => $totalRows,
+				'totalPage' => ceil($totalRows / 10),
+				'currentPage' => (int)$page
+			],
+			'q' => [
+				$page, $q
+			]
+		];
+	}
 }

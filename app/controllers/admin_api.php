@@ -212,6 +212,19 @@ class admin_api extends Controller
 		}
 	}
 
+	function for_approval_index($page, $q)
+	{
+		try {
+			$this->is_authorized();
+
+			$forApprovalList = $this->m_admin->for_approval_index($page, $q);
+			echo json_encode($forApprovalList);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+
 	// template
 	// function user_index()
 	// {
@@ -222,6 +235,4 @@ class admin_api extends Controller
 	// 		echo $e->getMessage();
 	// 	}
 	// }
-
-
 }

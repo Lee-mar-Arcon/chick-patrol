@@ -113,7 +113,8 @@ class customer extends Controller
 					'products' => json_encode($cartProductWithPrice),
 					'total' => $total,
 					'note' => $this->io->post('note'),
-					'status' => 'approval'
+					'status' => 'for approval',
+					'for_approval_at' => date('Y-m-d H:i:s')
 				]);
 			}
 		} else
