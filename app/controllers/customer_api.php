@@ -87,23 +87,57 @@ class customer_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			// $userId = $this->session->userdata('user');
 			$pendingCart = $this->db->table('cart')->where(['user_id' =>  $this->session->userdata('user')['id'], 'status' => 'pending'])->get();
 			$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
 
 			$newProductList = array();
 			$productList = json_decode($pendingCart['products']);
 			for ($i = 0; $i < count($productList); $i++) {
-				if (!($productList[$i]->id == $productId))
+				if ($productList[$i]->id != $productId)
 					array_push($newProductList, array('id' => $productList[$i]->id, 'quantity' => $productList[$i]->quantity));
 			}
 			$this->db->table('cart')->where('id', $pendingCart['id'])->update(array('products' => json_encode($newProductList)));
-			echo 'product removed';
+			echo json_encode('product removed');
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
 	}
 
+	function get_max_quantity()
+	{
+		try {
+			$this->is_authorized();
+			$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
+			$product = $this->db->table('products as p')->where('id', $productId)->get();
+			echo json_encode($product['quantity']);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function update_cart_product_quantity()
+	{
+		try {
+			$this->is_authorized();
+			$cart = $this->db->table('cart')->where(array('user_id' => $this->session->userdata('user')['id'], 'status' => 'pending'))->get();
+			$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
+			$productList = json_decode($cart['products']);
+			$updatedProductList = array();
+			$newQuantity = json_decode($_POST['newQuantity']);
+			foreach ($productList as $product) {
+				if ($product->id == (int)$productId) {
+					$product->quantity = (int)$newQuantity;
+					array_push($updatedProductList, $product);
+				} else {
+					array_push($updatedProductList, $product);
+				}
+			}
+			$this->db->table('cart')->where('id', $cart['id'])->update(array('products' => json_encode($updatedProductList)));
+			echo json_encode($updatedProductList);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 
 
 	// template

@@ -38,96 +38,94 @@ $LAVA = lava_instance();
     <!-- Hero Section Begin -->
     <section class="shoping-cart spad">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="shoping__cart__table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th class="shoping__product">Products</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th>Total</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($products as $product) : ?>
-                                    <tr id="<?= $LAVA->m_encrypt->encrypt($product['id']) ?>">
-                                        <td class="shoping__cart__item">
-                                            <img height="100px" src="<?= BASE_URL . 'public/images/products/cropped/' . $product['image'] ?>" alt="">
-                                            <h5><?= $product['name'] ?></h5>
-                                        </td>
-                                        <td class="shoping__cart__price">
-                                            <?= number_format(round($product['price'], 2), 2) ?> <span> Php</span>
-                                        </td>
-                                        <td class="shoping__cart__quantity">
-                                            <div class="quantity">
-                                                <div class="pro-qty">
-                                                    <input type="text" value="<?php
-                                                                                $cartProducts = json_decode($pendingCart['products']);
-                                                                                for ($i = 0; $i < count($cartProducts); $i++) {
-                                                                                    if ($cartProducts[$i]->id == (int)$product['id']) {
-                                                                                        echo trim($cartProducts[$i]->quantity);
-                                                                                        break;
-                                                                                    }
-                                                                                }
-                                                                                ?>">
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="shoping__cart__total">
-                                            <?php
-                                            $cartProducts = json_decode($pendingCart['products']);
-                                            for ($i = 0; $i < count($cartProducts); $i++) {
-                                                if ($cartProducts[$i]->id == (int)$product['id']) {
-                                                    echo number_format((round((float)$product['price'] * (float)$cartProducts[$i]->quantity, 2)), 2);
-                                                    break;
-                                                }
-                                            }
-                                            ?>
-                                            <span> Php</span>
-                                        </td>
-                                        <td class="shoping__cart__item__close">
-                                            <span class="icon_close"></span>
-                                        </td>
+            <?php if (count($products)) : ?>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="shoping__cart__table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="shoping__product">Products</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th></th>
                                     </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="shoping__cart__btns">
-                        <a href="#" class="primary-btn cart-btn">CONTINUE SHOPPING</a>
-                        <a href="#" class="primary-btn cart-btn cart-btn-right"><span class="icon_loading"></span>
-                            Upadate Cart</a>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="shoping__continue">
-                        <div class="shoping__discount">
-                            <h5>Discount Codes</h5>
-                            <form action="#">
-                                <input type="text" placeholder="Enter your coupon code">
-                                <button type="submit" class="site-btn">APPLY COUPON</button>
-                            </form>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($products as $product) : ?>
+                                        <tr id="<?= $LAVA->m_encrypt->encrypt($product['id']) ?>">
+                                            <td class="shoping__cart__item">
+                                                <img height="100px" src="<?= BASE_URL . 'public/images/products/cropped/' . $product['image'] ?>" alt="">
+                                                <h5><?= $product['name'] ?></h5>
+                                            </td>
+                                            <td class="shoping__cart__price">
+                                                <span><?= number_format(round($product['price'], 2), 2) ?></span>
+                                                <span> Php</span>
+                                            </td>
+                                            <td class="shoping__cart__quantity">
+                                                <div class="quantity" style="user-select: none;">
+                                                    <div class="pro-qty">
+                                                        <input type="text" style="user-select: none;" readonly value="<?php
+                                                                                                                        $cartProducts = json_decode($pendingCart['products']);
+                                                                                                                        for ($i = 0; $i < count($cartProducts); $i++) {
+                                                                                                                            if ($cartProducts[$i]->id == (int)$product['id']) {
+                                                                                                                                echo trim($cartProducts[$i]->quantity);
+                                                                                                                                break;
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        ?>">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="shoping__cart__total">
+                                                <span>
+                                                    <?php
+                                                    $cartProducts = json_decode($pendingCart['products']);
+                                                    for ($i = 0; $i < count($cartProducts); $i++) {
+                                                        if ($cartProducts[$i]->id == (int)$product['id']) {
+                                                            echo number_format((round((float)$product['price'] * (float)$cartProducts[$i]->quantity, 2)), 2);
+                                                            break;
+                                                        }
+                                                    }
+                                                    ?>
+                                                </span>
+                                                <span> Php</span>
+                                            </td>
+                                            <td class="shoping__cart__item__close">
+                                                <span class="icon_close"></span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="shoping__checkout">
-                        <h5>Cart Total</h5>
-                        <ul>
-                            <li>Subtotal <span>$454.98</span></li>
-                            <li>Total <span>$454.98</span></li>
-                        </ul>
-                        <a href="#" class="primary-btn">PROCEED TO CHECKOUT</a>
+                <div class="row justify-content-end">
+                    <div class="col-lg-6">
+                        <div class="shoping__checkout">
+                            <h5>Cart Total</h5>
+                            <ul>
+                                <li id="deliveryFee">Delivery Fee <span>&nbsp; Php</span> <span><?= number_format($user['delivery_fee'], 2) ?></span></li>
+                                <li id="cartTotal">Total <span>&nbsp; Php</span> <span>0.00</span> </li>
+                            </ul>
+                            <a href="#" class="primary-btn">PROCEED TO CHECKOUT</a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            <?php else : ?>
+                <div class="row">
+                    <div class="col-12 text-center h1 col-12 fw-bold text-secondary my-5">
+                        <div>
+                            Your cart is empty
+                        </div>
+                        <a href="<?= site_url('customer/homepage') ?>">
+                            <button type="button" class="site-btn">Shop Now!</button>
+                        </a>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -219,6 +217,7 @@ $LAVA = lava_instance();
     <script>
         $(document).ready(function() {
             updateCartBadge()
+            updateCartTotal()
         })
 
         function updateCartBadge() {
@@ -233,19 +232,162 @@ $LAVA = lava_instance();
         }
 
         $('.icon_close').on('click', function() {
-            removeProduct($(this).closest('tr').attr('id'))
+            removeProduct($(this).closest('tr').attr('id'), this)
         })
 
-        function removeProduct(id) {
+        function removeProduct(id, element) {
             $.post('<?= site_url('customer_api/remove_cart_product') ?>', {
                     id: id
+                })
+                .then(function(response) {
+                    if (response == 'product removed') {
+                        Toastify({
+                            text: "Product removed",
+                            duration: 1500,
+                            newWindow: true,
+                            close: true,
+                            gravity: "bottom",
+                            position: "center",
+                            stopOnFocus: true,
+                            style: {
+                                background: "linear-gradient(to right, #14ac34, #3ab902)",
+                            },
+                        }).showToast();
+                        $(element).closest('tr').fadeOut(700, function() {
+                            $(element).closest('tr').remove()
+                            updateCartBadge()
+                            updateCartTotal()
+                        })
+                    }
+                }).fail(function(response) {
+                    console.log(response)
+                })
+        }
+
+        function updateCartTotal() {
+            productSubTotals = $(document).find('.shoping__cart__total')
+            if (productSubTotals.length == 0) showCartEmpty()
+            total = 0
+            for (let index = 0; index < productSubTotals.length; index++) {
+                total += parseFloat($(productSubTotals[index]).find('span:eq(0)').html().trim())
+            }
+            total += parseFloat($('#deliveryFee').find('span:eq(1)').html())
+            $('#cartTotal').find('span:eq(1)').html(total.toFixed(2))
+        }
+
+        function showCartEmpty() {
+            $('.shoping-cart').html(`     
+                <div class="container">           
+                    <div class="row">
+                        <div class="col-12 text-center h1 col-12 fw-bold text-secondary my-5">
+                            <div>
+                                Your cart is empty
+                            </div>
+                            <a href="<?= site_url('customer/homepage') ?>">
+                                <button type="button" class="site-btn">Shop Now!</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>`)
+        }
+
+
+        let proQty = $('.pro-qty');
+        proQty.prepend('<span class="dec qtybtn">-</span>');
+        proQty.append('<span class="inc qtybtn">+</span>');
+        $('.qtybtn').on('click', function() {
+            let element = $(this)
+            $.post('<?= site_url('customer_api/get_max_quantity') ?>', {
+                    id: $(element).closest('tr').attr('id')
+                })
+                .then(function(response) {
+                    updateProductTotal($(element), calcNewQuantity($(element), response))
+                    updateCartTotal()
+                    updateCartProductQuantity($(element))
+                }).fail(function(response) {
+                    console.log(response)
+                })
+
+        })
+
+
+        function updateCartProductQuantity(element) {
+            let newQuantity = $(element).parent().find('input:eq(0)').val()
+            $.post('<?= site_url('customer_api/update_cart_product_quantity') ?>', {
+                    id: $(element).closest('tr').attr('id'),
+                    newQuantity: newQuantity
                 })
                 .then(function(response) {
                     console.log(response)
                 }).fail(function(response) {
                     console.log(response)
                 })
+        }
 
+        function updateProductTotal(element, quantity) {
+            let price = parseFloat($(element).closest('td').prev().find('span:eq(0)').html().trim())
+            let newPrice = (price * quantity)
+            $(element).closest('td').next().find('span:eq(0)').html(newPrice.toFixed(2))
+        }
+
+        function calcNewQuantity(element, maxQuantity) {
+            let oldVal = parseFloat($(element).parent().find('input:eq(0)').val())
+            let newVal = oldVal;
+            if ($(element).hasClass('inc')) {
+                if (oldVal < maxQuantity && maxQuantity != null) {
+                    newVal = parseFloat($(element).prev().val()) + 1;
+                } else {
+                    if (maxQuantity == null)
+                        newVal = parseFloat($(element).prev().val()) + 1;
+                    else {
+                        showMaxQuantityReachedToast()
+                        newVal = oldVal
+                    }
+                }
+            } else {
+                newVal = parseFloat($(element).next().val())
+                if (parseFloat($(element).next().val()) != 1)
+                    newVal = parseFloat($(element).next().val()) - 1;
+            }
+
+            if ($(element).hasClass('inc')) {
+                $(element).prev().val(newVal)
+            } else {
+                $(element).next().val(newVal)
+            }
+            return newVal
+        }
+
+        function updateQuantity(element, maxQuantity) {
+            let newVal = 0;
+            if ($(element).hasClass('inc'))
+                newVal = parseFloat($(element).prev().val()) + 1
+            else {
+                newVal = parseFloat($(element).next().val())
+                if (parseFloat($(element).next().val()) != 1)
+                    newVal = parseFloat($(element).next().val()) - 1;
+            }
+            if ($(element).hasClass('inc')) {
+                $(element).prev().val(newVal)
+            } else {
+                $(element).next().val(newVal)
+            }
+            return newVal
+        }
+
+        function showMaxQuantityReachedToast() {
+            Toastify({
+                text: "Reached the maximum quantity available",
+                duration: 1500,
+                newWindow: true,
+                close: true,
+                gravity: "bottom",
+                position: "center",
+                stopOnFocus: true,
+                style: {
+                    background: "linear-gradient(to right, #0d6982, #02768e)",
+                },
+            }).showToast();
         }
     </script>
 </body>

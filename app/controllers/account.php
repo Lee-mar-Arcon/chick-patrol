@@ -146,7 +146,7 @@ class account extends Controller
 				->name('password')->required('Password is required.');
 			if ($this->form_validation->run()) {
 				$this->call->database();
-				$user = $this->db->table('users')->where('email', $this->io->post('email'))->where_not_null('verified_at')->limit(1)->get_all();
+				$user = $this->db->table('users as u')->select('u.*, b.delivery_fee')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.email', $this->io->post('email'))->where_not_null('verified_at')->limit(1)->get_all();
 				if (count($user) > 0) {
 					if ($user[0]['is_banned']) {
 						$this->session->set_flashdata(['error' => 'Banned: please contact the administrator.']);

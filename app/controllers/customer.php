@@ -8,6 +8,7 @@ class customer extends Controller
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
 		$this->call->model('m_encrypt');
+		$this->loggedIn();
 	}
 	public function loggedIn()
 	{
