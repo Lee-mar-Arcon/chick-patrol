@@ -77,7 +77,7 @@ class customer_api extends Controller
 			$this->is_authorized();
 			$user = $this->session->userdata('user');
 			$hasPendingCart = $this->db->table('cart')->where(['user_id' => $user['id'], 'status' => 'pending'])->get();
-			echo json_encode(count(json_decode($hasPendingCart['products'])));
+			echo json_encode($hasPendingCart ? count(json_decode($hasPendingCart['products'])) : 0);
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

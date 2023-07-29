@@ -110,7 +110,7 @@ $LAVA = lava_instance();
                                 <li id="deliveryFee">Delivery Fee <span>&nbsp; Php</span> <span><?= number_format($user['delivery_fee'], 2) ?></span></li>
                                 <li id="cartTotal">Total <span>&nbsp; Php</span> <span>0.00</span> </li>
                             </ul>
-                            <a href="#" class="primary-btn">PROCEED TO CHECKOUT</a>
+                            <a href="<?= site_url('customer/checkout') ?>" class="primary-btn">PROCEED TO CHECKOUT</a>
                         </div>
                     </div>
                 </div>
@@ -221,13 +221,11 @@ $LAVA = lava_instance();
         })
 
         function updateCartBadge() {
-
             $.post('<?= site_url('customer_api/get_cart_total') ?>', {})
                 .then(function(response) {
                     $('.fa-shopping-bag').next().html('0')
                     if (parseInt(response))
                         $('.fa-shopping-bag').next().html(response)
-
                 })
         }
 

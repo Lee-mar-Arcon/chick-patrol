@@ -518,6 +518,7 @@
 
     <script>
         $(document).ready(function() {
+            console.log(123)
             updateCartBadge()
         })
 
@@ -582,13 +583,11 @@
         }
 
         function updateCartBadge() {
-
             $.post('<?= site_url('customer_api/get_cart_total') ?>', {})
                 .then(function(response) {
                     $('.fa-shopping-bag').next().html('0')
                     if (parseInt(response))
                         $('.fa-shopping-bag').next().html(response)
-
                 })
         }
     </script>
