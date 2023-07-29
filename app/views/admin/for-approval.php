@@ -11,10 +11,8 @@
 	<!-- App favicon -->
 	<!-- App css -->
 	<link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/app.min.css" rel="stylesheet" type="text/css" id="app-style" />
-
 	<!-- icons -->
 	<link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-
 </head>
 
 <!-- body start -->
@@ -48,20 +46,10 @@
 											<th>Email</th>
 											<th>Contact</th>
 											<th class="text-center">Date Checked Out</th>
+											<th class="text-center">Action</th>
 										</tr>
 									</thead>
 									<tbody class="align-middle">
-										<!-- <tr id="a2RuaUtyRHpvYXpKRVNpemlJdEZHZUw0TlpYYm82VzRtbDFhalE9PQ">
-											<td>&nbsp;asdasd</td>
-											<td>Alexandra Rodriguez</td>
-											<td>Macdonald</td>
-											<td>fohen@gmail.com</td>
-											<td class="p-2">Lumangbayan, Commodi voluptas est</td>
-											<td>09721231232</td>
-											<td>1994-05-31</td>
-											<td>Female</td>
-											<td><span class="text-danger">NOT VERIFIED</span></td>
-										</tr> -->
 									</tbody>
 								</table>
 								<nav class="justify-content-end d-flex pt-4 mx-4 p-2">
@@ -83,6 +71,23 @@
 		</div>
 	</div>
 
+	<div class="modal fade" id="cart-details-modal" tabindex="-1" aria-labelledby="scrollableModalTitle" data-bs-backdrop="static" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog modal-md modal-dialog-scrollable" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="scrollableModalTitle">Cart Details</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body fs-5 mx-2">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary">Approve Order</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<?php include 'components/right-navigation.php' ?>
 	<!-- Vendor -->
 	<script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
@@ -94,8 +99,6 @@
 	<script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/feather-icons/feather.min.js"></script>
 	<!-- App js -->
 	<script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
-	<!-- apex charts -->
-	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 	<!-- axios -->
 	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 	<!-- loadash -->
@@ -111,19 +114,19 @@
 		})
 
 		$(document).ready(function() {
+			showTableLoader()
 			handleFetchForApprovalList(q)
 		})
 
 		const handleFetchForApprovalList = _.debounce((q) => fetchForApprovalList(q), 1000);
 
 		function fetchForApprovalList(q) {
+			showTableLoader()
 			let link = '<?= site_url('admin_api/for_approval_index/') ?>';
-			console.log(link + `${q.page}/${q.q}`)
 			axios.get(link + `${q.page}/${q.q}`, {
 					/* OPTIONS */
 				})
 				.then(function(response) {
-					console.log(response)
 					populateTable(response.data['forApprovalList'])
 					populatePagination(response.data['pagination'])
 				})
@@ -155,7 +158,6 @@
 						previousPages--
 						addedPage++
 					}
-					console.log('-')
 					addedPage = 0
 					nextPages = currentPage + 1;
 					while (addedPage < 3) {
@@ -195,20 +197,102 @@
 				$('tbody').append(`
 					<tr id="${rows[i]['id']}">
 						<td>&nbsp;${rows[i]['first_name']}</td>
-						<td>${rows[i]['middle_name']}</td>
+						<td>${rows[i]['middle_name'] ? rows[i]['middle_name'] : ''}</td>
 						<td>${rows[i]['last_name']}</td>
 						<td>${rows[i]['email']}</td>
 						<td>${rows[i]['contact']}</td>
 						<td class="text-center"><span>${rows[i]['for_approval_at']}</span></td>
+						<td class="text-center">
+							<span class="btn waves-effect waves-dark shadow-lg rounded p-2 show-cart">
+								<i class="fas fs-4 fa-eye text-primary m-0 mx-0 p-0"></i>
+							</span>	
+						</td>
 					</tr>`)
 			}
 		}
 
 		// change page
 		$(document).on('click', '.page-link', changePage)
+
 		function changePage() {
 			q.page = $(this).attr('data-page')
 			handleFetchForApprovalList(q);
+		}
+
+		function showTableLoader() {
+			$('tbody').html(`
+				<tr>
+					<td colspan="100">
+						<div class="d-flex justify-content-center my-5 pt-5"><i class="mdi mdi-spin mdi-48px mdi-loading"></i></div>
+					</td>
+				</tr>
+			`)
+		}
+
+		$(document).on('click', '.show-cart', function() {
+			let element = $(this).parent().parent()
+			$('#cart-details-modal').modal('show')
+			$('#cart-details-modal .modal-body').html('<div class="d-flex justify-content-center my-5 py-5"><i class="mdi mdi-spin mdi-48px mdi-loading"></i></div>')
+			$.post('<?= site_url('admin_api/get_cart_details') ?>', {
+					id: $(element).closest('tr').attr('id')
+				})
+				.then(function(response) {
+					console.log(response)
+					displayCartDetails(response)
+				}).fail(function(response) {
+					console.log(response)
+				})
+		})
+
+
+		function displayCartDetails(cart) {
+			let fullname = cart['user']['middle_name'] ? `${cart['user']['first_name']} ${cart['user']['middle_name']} ${cart['user']['last_name']}` : `${cart['user']['first_name']} ${cart['user']['last_name']}`
+			$('#cart-details-modal .modal-body').html('')
+			let productHTML = ''
+			JSON.parse(cart['cart']['products']).forEach(cartProduct => {
+				cart['products'].forEach(product => {
+					if (cartProduct.id == product['id']) {
+						productHTML += `
+							<tr>
+								<th scope="row">${product['name']}(${cartProduct['quantity']})</th>
+								<td>${parseFloat(cartProduct['price']).toFixed(2)} Php</td>
+								<td>${(cartProduct['quantity'] * cartProduct['price']).toFixed(2)} Php</td>
+							</tr>`
+					}
+				});
+			});
+			$('#cart-details-modal .modal-body').append(`
+				<div class="text-center fs-4">transaction ID</div>
+				<div class="text-center fw-bold pt-1 pb-3">${cart['cart']['id']}</div>
+				<div class="fw-normal">${fullname}</div>
+				<div class="fw-normal">${cart['user']['contact']}</div>
+				<div class="fw-normal">${cart['user']['barangay_name']}, ${cart['user']['street']}</div>
+				<div class="fw-bold pt-4 pb-2">Order List:</div>
+				<div class="row justify-content-between">
+				<div class="table-responsive">
+					<table class="table table-bordered mb-0">
+						<thead>
+						<tr>
+								<th>Product(qty)</th>
+								<th>Price</th>
+								<th>Total</th>
+						</tr>
+						</thead>
+						<tbody>
+							${productHTML}
+						</tbody>
+					</table>
+				</div>
+				</div>
+				<div class="row justify-content-between">
+					<div class="col-6 fw-bold pt-3">Delivery Fee:</div>
+					<div class="col-6 fw-bold pt-3 text-end">${parseFloat(cart['cart']['delivery_fee']).toFixed(2)} Php</div>
+					<div class="col-6 fw-bold">Grand Total:</div>
+					<div class="col-6 fw-bold text-end">${parseFloat(cart['cart']['total']).toFixed(2)} Php</div>
+				</div>
+				<div class="fw-bold pt-3">Note:</div>
+				<div class="fw-normal text-danger">${cart['cart']['note']}</div>
+			`)
 		}
 	</script>
 </body>
