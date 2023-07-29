@@ -103,6 +103,10 @@ class customer extends Controller
 						if ($cartProducts[$i]['id'] == $product->id) {
 							$product->price = $cartProducts[$i]['price'];
 							$total += ($cartProducts[$i]['price'] * $product->quantity);
+							// update subtract cart product quantity to product quantity
+							if ($cartProducts[$i]['quantity']) {
+								$this->db->table('products')->where('id', $cartProducts[$i]['id'])->update(['quantity' => $cartProducts[$i]['quantity'] - $product->quantity]);
+							}
 							array_push($cartProductWithPrice, $product);
 						}
 					}
