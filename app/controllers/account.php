@@ -130,7 +130,8 @@ class account extends Controller
 
 			$code = $this->db->raw('select code from email_codes where user_email = ? limit 1', array($email))[0]['code'];
 
-			$this->m_mailer->send_mail($email, 'Account Verification', $code, $this->m_encrypt->encrypt($email));
+			// $this->m_mailer->send_mail($email, 'Account Verification', $code, $this->m_encrypt->encrypt($email));
+			$this->m_mailer->send_mail($email, 'Account Verification', $code);
 			return 'email sent';
 		} else {
 			return 'not sent';

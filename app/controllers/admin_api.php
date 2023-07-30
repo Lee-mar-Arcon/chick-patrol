@@ -211,7 +211,7 @@ class admin_api extends Controller
 			echo $e->getMessage();
 		}
 	}
-
+	// FOR APPROVAL
 	function for_approval_index($page, $q)
 	{
 		try {
@@ -230,8 +230,8 @@ class admin_api extends Controller
 			$this->is_authorized();
 			$cartDetails = array();
 			$cartID = $this->m_encrypt->decrypt($_POST['id']);
-			$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, for_approval_at, id, note, products, total, user_id')->where(['id' => $cartID, 'status' => 'for approval'])->get();
-			
+			$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, for_approval_at, id, note, products, total, user_id')->where(['id' => $cartID])->get();
+
 			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
 			$cartDetails['products'] = $this->db->table('products as p')->select('name, id')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
 			// para lang saf yung id sa front end
@@ -252,6 +252,59 @@ class admin_api extends Controller
 		return $ids;
 	}
 
+	function approve_order()
+	{
+		try {
+			$this->is_authorized();
+			$this->call->model('m_mailer');
+			$cartID = $this->m_encrypt->decrypt($_POST['id']);
+			$email = $this->db->table('cart as c')->select('u.email')->inner_join('users as u', 'c.user_id=u.id')->where('c.id', $cartID)->get()['email'];
+			$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, for_approval_at, id, note, products, total, user_id')->where(['id' => $cartID])->get();
+			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
+			$cartDetails['products'] = $this->db->table('products as p')->select('name, id, price')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
+
+			if ($this->m_mailer->approve_cart_mail($email, 'Your order has been approved! Our Shop is now preparing your order.', $cartDetails)) {
+				echo json_encode($this->db->table('cart')->where('id', $cartID)->update(['status' => 'preparing', 'approved_at' => date('Y-m-d H:i:s')]));
+			} else {
+				echo json_encode(0);
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	// ON DELIVERY
+	function on_preparation_index($page, $q)
+	{
+		try {
+			$this->is_authorized();
+			$onPreparationList = $this->m_admin->on_preparation_index($page, $q);
+			echo json_encode($onPreparationList);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function deliver_order()
+	{
+		try {
+			$this->is_authorized();
+			$this->call->model('m_mailer');
+			$cartID = $this->m_encrypt->decrypt($_POST['id']);
+			$email = $this->db->table('cart as c')->select('u.email')->inner_join('users as u', 'c.user_id=u.id')->where('c.id', $cartID)->get()['email'];
+			$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, for_approval_at, id, note, products, total, user_id')->where(['id' => $cartID])->get();
+			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
+			$cartDetails['products'] = $this->db->table('products as p')->select('name, id, price')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
+
+			if ($this->m_mailer->deliver_order_mail($email, 'Order Preparation Finished! Please prepare ' . number_format($cartDetails['cart']['total'], 2) . ' Php for your payment.', $cartDetails)) {
+				echo json_encode($this->db->table('cart')->where('id', $cartID)->update(['status' => 'on delivery', 'on_delivery_at' => date('Y-m-d H:i:s')]));
+			} else {
+				echo json_encode(0);
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 	// template
 	// function user_index()
 	// {

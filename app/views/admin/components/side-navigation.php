@@ -55,6 +55,13 @@
                </a>
             </li>
 
+            <li>
+               <a href="<?= BASE_URL ?>admin/preparing">
+                  <i class="fas fa-tasks"></i>
+                  <span>&nbsp;&nbsp;On Preparation</span>
+               </a>
+            </li>
+
          </ul>
       </div>
       <!-- End Sidebar -->

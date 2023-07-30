@@ -30,7 +30,7 @@
 				<div class="container-fluid">
 					<div class="card">
 						<div class="card-header">
-							For Approval Orders
+							On Preparation Orders
 						</div>
 						<div class="card-body">
 							<div class="d-flex justify-content-start align-items-center my-3">
@@ -47,7 +47,7 @@
 											<th>Last Name</th>
 											<th>Email</th>
 											<th>Contact</th>
-											<th class="text-center">Date Checked Out</th>
+											<th class="text-center">Date Approved</th>
 											<th class="text-center">Action</th>
 										</tr>
 									</thead>
@@ -84,7 +84,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="button" id="approve-button" class="btn btn-primary">Approve Order</button>
+					<button type="button" id="update-cart-button" class="btn btn-primary">Deliver Order</button>
 				</div>
 			</div>
 		</div>
@@ -119,19 +119,19 @@
 
 		$(document).ready(function() {
 			showTableLoader()
-			handleFetchForApprovalList(q)
+			handleFetchOnPreparation(q)
 		})
 
-		const handleFetchForApprovalList = _.debounce((q) => fetchForApprovalList(q), 1000);
+		const handleFetchOnPreparation = _.debounce((q) => fetchOnPreparation(q), 1000);
 
-		function fetchForApprovalList(q) {
+		function fetchOnPreparation(q) {
 			showTableLoader()
-			let link = '<?= site_url('admin_api/for_approval_index/') ?>';
+			let link = '<?= site_url('admin_api/on_preparation_index/') ?>';
 			axios.get(link + `${q.page}/${q.q}`, {
 					/* OPTIONS */
 				})
 				.then(function(response) {
-					populateTable(response.data['forApprovalList'])
+					populateTable(response.data['onPreparationList'])
 					populatePagination(response.data['pagination'])
 				})
 				.catch(function(error) {
@@ -194,7 +194,7 @@
 			q.page = 1
 			if (/^\s*$/.test($(this).val()))
 				q.q = 'all'
-			handleFetchForApprovalList(q)
+			handleFetchOnPreparation(q)
 		})
 
 		function populateTable(rows) {
@@ -208,21 +208,22 @@
 						<td>${rows[i]['last_name']}</td>
 						<td>${rows[i]['email']}</td>
 						<td>${rows[i]['contact']}</td>
-						<td class="text-center"><span>${rows[i]['for_approval_at']}</span></td>
+						<td class="text-center"><span>${rows[i]['approved_at']}</span></td>
 						<td class="text-center">
 							<span class="btn waves-effect waves-dark shadow-lg rounded p-2 show-cart">
 								<i class="fas fs-4 fa-eye text-primary m-0 mx-0 p-0"></i>
 							</span>	
 						</td>
 					</tr>`)
-				} else {
-					$('tbody').append(`
+				}
+			else {
+				$('tbody').append(`
 					<tr>
 						<td colspan="100">
-							<div class="d-flex justify-content-center align-items-center my-5 pt-5 fs-3"><i class="fas fa-shopping-cart"></i> &nbsp No cart for approval.</div>
+							<div class="d-flex justify-content-center align-items-center my-5  fs-3 pt-5"><i class="fas fa-shopping-cart"></i> &nbsp No cart on preparation.</div>
 						</td>
 					</tr>`)
-				}
+			}
 		}
 
 		// change page
@@ -230,7 +231,7 @@
 
 		function changePage() {
 			q.page = $(this).attr('data-page')
-			handleFetchForApprovalList(q);
+			handleFetchOnPreparation(q);
 		}
 
 		function showTableLoader() {
@@ -253,7 +254,7 @@
 				.then(function(response) {
 					console.log(response)
 					displayCartDetails(response)
-					$('#approve-button').attr('data-id', $(element).closest('tr').attr('id'))
+					$('#update-cart-button').attr('data-id', $(element).closest('tr').attr('id'))
 				}).fail(function(response) {
 					console.log(response)
 				})
@@ -280,7 +281,6 @@
 				<div class="text-center fs-4">transaction ID</div>
 				<div class="text-center fw-bold pt-1 pb-3">${cart['cart']['id']}</div>
 				<div class="fw-normal">${fullname}</div>
-				<div class="fw-normal">${cart['user']['email']}</div>
 				<div class="fw-normal">${cart['user']['contact']}</div>
 				<div class="fw-normal">${cart['user']['barangay_name']}, ${cart['user']['street']}</div>
 				<div class="fw-bold pt-4 pb-2">Order List:</div>
@@ -311,34 +311,33 @@
 			`)
 		}
 
-		$('#approve-button').on('click', function() {
+		$('#update-cart-button').on('click', function() {
 			disableEnableModal('disable')
-			$.post('<?= site_url('admin_api/approve_order') ?>', {
-					id: $('#approve-button').attr('data-id')
+			$.post('<?= site_url('admin_api/deliver_order') ?>', {
+					id: $('#update-cart-button').attr('data-id')
 				})
 				.then(function(response) {
-					console.log(response)
 					if (response) {
-						$('#approve-button').html('Approve Order')
-						toastr.success('Cart approved!')
+						toastr.success('Cart Status Updated!!')
 						$('#cart-details-modal').modal('hide')
-						handleFetchForApprovalList(q)
+						handleFetchOnPreparation(q)
 						disableEnableModal('enable')
 					} else {
-						disableEnableModal('enable')
 						toastr.error('Something went wrong. Try again..')
+						disableEnableModal('enable')
 					}
 				}).fail(function(response) {
+					console.log(response)
 					disableEnableModal('enable')
 					toastr.error('Something went wrong. Try again..')
 				})
 		})
 
 		function disableEnableModal(mode) {
-			$('#approve-button').html(mode == 'disable' ? '<i class="mdi mdi-spin mdi-loading"></i>' : 'Approve Order')
+			$('#update-cart-button').html(mode == 'disable' ? '<i class="mdi mdi-spin mdi-loading"></i>' : 'Deliver Order')
 			$('.btn-close').attr('disabled', mode == 'disable' ? true : false)
-			$('#approve-button').attr('disabled', mode == 'disable' ? true : false)
-			$('#approve-button').prev().attr('disabled', mode == 'disable' ? true : false)
+			$('#update-cart-button').attr('disabled', mode == 'disable' ? true : false)
+			$('#update-cart-button').prev().attr('disabled', mode == 'disable' ? true : false)
 		}
 	</script>
 </body>
