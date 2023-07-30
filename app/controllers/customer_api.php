@@ -140,6 +140,20 @@ class customer_api extends Controller
 	}
 
 
+	function get_user_cart()
+	{
+		try {
+			$this->is_authorized();
+			$status = $_POST['status'];
+			if ($status == 'all') $status = '%%';
+			else $status = '%' . $status . '%';
+			$carts = $this->db->table('cart as c')->select('id, DATE_FORMAT(for_approval_at, "%b %d, %Y %h:%i %p") as for_approval_at, status')->where('c.user_id', $this->session->userdata('user')['id'])->like('c.status', $status)->order_by('for_approval_at', 'desc')->get_all();
+			echo json_encode($carts);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	// template
 	// function user_index()
 	// {

@@ -125,4 +125,12 @@ class customer extends Controller
 			echo 'error';
 		redirect('customer/checkout');
 	}
+
+	public function orders()
+	{
+		$this->call->view('customer/orders', [
+			'pageTitle' => 'Orders',
+			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null
+		]);
+	}
 }

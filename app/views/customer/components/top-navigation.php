@@ -25,9 +25,9 @@
        </div>
        <nav class="humberger__menu__nav mobile-menu">
           <ul>
-             <li class="active"><a href="<?= site_url('customer/homepage') ?>">Home</a></li>
-             <li><a href="./shop-grid.html">Shop</a></li>
-             <li><a href="#">Pages</a>
+             <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="<?= site_url('customer/homepage') ?>">Home</a></li>
+             <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="./shop-grid.html">Shop</a></li>
+             <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="#">Pages</a>
                 <ul class="header__menu__dropdown">
                    <li><a href="./shop-details.html">Shop Details</a></li>
                    <li><a href="./shoping-cart.html">Shoping Cart</a></li>
@@ -40,12 +40,6 @@
           </ul>
        </nav>
        <div id="mobile-menu-wrap"></div>
-       <div class="header__top__right__social">
-          <a href="#"><i class="fa fa-facebook"></i></a>
-          <a href="#"><i class="fa fa-twitter"></i></a>
-          <a href="#"><i class="fa fa-linkedin"></i></a>
-          <a href="#"><i class="fa fa-pinterest-p"></i></a>
-       </div>
        <div class="humberger__menu__contact">
           <ul>
              <li><i class="fa fa-envelope"></i> <?= isset($user['email']) ? $user['email'] : 'You are not logged in' ?></li>
@@ -70,12 +64,6 @@
                 </div>
                 <div class="col-lg-6 col-md-6">
                    <div class="header__top__right">
-                      <div class="header__top__right__social">
-                         <a href="#"><i class="fa fa-facebook"></i></a>
-                         <a href="#"><i class="fa fa-twitter"></i></a>
-                         <a href="#"><i class="fa fa-linkedin"></i></a>
-                         <a href="#"><i class="fa fa-pinterest-p"></i></a>
-                      </div>
                       <div class="header__top__right__auth">
                          <?php if ($user == null) : ?>
                             <a href="<?= site_url('account/login') ?>"><i class="fa fa-user"></i> Login</a>
@@ -98,9 +86,9 @@
              <div class="col-lg-6">
                 <nav class="header__menu">
                    <ul>
-                      <li class="active"><a href="<?= site_url('customer/homepage') ?>">Home</a></li>
-                      <li><a href="./shop-grid.html">Shop</a></li>
-                      <li><a href="#">Pages</a>
+                      <li class="<?= $pageTitle == 'Home' ? 'active' : '' ?>"><a href="<?= site_url('customer/homepage') ?>">Home</a></li>
+                      <li class="<?= $pageTitle == 'Orders' ? 'active' : '' ?>"><a href="<?= site_url('customer/orders') ?>">Orders</a></li>
+                      <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="#">Pages</a>
                          <ul class="header__menu__dropdown">
                             <li><a href="./shop-details.html">Shop Details</a></li>
                             <li><a href="./shoping-cart.html">Shoping Cart</a></li>
