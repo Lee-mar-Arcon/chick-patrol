@@ -532,17 +532,19 @@ class admin extends Controller
 		]);
 	}
 
+	function rejected_order()
+	{
+		$this->call->view('admin/rejected-order', [
+			'pageTitle' => 'Admin | Rejected Orders',
+			'breadCrumb' => 'Rejected Orders'
+		]);
+	}
+
 	function preparing()
 	{
 		$this->call->view('admin/preparing', [
 			'pageTitle' => 'Admin | On Preparation',
 			'breadCrumb' => 'On Preparation'
 		]);
-	}
-
-
-	function mail_test(){
-		$this->call->model('m_mailer');
-		$this->m_mailer->test_mail('arconleemar@gmail.com', 'This is a test mail');
 	}
 }

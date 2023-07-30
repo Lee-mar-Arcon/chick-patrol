@@ -49,6 +49,13 @@
             <li class="menu-title">Orders</li>
 
             <li>
+               <a href="<?= BASE_URL ?>admin/rejected-order">
+                  <i class="fas fa-window-close"></i>
+                  <span>&nbsp;&nbsp;Rejected Orders</span>
+               </a>
+            </li>
+
+            <li>
                <a href="<?= BASE_URL ?>admin/approval">
                   <i class="fas fa-shopping-cart"></i>
                   <span>&nbsp;&nbsp;For Approval</span>
