@@ -326,7 +326,7 @@ class admin_api extends Controller
 					$products = $this->db->table('products as p')->select('quantity, id')->in('id', $this->get_all_product_id($cart['products']))->get_all();
 					foreach ($products as $product) {
 						foreach (json_decode($cart['products']) as $cartProduct) {
-							if ($product['id'] == $cartProduct->id) {
+							if ($product['id'] == $cartProduct->id && $product['quantity'] != null) {
 								$this->db->table('products')->where('id', $product['id'])->update(array('quantity' => ($product['quantity'] + $cartProduct->quantity)));
 								break;
 							}
