@@ -160,11 +160,11 @@ class m_mailer extends Model
                     <tfoot>
                         <tr style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">
                             <td colspan="2" style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">Delivery Fee</td>
-                            <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">' . $cartDetails['cart']['delivery_fee'] . ' Php</td>
+                            <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">' . number_format($cartDetails['cart']['delivery_fee'], 2) . ' Php</td>
                         </tr>
                         <tr style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">
                             <td colspan="2" style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">Grand Total</td>
-                            <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">' . $cartDetails['cart']['total'] . ' Php</td>
+                            <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">' . number_format($cartDetails['cart']['total'], 2) . ' Php</td>
                         </tr>
                     </tfoot>
                     </table>

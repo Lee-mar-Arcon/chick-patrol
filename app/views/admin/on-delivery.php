@@ -49,7 +49,7 @@
 											<th>Last Name</th>
 											<th>Email</th>
 											<th>Contact</th>
-											<th class="text-center">On Delivered Date</th>
+											<th class="text-center">On Delivery Date</th>
 											<th class="text-center">Action</th>
 										</tr>
 									</thead>
@@ -325,6 +325,9 @@
 					if (response == 'id required') {
 						disableEnableModal('enable')
 						toastr.error('Cart ID is required.')
+					} else if (response == 0) {
+						disableEnableModal('enable')
+						toastr.error('Something went wrong. Try again..')
 					} else {
 						disableEnableModal('enable')
 						toastr.success('Cart marked Finished.')

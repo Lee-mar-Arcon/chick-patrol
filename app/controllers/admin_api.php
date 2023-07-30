@@ -369,12 +369,23 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			$id = $_POST['id'];
-			if (strlen($id) == 0) {
+			$cartID = $_POST['id'];
+			if (strlen($cartID) == 0) {
 				echo json_encode('id required');
 			} else {
-				$this->db->table('cart')->where('id', $this->m_encrypt->decrypt($id))->update(array('status' => 'finished', 'received_at' => date('Y-m-d H:i:s')));
-				echo json_encode($this->m_encrypt->decrypt($id));
+				$this->call->model('m_mailer');
+				$cartID = $this->m_encrypt->decrypt($_POST['id']);
+				$email = $this->db->table('cart as c')->select('u.email')->inner_join('users as u', 'c.user_id=u.id')->where('c.id', $cartID)->get()['email'];
+				$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, for_approval_at, id, note, products, total, user_id')->where(['id' => $cartID])->get();
+				$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
+				$cartDetails['products'] = $this->db->table('products as p')->select('name, id, price')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
+
+				if ($this->m_mailer->deliver_order_mail($email, 'Order Marked Received! Kindly Check your email for more information.', $cartDetails)) {
+					$this->db->table('cart')->where('id', $cartID)->update(array('status' => 'finished', 'received_at' => date('Y-m-d H:i:s')));
+					echo json_encode(1);
+				} else {
+					echo json_encode(0);
+				}
 			}
 		} catch (Exception $e) {
 			echo $e->getMessage();
