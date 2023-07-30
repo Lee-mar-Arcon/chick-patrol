@@ -305,6 +305,42 @@ class admin_api extends Controller
 			echo $e->getMessage();
 		}
 	}
+
+	function reject_order()
+	{
+		try {
+			$this->is_authorized();
+			$id = $_POST['id'];
+			$rejection_note = $_POST['rejection_note'];
+			if (strlen($id) == 0)
+				echo json_encode('id is required');
+			else if (strlen($rejection_note) == 0)
+				echo json_encode('note is required');
+			else {
+				$this->call->model('m_mailer');
+				$cart = $this->db->table('cart')->where('id', $this->m_encrypt->decrypt($id))->get();
+				$email = $this->db->table('cart as c')->select('u.email')->inner_join('users as u', 'c.user_id=u.id')->where('c.id', $this->m_encrypt->decrypt($id))->get()['email'];
+
+				if ($this->m_mailer->reject_order_mail($email, 'Order Rejected.', $rejection_note)) {
+					$this->db->table('cart')->where('id', $this->m_encrypt->decrypt($id))->update(array('status' => 'rejected', 'rejection_note' => $rejection_note, 'rejected_at' => date('Y-m-d H:i:s')));
+					$products = $this->db->table('products as p')->select('quantity, id')->in('id', $this->get_all_product_id($cart['products']))->get_all();
+					foreach ($products as $product) {
+						foreach (json_decode($cart['products']) as $cartProduct) {
+							if ($product['id'] == $cartProduct->id) {
+								$this->db->table('products')->where('id', $product['id'])->update(array('quantity' => ($product['quantity'] + $cartProduct->quantity)));
+								break;
+							}
+						}
+					}
+					echo json_encode(1);
+				} else
+					echo json_encode(0);
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	// template
 	// function user_index()
 	// {

@@ -183,4 +183,21 @@ class m_mailer extends Model
         $this->email->email_content($this->approveDeliver_cart_mail_body($cartDetails), 'html');
         return $this->email->send();
     }
+
+    public function reject_order_mail($recipient, $subj, $rejection_note)
+    {
+        $htmlVal = '
+            <center>
+                <img src="' . BASE_URL . PUBLIC_DIR . '/logo.png' . '" alt="chick-patrol logo" height="80">
+            </center>
+            <div style="width: 100%; text-align: center; padding: 15px 0px 0px 1px;">Sorry, your order was rejected due to the reason: ' . $rejection_note . '</div>
+            <div style="width: 100%; text-align: center; padding: 15px 0px 0px 1px;">Kindly check your account for more details.</div>';
+        $this->call->library('email');
+        $this->email->sender($this->sender);
+        $this->email->recipient($recipient);
+        $this->email->subject($subj);
+        $this->email->reply_to($this->sender);
+        $this->email->email_content($htmlVal, 'html');
+        return $this->email->send();
+    }
 }

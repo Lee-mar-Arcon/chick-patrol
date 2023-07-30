@@ -15,6 +15,8 @@
 	<link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
 	<!-- toastr -->
 	<link rel="stylesheet" href="<?= BASE_URL . PUBLIC_DIR ?>/libraries/toastr.css">
+	<!-- Sweet alert -->
+	<link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
 </head>
 
 <!-- body start -->
@@ -82,9 +84,32 @@
 				</div>
 				<div class="modal-body fs-5 mx-2">
 				</div>
+				<div class="modal-footer d-flex justify-content-between">
+					<button type="button" id="reject-button" class="float-left btn btn-danger">Reject Order</button>
+					<div>
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						<button type="button" id="approve-button" class="btn btn-primary">Approve Order</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="reject-confirmation-modal" tabindex="-1" aria-labelledby="scrollableModalTitle" data-bs-backdrop="static" style="display: none;" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="scrollableModalTitle">Reject Cart</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body fs-5 mx-2">
+					<div class="mb-3">
+						<label for="example-textarea" class="form-label text-danger">Rejection Note:</label>
+						<textarea class="form-control" id="rejection_note" rows="5"></textarea>
+					</div>
+				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="button" id="approve-button" class="btn btn-primary">Approve Order</button>
+					<button type="button" id="submit-reject-button" class="btn btn-primary">Submit</button>
 				</div>
 			</div>
 		</div>
@@ -107,6 +132,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 	<!-- taostr -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+	<!-- Sweet Alerts js -->
+	<script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
 	<script>
 		let q = {
 			q: 'all',
@@ -340,6 +367,47 @@
 			$('#approve-button').attr('disabled', mode == 'disable' ? true : false)
 			$('#approve-button').prev().attr('disabled', mode == 'disable' ? true : false)
 		}
+
+		$('#reject-button').on('click', function() {
+			$('#rejection_note').val('')
+			$('#reject-confirmation-modal').modal('show')
+			$('#cart-details-modal').modal('hide')
+		})
+
+		$('#reject-confirmation-modal .btn-close').on('click', function() {
+			$('#cart-details-modal').modal('show')
+			$('#reject-confirmation-modal').modal('hide')
+		})
+
+		$('#submit-reject-button').on('click', function() {
+			$('#submit-reject-button').attr('disabled', true)
+			$('#reject-confirmation-modal .btn-close').attr('disabled', true)
+			let rejectionNote = $('#rejection_note').val()
+			let id = $('#approve-button').attr('data-id')
+			$.post('<?= site_url('admin_api/reject_order') ?>', {
+					id: id,
+					rejection_note: rejectionNote
+				})
+				.then(function(response) {
+					console.log(response)
+					if (response == 'note is required')
+						toastr.error('Rejection note is required!')
+					else if (response == 'id is required')
+						toastr.error('Cart ID is required!')
+					else {
+						$('#submit-reject-button').attr('disabled', false)
+						$('#reject-confirmation-modal .btn-close').attr('disabled', false)
+						toastr.success('Order rejected!')
+						$('#reject-confirmation-modal').modal('hide')
+						handleFetchForApprovalList(q);
+					}
+				}).fail(function(response) {
+					$('#submit-reject-button').attr('disabled', false)
+					$('#reject-confirmation-modal .btn-close').attr('disabled', false)
+					$('#reject-confirmation-modal').modal('hide')
+					handleFetchForApprovalList(q);
+				})
+		})
 	</script>
 </body>
 
