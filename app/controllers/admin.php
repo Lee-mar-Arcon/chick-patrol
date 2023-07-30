@@ -547,4 +547,12 @@ class admin extends Controller
 			'breadCrumb' => 'On Preparation'
 		]);
 	}
+
+	function on_delivery()
+	{
+		$this->call->view('admin/on-delivery', [
+			'pageTitle' => 'Admin | On Delivery',
+			'breadCrumb' => 'On Delivery'
+		]);
+	}
 }

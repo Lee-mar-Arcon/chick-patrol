@@ -199,6 +199,28 @@ class m_admin extends Model
 		];
 	}
 
+	function on_delivery_index($page, $q)
+	{
+		if (ctype_space($q) || $q == 'all')
+			$q = '%%';
+		else
+			$q = '%' . trim($q) . '%';
+
+		$totalRows = $this->db->raw('select count(u.id) as total from users as u inner join cart as c on u.id=c.user_id where c.status = "on delivery" and (u.first_name like ? or u.middle_name like ? or u.last_name like ?)', array($q, $q, $q))[0]['total'];
+
+		return [
+			'onDeliveryList' => $this->m_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.on_delivery_at, "%b %d, %Y %h:%i %p") as on_delivery_at, c.id as id FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "on delivery" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.on_delivery_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
+			'pagination' => [
+				'totalRows' => $totalRows,
+				'totalPage' => ceil($totalRows / 10),
+				'currentPage' => (int)$page
+			],
+			'q' => [
+				$page, $q
+			]
+		];
+	}
+
 	function on_preparation_index($page, $q)
 	{
 		if (ctype_space($q) || $q == 'all')

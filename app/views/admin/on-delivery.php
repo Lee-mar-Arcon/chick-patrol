@@ -32,7 +32,7 @@
 				<div class="container-fluid">
 					<div class="card">
 						<div class="card-header">
-							For Approval Orders
+							Cart On Delivery
 						</div>
 						<div class="card-body">
 							<div class="d-flex justify-content-start align-items-center my-3">
@@ -49,7 +49,7 @@
 											<th>Last Name</th>
 											<th>Email</th>
 											<th>Contact</th>
-											<th class="text-center">Date Checked Out</th>
+											<th class="text-center">On Delivered Date</th>
 											<th class="text-center">Action</th>
 										</tr>
 									</thead>
@@ -84,32 +84,9 @@
 				</div>
 				<div class="modal-body fs-5 mx-2">
 				</div>
-				<div class="modal-footer d-flex justify-content-between">
-					<button type="button" id="reject-button" class="float-left btn btn-danger">Reject Order</button>
-					<div>
-						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-						<button type="button" id="approve-button" class="btn btn-primary">Approve Order</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="modal fade" id="reject-confirmation-modal" tabindex="-1" aria-labelledby="scrollableModalTitle" data-bs-backdrop="static" style="display: none;" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-md modal-dialog-scrollable" role="document">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h5 class="modal-title" id="scrollableModalTitle">Reject Cart</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body fs-5 mx-2">
-					<div class="mb-3">
-						<label for="example-textarea" class="form-label text-danger">Rejection Note:</label>
-						<textarea class="form-control" id="rejection_note" rows="5"></textarea>
-					</div>
-				</div>
 				<div class="modal-footer">
-					<button type="button" id="submit-reject-button" class="btn btn-primary">Submit</button>
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" id="mark-finished-button" class="btn btn-primary">Mark Finished</button>
 				</div>
 			</div>
 		</div>
@@ -146,19 +123,19 @@
 
 		$(document).ready(function() {
 			showTableLoader()
-			handleFetchForApprovalList(q)
+			handleFetchOnDeliveryList(q)
 		})
 
-		const handleFetchForApprovalList = _.debounce((q) => fetchForApprovalList(q), 1000);
+		const handleFetchOnDeliveryList = _.debounce((q) => fetchOnDeliveryList(q), 1000);
 
-		function fetchForApprovalList(q) {
+		function fetchOnDeliveryList(q) {
 			showTableLoader()
-			let link = '<?= site_url('admin_api/for_approval_index/') ?>';
+			let link = '<?= site_url('admin_api/on_delivery_index/') ?>';
 			axios.get(link + `${q.page}/${q.q}`, {
 					/* OPTIONS */
 				})
 				.then(function(response) {
-					populateTable(response.data['forApprovalList'])
+					populateTable(response.data['onDeliveryList'])
 					populatePagination(response.data['pagination'])
 				})
 				.catch(function(error) {
@@ -221,7 +198,7 @@
 			q.page = 1
 			if (/^\s*$/.test($(this).val()))
 				q.q = 'all'
-			handleFetchForApprovalList(q)
+			handleFetchOnDeliveryList(q)
 		})
 
 		function populateTable(rows) {
@@ -235,7 +212,7 @@
 						<td>${rows[i]['last_name']}</td>
 						<td>${rows[i]['email']}</td>
 						<td>${rows[i]['contact']}</td>
-						<td class="text-center"><span>${rows[i]['for_approval_at']}</span></td>
+						<td class="text-center"><span>${rows[i]['on_delivery_at']}</span></td>
 						<td class="text-center">
 							<span class="btn waves-effect waves-dark shadow-lg rounded p-2 show-cart">
 								<i class="fas fs-4 fa-eye text-primary m-0 mx-0 p-0"></i>
@@ -246,7 +223,7 @@
 					$('tbody').append(`
 					<tr>
 						<td colspan="100">
-							<div class="d-flex justify-content-center align-items-center my-5 pt-5 fs-3"><i class="fas fa-shopping-cart"></i> &nbsp No cart for approval.</div>
+							<div class="d-flex justify-content-center align-items-center my-5 pt-5 fs-3"><i class="fas fa-truck"></i> &nbsp No Cart on Delivery.</div>
 						</td>
 					</tr>`)
 				}
@@ -257,7 +234,7 @@
 
 		function changePage() {
 			q.page = $(this).attr('data-page')
-			handleFetchForApprovalList(q);
+			handleFetchOnDeliveryList(q);
 		}
 
 		function showTableLoader() {
@@ -280,7 +257,7 @@
 				.then(function(response) {
 					console.log(response)
 					displayCartDetails(response)
-					$('#approve-button').attr('data-id', $(element).closest('tr').attr('id'))
+					$('#mark-finished-button').attr('data-id', $(element).closest('tr').attr('id'))
 				}).fail(function(response) {
 					console.log(response)
 				})
@@ -338,22 +315,21 @@
 			`)
 		}
 
-		$('#approve-button').on('click', function() {
+		$('#mark-finished-button').on('click', function() {
 			disableEnableModal('disable')
-			$.post('<?= site_url('admin_api/approve_order') ?>', {
-					id: $('#approve-button').attr('data-id')
+			$.post('<?= site_url('admin_api/mark_finished') ?>', {
+					id: $('#mark-finished-button').attr('data-id')
 				})
 				.then(function(response) {
 					console.log(response)
-					if (response) {
-						$('#approve-button').html('Approve Order')
-						toastr.success('Cart approved!')
-						$('#cart-details-modal').modal('hide')
-						handleFetchForApprovalList(q)
+					if (response == 'id required') {
 						disableEnableModal('enable')
+						toastr.error('Cart ID is required.')
 					} else {
 						disableEnableModal('enable')
-						toastr.error('Something went wrong. Try again..')
+						toastr.success('Cart marked Finished.')
+						$('#cart-details-modal').modal('hide')
+						handleFetchOnDeliveryList(q)
 					}
 				}).fail(function(response) {
 					disableEnableModal('enable')
@@ -362,53 +338,11 @@
 		})
 
 		function disableEnableModal(mode) {
-			$('#approve-button').html(mode == 'disable' ? '<i class="mdi mdi-spin mdi-loading"></i>' : 'Approve Order')
+			$('#mark-finished-button').html(mode == 'disable' ? '<i class="mdi mdi-spin mdi-loading"></i>' : 'Mark Finished')
 			$('.btn-close').attr('disabled', mode == 'disable' ? true : false)
-			$('#approve-button').attr('disabled', mode == 'disable' ? true : false)
-			$('#approve-button').prev().attr('disabled', mode == 'disable' ? true : false)
-			$('#reject-button').attr('disabled', mode == 'disable' ? true : false)
+			$('#mark-finished-button').attr('disabled', mode == 'disable' ? true : false)
+			$('#mark-finished-button').prev().attr('disabled', mode == 'disable' ? true : false)
 		}
-
-		$('#reject-button').on('click', function() {
-			$('#rejection_note').val('')
-			$('#reject-confirmation-modal').modal('show')
-			$('#cart-details-modal').modal('hide')
-		})
-
-		$('#reject-confirmation-modal .btn-close').on('click', function() {
-			$('#cart-details-modal').modal('show')
-			$('#reject-confirmation-modal').modal('hide')
-		})
-
-		$('#submit-reject-button').on('click', function() {
-			$('#submit-reject-button').attr('disabled', true)
-			$('#reject-confirmation-modal .btn-close').attr('disabled', true)
-			let rejectionNote = $('#rejection_note').val()
-			let id = $('#approve-button').attr('data-id')
-			$.post('<?= site_url('admin_api/reject_order') ?>', {
-					id: id,
-					rejection_note: rejectionNote
-				})
-				.then(function(response) {
-					console.log(response)
-					if (response == 'note is required')
-						toastr.error('Rejection note is required!')
-					else if (response == 'id is required')
-						toastr.error('Cart ID is required!')
-					else {
-						$('#submit-reject-button').attr('disabled', false)
-						$('#reject-confirmation-modal .btn-close').attr('disabled', false)
-						toastr.success('Order rejected!')
-						$('#reject-confirmation-modal').modal('hide')
-						handleFetchForApprovalList(q);
-					}
-				}).fail(function(response) {
-					$('#submit-reject-button').attr('disabled', false)
-					$('#reject-confirmation-modal .btn-close').attr('disabled', false)
-					$('#reject-confirmation-modal').modal('hide')
-					handleFetchForApprovalList(q);
-				})
-		})
 	</script>
 </body>
 

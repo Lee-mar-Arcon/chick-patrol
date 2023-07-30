@@ -135,41 +135,45 @@ class m_mailer extends Model
         }
 
         $htmlVal = '
-        <center>
-            <img src="' . BASE_URL . PUBLIC_DIR . '/logo.png' . '" alt="chick-patrol logo" height="80">
-        </center>
-        <div style="width: 100%; text-align: center; padding: 15px 0px 0px 1px;">Transaction ID:</div>
-        <div style="width: 100%; text-align: center; padding: 15px 0px 15px 1px;">' . $cartDetails['cart']['id'] . '</div>
-        <div style="padding: 15px 2px 0px 1px;">' . $fullname . '</div>
-        <div style="padding: 2px 2px 0px 1px;">' . $cartDetails['user']['contact'] . '</div>
-        <div style="padding: 2px 2px 15px 1px;">' . $cartDetails['user']['street'] . ', ' . $cartDetails['user']['barangay_name'] . '</div>
-        <div style="font-weight: bold;">Order List:</div>
-        <table style="table-layout: auto;width: 100%;border-collapse: collapse;border: 1px rgb(204, 204, 204) solid;padding: 10px;">
-           <thead>
-              <tr style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">
-                 <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">Product(qty)</td>
-                 <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">Price</td>
-                 <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">Total</td>
-              </tr>
-           </thead>
-           <tbody>
-           ' . $productList . '
-           </tbody>
-           <tfoot>
-              <tr style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">
-                 <td colspan="2" style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">Delivery Fee</td>
-                 <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">' . $cartDetails['cart']['delivery_fee'] . ' Php</td>
-              </tr>
-              <tr style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">
-                 <td colspan="2" style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">Grand Total</td>
-                 <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">' . $cartDetails['cart']['total'] . ' Php</td>
-              </tr>
-           </tfoot>
-        </table>
-        <div style="padding-top: 20px; font-weight: bold;">Note:</div>
-        <div style="padding-top: 5px; font-weight: normal; max-width: 100%; text-indent: 20px; word-wrap: wrap;">
-            ' . $cartDetails['cart']['note'] . '
-        </div>';
+            <div style="display: grid;place-items: center;">
+                <div style="max-width: 550px">
+                    <div style="display: grid;place-items: center;">
+                        <img src="' . BASE_URL . PUBLIC_DIR . '/logo.png' . '" alt="chick-patrol logo" height="80">
+                    </div>
+                    <div style="width: 100%; text-align: center; padding: 15px 0px 0px 1px;">Transaction ID:</div>
+                    <div style="width: 100%; text-align: center; padding: 15px 0px 15px 1px;">' . $cartDetails['cart']['id'] . '</div>
+                    <div style="padding: 15px 2px 0px 1px;">' . $fullname . '</div>
+                    <div style="padding: 2px 2px 0px 1px;">' . $cartDetails['user']['contact'] . '</div>
+                    <div style="padding: 2px 2px 15px 1px;">' . $cartDetails['user']['street'] . ', ' . $cartDetails['user']['barangay_name'] . '</div>
+                    <div style="font-weight: bold;">Order List:</div>
+                    <table style="table-layout: auto;width: 100%;border-collapse: collapse;border: 1px rgb(204, 204, 204) solid;padding: 10px;">
+                    <thead>
+                        <tr style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">
+                            <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">Product(qty)</td>
+                            <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">Price</td>
+                            <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">Total</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    ' . $productList . '
+                    </tbody>
+                    <tfoot>
+                        <tr style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">
+                            <td colspan="2" style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">Delivery Fee</td>
+                            <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">' . $cartDetails['cart']['delivery_fee'] . ' Php</td>
+                        </tr>
+                        <tr style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">
+                            <td colspan="2" style="border: 1px rgb(204, 204, 204) solid;padding: 10px;">Grand Total</td>
+                            <td style="border: 1px rgb(204, 204, 204) solid;padding: 10px;text-align: center;width: 100px;">' . $cartDetails['cart']['total'] . ' Php</td>
+                        </tr>
+                    </tfoot>
+                    </table>
+                    <div style="padding-top: 20px; font-weight: bold;">Note:</div>
+                    <div style="padding-top: 5px; font-weight: normal; max-width: 100%; text-indent: 20px; word-wrap: wrap;">
+                        ' . $cartDetails['cart']['note'] . '
+                    </div>
+                </div>
+            </div>';
         return $htmlVal;
     }
 

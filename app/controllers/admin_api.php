@@ -273,7 +273,7 @@ class admin_api extends Controller
 		}
 	}
 
-	// ON DELIVERY
+	// ON preparation
 	function on_preparation_index($page, $q)
 	{
 		try {
@@ -348,6 +348,34 @@ class admin_api extends Controller
 			$this->is_authorized();
 			$onPreparationList = $this->m_admin->rejected_orders_index($page, $q);
 			echo json_encode($onPreparationList);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	// on delivery
+	function on_delivery_index($page, $q)
+	{
+		try {
+			$this->is_authorized();
+			$onDeliveryList = $this->m_admin->on_delivery_index($page, $q);
+			echo json_encode($onDeliveryList);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function mark_finished()
+	{
+		try {
+			$this->is_authorized();
+			$id = $_POST['id'];
+			if (strlen($id) == 0) {
+				echo json_encode('id required');
+			} else {
+				$this->db->table('cart')->where('id', $this->m_encrypt->decrypt($id))->update(array('status' => 'finished', 'received_at' => date('Y-m-d H:i:s')));
+				echo json_encode($this->m_encrypt->decrypt($id));
+			}
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

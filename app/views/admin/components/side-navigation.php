@@ -69,6 +69,13 @@
                </a>
             </li>
 
+            <li>
+               <a href="<?= BASE_URL ?>admin/on-delivery">
+                  <i class="fas fa-truck"></i>
+                  <span>&nbsp;&nbsp;On Delivery</span>
+               </a>
+            </li>
+
          </ul>
       </div>
       <!-- End Sidebar -->
