@@ -8,7 +8,6 @@ class customer extends Controller
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
 		$this->call->model('m_encrypt');
-		$this->loggedIn();
 		$this->call->database();
 	}
 
@@ -41,6 +40,7 @@ class customer extends Controller
 
 	public function shopping_cart()
 	{
+		$this->loggedIn();
 		$user = $this->session->userdata('user');
 		$pendingCart = $this->db->table('cart')->where(['user_id' => $user['id'], 'status' => 'pending'])->get();
 		if ($pendingCart)
@@ -68,6 +68,7 @@ class customer extends Controller
 
 	function checkout()
 	{
+		$this->loggedIn();
 		$cart = $this->db->table('cart')->where(['user_id' => $this->session->userdata('user')['id'], 'status' => 'pending'])->get();
 		$this->call->view('customer/checkout', [
 			'pageTitle' => 'Checkout',
@@ -80,6 +81,7 @@ class customer extends Controller
 
 	function place_order()
 	{
+		$this->loggedIn();
 		if ($this->form_validation->submitted()) {
 			$errors = array();
 			// name
@@ -128,6 +130,7 @@ class customer extends Controller
 
 	public function orders()
 	{
+		$this->loggedIn();
 		$this->call->view('customer/orders', [
 			'pageTitle' => 'Orders',
 			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null

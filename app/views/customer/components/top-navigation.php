@@ -19,7 +19,8 @@
              <?php if ($user == null) : ?>
                 <a href="<?= site_url('account/login') ?>"><i class="fa fa-user"></i> Login</a>
              <?php else : ?>
-                <a href="<?= site_url('customer/profile') ?>"><i class="fa fa-user"></i> Profile</a>
+                <a href="<?= site_url('customer/profile') ?>"><i class="fa fa-user"></i>Profile</a>
+                <a style="margin-left: 10px;" href="<?= site_url('account/login') ?>"><i class="fa fa-arrow-circle-left"></i>Logout</a>
              <?php endif; ?>
           </div>
        </div>
@@ -64,11 +65,12 @@
                 </div>
                 <div class="col-lg-6 col-md-6">
                    <div class="header__top__right">
-                      <div class="header__top__right__auth">
+                      <div class="header__top__right__auth d-flex justify-content-end">
                          <?php if ($user == null) : ?>
                             <a href="<?= site_url('account/login') ?>"><i class="fa fa-user"></i> Login</a>
                          <?php else : ?>
-                            <a href="<?= site_url('customer/profile') ?>"><i class="fa fa-user"></i> Profile</a>
+                            <a href="<?= site_url('customer/profile') ?>"><i class="fa fa-user"></i>Profile</a>
+                            <a style="margin-left: 10px;" href="<?= site_url('account/login') ?>"><i class="fa fa-arrow-circle-left"></i>Logout</a>
                          <?php endif; ?>
                       </div>
                    </div>

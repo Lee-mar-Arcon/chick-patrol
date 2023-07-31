@@ -154,6 +154,43 @@ class customer_api extends Controller
 		}
 	}
 
+
+	function get_cart_details()
+	{
+		try {
+			$this->is_authorized();
+			$cartDetails = array();
+			// $cartID = 16;
+			$cartID = $_POST['id'];
+			$cartDetails['cart'] = $this->db->table('cart')
+				->select('
+				cart.*, 
+				DATE_FORMAT(for_approval_at, "%b %d, %Y %h:%i %p") as for_approval_at,
+				DATE_FORMAT(approved_at, "%b %d, %Y %h:%i %p") as approved_at,
+				DATE_FORMAT(on_delivery_at, "%b %d, %Y %h:%i %p") as on_delivery_at,
+				DATE_FORMAT(received_at, "%b %d, %Y %h:%i %p") as received_at,
+				DATE_FORMAT(rejected_at, "%b %d, %Y %h:%i %p") as rejected_at')->where(['id' => $cartID])->get();
+				
+			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
+			$cartDetails['products'] = $this->db->table('products as p')->select('name, id')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
+			// para lang saf yung id sa front end
+			$cartDetails['cart']['user_id'] = $this->m_encrypt->encrypt($cartDetails['cart']['user_id']);
+			echo json_encode($cartDetails);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function get_all_product_id($productList)
+	{
+		$ids = array();
+		$productList = json_decode($productList);
+		for ($i = 0; $i < count($productList); $i++) {
+			array_push($ids, $productList[$i]->id);
+		}
+		return $ids;
+	}
+
 	// template
 	// function user_index()
 	// {
