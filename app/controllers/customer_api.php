@@ -25,10 +25,10 @@ class customer_api extends Controller
 	{
 		try {
 			$this->is_authorized();
+
 			$user = $this->session->userdata('user');
 			$hasPendingCart = $this->db->table('cart')->where(['user_id' => $user['id'], 'status' => 'pending'])->get();
 			$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
-
 			// if there is no current pending cart for the user
 			if ($hasPendingCart == false) {
 				$data[] = array('id' => $productId, 'quantity' => 1);
@@ -170,7 +170,7 @@ class customer_api extends Controller
 				DATE_FORMAT(on_delivery_at, "%b %d, %Y %h:%i %p") as on_delivery_at,
 				DATE_FORMAT(received_at, "%b %d, %Y %h:%i %p") as received_at,
 				DATE_FORMAT(rejected_at, "%b %d, %Y %h:%i %p") as rejected_at')->where(['id' => $cartID])->get();
-				
+
 			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
 			$cartDetails['products'] = $this->db->table('products as p')->select('name, id')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
 			// para lang saf yung id sa front end

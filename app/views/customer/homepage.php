@@ -518,7 +518,6 @@
 
     <script>
         $(document).ready(function() {
-            console.log(123)
             updateCartBadge()
         })
 
@@ -543,7 +542,9 @@
                     },
                 }).showToast();
             } else {
+                console.log(321)
                 let id = element.attr('data-id')
+                console.log(id)
                 $.post('<?= site_url('customer_api/add_to_cart') ?>', {
                         id: id,
                     })
@@ -578,6 +579,8 @@
                                     background: "linear-gradient(to right, #14ac34, #3ab902)",
                                 },
                             }).showToast();
+                    }).catch(function(error) {
+                        console.log(error);
                     })
             }
         }

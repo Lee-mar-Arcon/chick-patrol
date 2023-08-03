@@ -94,6 +94,14 @@ class customer extends Controller
 			$result != null ? $errors['note'] = $result : '';
 			$this->session->set_flashdata(array('errors' => $errors));
 
+			// location
+			$this->form_validation
+				->name('location')
+				->required('Location is required.');
+			$result = $this->check_input('location');
+			$result != null ? $errors['location'] = $result : '';
+			$this->session->set_flashdata(array('errors' => $errors));
+
 			if (count($errors) == 0) {
 				$cart = $this->db->table('cart')->where(['user_id' => $this->session->userdata('user')['id'], 'status' => 'pending'])->get();
 				$cartProducts =  $this->db->table('products')->in('id', $this->get_all_product_id($cart['products']))->get_all();
@@ -120,7 +128,8 @@ class customer extends Controller
 					'total' => $total,
 					'note' => $this->io->post('note'),
 					'status' => 'for approval',
-					'for_approval_at' => date('Y-m-d H:i:s')
+					'for_approval_at' => date('Y-m-d H:i:s'),
+					'location' => $this->io->post('location')
 				]);
 			}
 		} else

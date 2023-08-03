@@ -80,7 +80,7 @@ $config['ENVIRONMENT']             = 'development';
 | WARNING: You MUST set this value!
 |
 */
-$config['base_url'] 				= 'http://chick-patrol.test/';
+$config['base_url'] 				= 'https://chick-patrol.test/';
 
 /*
 |--------------------------------------------------------------------------

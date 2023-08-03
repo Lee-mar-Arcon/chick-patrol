@@ -230,7 +230,7 @@ class admin_api extends Controller
 			$this->is_authorized();
 			$cartDetails = array();
 			$cartID = $this->m_encrypt->decrypt($_POST['id']);
-			$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, for_approval_at, id, note, products, total, user_id, rejection_note')->where(['id' => $cartID])->get();
+			$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, location, for_approval_at, id, note, products, total, user_id, rejection_note')->where(['id' => $cartID])->get();
 
 			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
 			$cartDetails['products'] = $this->db->table('products as p')->select('name, id')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();

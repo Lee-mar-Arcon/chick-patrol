@@ -23,6 +23,8 @@
    <link rel="stylesheet" href="<?= BASE_URL ?>public/customer/css/style.css" type="text/css">
    <!-- toastify -->
    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+   <!-- leaflet -->
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 </head>
 
 <body>
@@ -36,13 +38,10 @@
             <div class="checkout__form">
                <h4>Billing Details</h4>
                <form action="<?= site_url('customer/place_order') ?>" method="post">
+                  <input type="hidden" id="location" name="location">
                   <div class="row">
                      <div class="col-lg-7 col-md-5">
                         <div class="row">
-                           <?php //echo '<pre>' . var_export($cartProducts, true) . '</pre>' 
-                           ?>
-                           <?php //echo '<pre>' . var_export($user, true) . '</pre>' 
-                           ?>
                            <div class="col-lg-6">
                               <div class="checkout__input">
                                  <p>Fist Name<span>*</span></p>
@@ -67,7 +66,7 @@
                         <div class="checkout__input">
                            <p>Exact Location Note <span>*</span></p>
                            <textarea placeholder="Enter where you want to exactly get your order." name="note" id="note" cols="auto" rows="5"></textarea>
-                           <?= $errors != null ? '<div style="color: red;">' . $errors['note'] . '</div>' : '' ?>
+                           <?= isset($errors['note']) != null ? '<div style="color: red;">' . $errors['note'] . '</div>' : '' ?>
                         </div>
                         <div class="row">
                            <div class="col-lg-6">
@@ -80,6 +79,13 @@
                               <div class="checkout__input">
                                  <p>Email<span>*</span></p>
                                  <input type="text" value="<?= $user['email'] ?>" readonly>
+                              </div>
+                           </div>
+                           <div class="col-lg-12 mb-3">
+                              <div class="checkout__input">
+                                 <p>Location <span>*</span></p>
+                                 <div class="bg-dark" style="height: 500px;" id="map"></div>
+                                 <?= isset($errors['location']) != null ? '<div style="color: red;">' . $errors['location'] . '</div>' : '' ?>
                               </div>
                            </div>
                         </div>
@@ -126,8 +132,6 @@
          <?php } ?>
       </div>
    </section>
-
-
    <?php include 'components/footer.php' ?>
 
    <!-- Js Plugins -->
@@ -141,6 +145,9 @@
    <script src="<?= BASE_URL ?>public/customer/js/main.js"></script>
    <!-- toastify -->
    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+   <!-- leaflet -->
+   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+   <script src="<?= BASE_URL ?>public/leaflet/leafletjs_code.js"></script>
 
 
    <script>
