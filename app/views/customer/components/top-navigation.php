@@ -105,16 +105,14 @@
                </ul>
             </nav>
          </div>
-         <div class="align-self-end">
-            <div class="header__cart">
-               <ul class="m-0">
-                  <?php if (isset($user)) : ?>
-                     <li style="width: 140px;" class="m-2"><a href="<?= site_url('customer/shopping-cart') ?>"><i class="fa fa-shopping-bag"></i> <span></span></a></li>
-                  <?php else : ?>
-                     <li style="width: 140px;"></li>
-                  <?php endif; ?>
-               </ul>
-            </div>
+         <div class="header__cart align-self-end">
+            <ul class="m-0">
+               <?php if (isset($user)) : ?>
+                  <li style="width: 140px;"><a href="<?= site_url('customer/shopping-cart') ?>"><i class="fa fa-shopping-bag"></i> <span></span></a></li>
+               <?php else : ?>
+                  <li style="width: 140px;"></li>
+               <?php endif; ?>
+            </ul>
          </div>
 
          <div class="humberger__open">
