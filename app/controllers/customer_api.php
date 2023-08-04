@@ -191,6 +191,75 @@ class customer_api extends Controller
 		return $ids;
 	}
 
+	function update_account()
+	{
+		try {
+			$this->is_authorized();
+			$updatePassword = false;
+			$updateEmail = false;
+			$inputValid = true;
+			// changing password validation
+			if (strlen($_POST['old_password']) > 0) {
+				if (strlen($_POST['new_password']) == 0 || strlen($_POST['retype_new_password']) == 0)
+					$inputValid = 'new password required';
+				else {
+					$inputValid = $this->validate_password_values($_POST['old_password'], $_POST['new_password'], $_POST['retype_new_password']);
+					$inputValid ? $updatePassword = true : '';
+				}
+			} else if ((strlen($_POST['new_password']) > 0 || strlen($_POST['retype_new_password']) > 0) && strlen($_POST['old_password']) == 0)
+				$inputValid = 'old password required';
+
+
+			// changing email validation
+			if ($this->session->userdata('user')['email'] != $_POST['email'] && $inputValid == true)
+				if (!preg_match('/@gmail\.com$/i', $_POST['email']))
+					$inputValid = 'email is not a valid Gmail address.';
+				else {
+					$updateEmail = true;
+				}
+
+
+
+			if ($updateEmail && $inputValid == true) {
+				$this->call->model('m_mailer');
+				$userID = $this->session->userdata('user')['id'];
+				$encryptedID = $this->m_encrypt->encrypt($this->session->userdata('user')['id']);
+				$result = $this->m_mailer->send_change_email_mail($_POST['email'], $encryptedID);
+				if ($result == false) {
+					$inputValid = 'sending email failed';
+				} else {
+					$this->call->database();
+					$exists = $this->db->table('change_email_code')->where('user_id', $userID)->get();
+					if ($exists)
+						$this->db->table('change_email_code')->where('id', $exists['id'])->update(array('email' => $_POST['email']));
+					else
+						$this->db->table('change_email_code')->insert(array('user_id' => $userID, 'email' => $_POST['email']));
+				}
+			}
+
+			if ($updatePassword && $inputValid == true)
+				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update(array('password' => password_hash($_POST['new_password'], PASSWORD_DEFAULT)));
+
+			echo json_encode($_POST);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function validate_password_values($oldPassword, $newPassword, $retypeNewPassword)
+	{
+		$user = $this->session->userdata('user');
+		if (password_verify($oldPassword, $user['password']) == false)
+			return 'incorrect old password';
+		else if ($newPassword != $retypeNewPassword)
+			return 'new password must be the same';
+		else if (strlen($newPassword) == 0 || strlen($newPassword) < 8)
+			return 'new password must be 8 characters above';
+		else
+			return true;
+	}
+
+
 	// template
 	// function user_index()
 	// {
@@ -201,6 +270,4 @@ class customer_api extends Controller
 	// 		echo $e->getMessage();
 	// 	}
 	// }
-
-
 }

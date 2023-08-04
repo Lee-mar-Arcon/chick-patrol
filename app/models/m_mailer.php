@@ -104,6 +104,44 @@ class m_mailer extends Model
         return $htmlVal;
     }
 
+    public function send_change_email_mail($recipient, $user_id)
+    {
+        $this->call->library('email');
+        $this->email->sender($this->sender);
+        $this->email->recipient($recipient);
+        $this->email->subject('Change Email Link');
+        $this->email->reply_to($this->sender);
+        $this->email->email_content($this->change_email_body($user_id, 'Change email link'), 'html');
+        return $this->email->send();
+    }
+
+    public function change_email_body($user_id, $subject)
+    {
+        $htmlVal = '                            
+        <div style="
+        padding-top: 15px;
+        padding-bottom: 25px;
+        background-color: white;
+        border-top: 10px solid;
+        border-color: #0f0f11 ;">
+            <center>
+                <h1 style="
+                    color:#0f0f11;
+                    margin-bottom: 20px;">
+                        ' . $subject . '
+                </h1>
+                <img src="' . BASE_URL . PUBLIC_DIR . '/logo.png' . '" alt="chick-patrol logo">
+                <h2 style="color:black;">
+                    To completely change your account email, please click the link below: 
+                </h2>
+                <a href="' . BASE_URL . 'account/change-email/' . $user_id . '" style="text-decoration: none; color: white; border: solid #f0ffffba 2px; border-radius: 1rem; padding: 1rem 1.5rem; background-color: black; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">Change Email Link</a>
+                <p style="color:#0f0f11; padding-top: 5rem">Thank you for Choosing us!</p>
+            </center>
+        </div>';
+
+        return $htmlVal;
+    }
+
     public function approve_cart_mail($recipient, $subj, $cartDetails)
     {
         $this->call->library('email');

@@ -140,7 +140,7 @@ $LAVA = lava_instance();
                <div class="col-sm-12 col-lg-6">
                   <div class="checkout__input">
                      <label for="old_password">Password<span class="text-danger"> *</span></label>
-                     <input name="old_password" id="old_password" type="text">
+                     <input name="old_password" id="old_password" type="password">
                      <small id="old_password_help_text" class="form-text text-danger help-text"></small>
 
                   </div>
@@ -150,7 +150,7 @@ $LAVA = lava_instance();
                <div class="col-sm-12 col-lg-6">
                   <div class="checkout__input">
                      <label for="new_password">New password<span class="text-danger"> *</span></label>
-                     <input name="new_password" id="new_password" type="text">
+                     <input disabled name="new_password" id="new_password" type="password">
                      <small id="new_password_help_text" class="form-text text-danger help-text"></small>
                   </div>
                </div>
@@ -158,16 +158,16 @@ $LAVA = lava_instance();
                <div class="col-sm-12 col-lg-6">
                </div>
 
-               <!-- password -->
+               <!-- retype new password -->
                <div class="col-sm-12 col-lg-6">
                   <div class="checkout__input">
                      <label for="retype_new_password">Retype new password<span class="text-danger"> *</span></label>
-                     <input name="retype_new_password" id="retype_new_password" type="text">
+                     <input disabled name="retype_new_password" id="retype_new_password" type="password">
                      <small id="retype_new_password_help_text" class="form-text text-danger help-text"></small>
                   </div>
                </div>
             </div>
-            <div class="d-flex justify-content-end">   
+            <div class="d-flex justify-content-end">
                <button type="submit" class="site-btn update-button">Update Account</button>
             </div>
          </div>
@@ -201,6 +201,87 @@ $LAVA = lava_instance();
                   $('.fa-shopping-bag').next().html(response)
             })
       }
+
+      $('.update-button').on('click', function() {
+         let element = $(this)
+         element.html('<i class="mdi mdi-spin mdi-loading"></i>').attr('disabled', true)
+         $.post('<?= site_url('customer_api/update-account') ?>', {
+               first_name: $('#first_name').val(),
+               middle_name: $('#middle_name').val(),
+               last_name: $('#last_name').val(),
+               birth_date: $('#birth_date').val(),
+               sex: $('#sex').val(),
+               contact: $('#contact').val(),
+               barangay: $('#barangay').val(),
+               street: $('#street').val(),
+               email: $('#email').val(),
+               old_password: $('#old_password').val(),
+               new_password: $('#new_password').val(),
+               new_password: $('#new_password').val(),
+               retype_new_password: $('#retype_new_password').val(),
+            })
+            .then(function(response) {
+               console.log(response)
+               responseValidation(response)
+               element.html('update account').attr('disabled', false)
+            }).catch(function(error) {
+               console.log(error);
+               element.html('update account').attr('disabled', false)
+            })
+      })
+
+      function responseValidation(response) {
+         switch (response) {
+            case 'new password required':
+               showToast('New password is required', "linear-gradient(to right, #ac1414, #f12b00)")
+               break;
+            case 'old password required':
+               showToast('Old password is required', "linear-gradient(to right, #ac1414, #f12b00)")
+               break;
+            case 'incorrect old password':
+               showToast('Incorrect old password', "linear-gradient(to right, #ac1414, #f12b00)")
+               break;
+            case 'new password must be the same':
+               showToast('New Password must be the same', "linear-gradient(to right, #ac1414, #f12b00)")
+               break;
+            case 'new password must be 8 characters above':
+               showToast('New password must be 8 characters above.', "linear-gradient(to right, #ac1414, #f12b00)")
+               break;
+            case 'email is not a valid Gmail address.':
+               showToast('Email is not a valid Gmail address.', "linear-gradient(to right, #ac1414, #f12b00)")
+               break;
+            case 'sending email failed':
+               showToast('Sending changing email verification failed.', "linear-gradient(to right, #ac1414, #f12b00)")
+               break;
+         }
+      }
+
+      function showToast(message, backgroundColor) {
+         Toastify({
+            text: message,
+            duration: 1500,
+            newWindow: true,
+            close: true,
+            gravity: "top",
+            position: "right",
+            stopOnFocus: true,
+            style: {
+               background: backgroundColor,
+            },
+         }).showToast();
+      }
+
+      $('#old_password').on('input', function() {
+         if ($(this).val().length == 0) {
+            $('#new_password').attr('disabled', true)
+            $('#retype_new_password').attr('disabled', true)
+            $('#new_password').val('')
+            $('#retype_new_password').val('')
+         } else {
+            $('#new_password').attr('disabled', false)
+            $('#retype_new_password').attr('disabled', false)
+         }
+      })
    </script>
 </body>
 

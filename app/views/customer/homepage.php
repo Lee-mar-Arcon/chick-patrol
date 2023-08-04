@@ -28,36 +28,12 @@
 <body>
 
     <?php include 'components/top-navigation.php' ?>
-    <!-- Header Section End -->
 
-    <!-- Hero Section Begin -->
     <section class="hero">
         <div class="container">
             <div class="row">
-                <div class="col-lg-3">
-                    <div class="hero__categories">
-                        <!-- <div class="hero__categories__all">
-                            <i class="fa fa-bars"></i>
-                            <span>All Categories</span>
-                        </div> -->
-                        <!-- <ul> -->
-                        <?php //foreach ($categories as $category) : 
-                        ?>
-                        <!-- <li><a href=""><?php //echo $category['name'] 
-                                            ?></a></li> -->
-                        <?php //endforeach; 
-                        ?>
-                        <!-- </ul> -->
-                    </div>
-                </div>
-                <div class="col-lg-9">
-                    <div class="hero__search">
-                        <div class="hero__search__form">
-                            <form action="#">
-                                <input type="text" placeholder="What do yo u need?">
-                                <button type="submit" class="site-btn">SEARCH</button>
-                            </form>
-                        </div>
+                <div class="col-sm-12 col-md-3 mb-5 mt-2">
+                    <div class="d-flex justify-content-center">
                         <div class="hero__search__phone">
                             <div class="hero__search__phone__icon">
                                 <i class="fa fa-phone"></i>
@@ -68,19 +44,46 @@
                             </div>
                         </div>
                     </div>
-                    <div class="hero__item set-bg" data-setbg="<?= BASE_URL ?>public/customer/img/hero/banner.jpg">
-                        <div class="hero__text">
-                            <span>FRUIT FRESH</span>
-                            <h2>Vegetable <br />100% Organic</h2>
-                            <p>Free Pickup and Delivery Available</p>
-                            <!-- <a href="#" class="primary-btn">SHOP NOW</a> -->
+                </div>
+                <div class="hero__search__form col-sm-12 col-md-9 mb-5 mt-2">
+                    <form action="#">
+                        <input type="text" placeholder="What do yo u need?">
+                        <button type="submit" class="site-btn">SEARCH</button>
+                    </form>
+                </div>
+                <div class="col-12 p-0">
+                    <div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
+                        <ol class="carousel-indicators">
+                            <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
+                            <li data-target="#carouselExampleCaptions" data-slide-to="1"></li>
+                            <li data-target="#carouselExampleCaptions" data-slide-to="2"></li>
+                        </ol>
+                        <div class="carousel-inner">
+                            <?php $featuredProducts = [1, 2, 3, 4, 5];
+                            foreach ($featuredProducts as $featureProduct) { ?>
+                                <div class="carousel-item <?= $featureProduct == 1 ? 'active' : '' ?>">
+                                    <img height="500px" width="auto" src="https://chick-patrol.test/public/images/category/cropped/2044bf96fac1777639a48de6a75006bfa616d7be.png" class="d-block w-100" alt="...">
+                                    <div class="carousel-caption d-none d-md-block">
+                                        <h5><?= $featureProduct . ' label' ?></h5>
+                                        <p>Some representative placeholder content for the first slide.</p>
+                                    </div>
+                                </div>
+                            <?php } ?>
                         </div>
+                        <button class="carousel-control-prev" type="button" data-target="#carouselExampleCaptions" data-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-target="#carouselExampleCaptions" data-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="sr-only">Next</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-    <!-- Hero Section End -->
+
 
     <!-- Categories Section Begin -->
     <section class="categories">
@@ -542,9 +545,7 @@
                     },
                 }).showToast();
             } else {
-                console.log(321)
                 let id = element.attr('data-id')
-                console.log(id)
                 $.post('<?= site_url('customer_api/add_to_cart') ?>', {
                         id: id,
                     })

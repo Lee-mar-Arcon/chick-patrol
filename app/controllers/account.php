@@ -213,4 +213,15 @@ class account extends Controller
 			redirect('account/reset-password/' . $encryptedEmail);
 		}
 	}
+
+	function change_email($userID)
+	{
+		$this->call->model('m_encrypt');
+		$userID = $this->m_encrypt->decrypt($userID);
+		$this->call->database();
+		$newEmail = $this->db->table('change_email_code')->where('user_id', $userID)->get()['email'];
+		echo $this->db->table('users')->where('id', $userID)->update(['email' => $newEmail]);
+		$this->db->table('change_email_code')->where('user_id', $userID)->delete();
+		redirect('account/login');
+	}
 }
