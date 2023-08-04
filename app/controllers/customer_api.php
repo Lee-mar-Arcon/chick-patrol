@@ -255,7 +255,7 @@ class customer_api extends Controller
 					'street' => $_POST['street'],
 				]);
 			}
-			echo json_encode($_POST);
+			echo json_encode($responseSuccess);
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

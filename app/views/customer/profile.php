@@ -222,7 +222,11 @@ $LAVA = lava_instance();
             })
             .then(function(response) {
                console.log(response)
-               responseValidation(response)
+               if (typeof response === 'object' && !Array.isArray(response) && response !== null) {
+                  showToast('Some fields are invalid please double check your information.', "linear-gradient(to right, #ac1414, #f12b00)", 3000)
+                  showErrors(response)
+               } else
+                  responseValidation(response)
                element.html('update account').attr('disabled', false)
             }).catch(function(error) {
                console.log(error);
@@ -256,10 +260,17 @@ $LAVA = lava_instance();
          }
       }
 
-      function showToast(message, backgroundColor) {
+      function showErrors(errors) {
+         $('.help-text').html('')
+         for (let key in errors) {
+            $('#' + key).next().html(errors[key])
+         }
+      }
+
+      function showToast(message, backgroundColor, duration = 1500) {
          Toastify({
             text: message,
-            duration: 1500,
+            duration: duration,
             newWindow: true,
             close: true,
             gravity: "top",
