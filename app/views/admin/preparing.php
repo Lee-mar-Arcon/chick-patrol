@@ -259,7 +259,6 @@
 					id: $(element).attr('id')
 				})
 				.then(function(response) {
-					console.log(response)
 					displayCartDetails(response)
 					$('#update-cart-button').attr('data-id', $(element).closest('tr').attr('id'))
 					userLatLngValues = JSON.parse(response['cart']['location'])
@@ -402,20 +401,6 @@
 				element.val('Copy Location')
 			},1000)
 		})
-
-		function copyToClipboard(text) {
-			const textarea = document.createElement('textarea');
-			textarea.value = text;
-			textarea.setAttribute('readonly', '');
-			textarea.style.position = 'absolute';
-			textarea.style.left = '-9999px';
-			document.body.appendChild(textarea);
-			textarea.select();
-			document.execCommand('copy');
-			document.body.removeChild(textarea);
-			alert(text)
-			return 1;
-		}
 	</script>
 </body>
 

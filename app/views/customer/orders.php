@@ -26,6 +26,11 @@
    <!-- icons -->
    <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
    <style>
+      .rounded-top {
+         border-top-left-radius: .25rem !important;
+         border-top-right-radius: .25rem !important;
+      }
+
       .status-select {
          background-color: #7fad39;
       }
@@ -173,38 +178,20 @@
 
    <div class="modal fade" id="viewOrder" data-bs-backdrop="" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg rounded" role="document">
-         <div class="modal-content border-0 rounded-0">
+         <div class="modal-content border-0 rounded-0 rounded-top">
             <form action="<?= site_url('Admin/Add_Marketer') ?>" method="POST">
                <div class="modal-body p-0">
-                  <div class="text-white d-flex justify-content-between m-0 p-3 pb-0 mb-0 border-0">
+                  <div class="text-white d-flex justify-content-between m-0 p-3 pb-0 border-0">
                      <div></div>
-                     <h5 class="fs-2 text-dark fw-bold" id="staticBackdropLabel">Order Details</h5>
+                     <h5 class="h3 text-dark fw-bold" id="staticBackdropLabel">Order Details</h5>
                      <i class="fas fa-times-circle align-content-center text-dark" data-dismiss="modal" aria-label="Close" style="font-size: 1.5rem; cursor:pointer"></i>
                   </div>
                   <div class="container-fluid p-4 pt-0">
                      <div class="d-flex justify-content-center py-5 my-3">
-                        <div class="timeline-steps aos-init aos-animate" data-aos="fade-up">
-
-                        </div>
+                        <div class="timeline-steps aos-init aos-animate" data-aos="fade-up"></div>
                      </div>
                   </div>
-                  <div class="checkout__order m-3">
-                     <div class="row border-bottom">
-                        <div class="col-6">
-                           <h4 class="border-0">Your Order</h4>
-                        </div>
-                        <div class="col-6 mb-1 d-flex justify-content-end">
-                           <h4 id="ordId" class="border-0">#00000000</h4>
-                        </div>
-                     </div>
-
-                     <div class="checkout__order__products">Products <span>Total</span></div>
-                     <ul id="list">
-                     </ul>
-                     <div class="checkout__order__subtotal">Subtotal <span id="sub">₱<?= number_format(10000, 2) ?></span></div>
-                     <div class="checkout__order__subtotal">Shipping Fee <span id="shipping">₱<?= number_format(10, 2); ?></span></div>
-                     <div class="checkout__order__subtotal">Total <span class="text-danger" id="total">₱<?= number_format(1010, 2) ?></span></div>
-                  </div>
+                  <div class="checkout__order m-3"></div>
                </div>
          </div>
          <div class="modal-footer border-0 bg-white">
@@ -300,6 +287,19 @@
       })
 
       function populateOrderModal(cart) {
+         let productsTotal = 0;
+         let orderListHTML = ''
+         cartProducts = JSON.parse(cart['cart']['products']);
+         for (let i = 0; i < cartProducts.length; i++) {
+            productTotal = cartProducts[i]['price'] * cartProducts[i]['quantity']
+            productsTotal += productTotal
+            cart['products'].forEach(product => {
+               if (product['id'] == cartProducts[i]['id']) {
+                  orderListHTML += `<li>${product['name']} <span>₱  ${productTotal.toFixed(2)}</span></li>`
+               }
+            });
+         }
+
          if (cart['cart']['status'] == 'rejected') {
             $('.timeline-steps').html(
                `
@@ -351,6 +351,24 @@
                </div>
             `)
          }
+
+         $('.checkout__order').html(`
+            <div class="row">
+               <div class="col-6">
+                  <h4 class="border-0">Your Order</h4>
+               </div>
+               <div class="col-6 mb-1 d-flex justify-content-end">
+                  <h4 id="ordId" class="border-0">#${cart['cart']['id']}</h4>
+               </div>
+            </div>
+            <div class="checkout__order__products">Products <span>Total</span></div>
+            <ul>
+               ${orderListHTML}
+            </ul>
+            <div class="checkout__order__subtotal border-0 pb-0 pt-4">Subtotal <span id="sub">₱ ${productsTotal.toFixed(2)}</span></div>
+            <div class="checkout__order__subtotal border-0 p-0">Delivery Fee <span id="shipping">₱ ${parseFloat(cart['cart']['delivery_fee']).toFixed(2)}</span></div>
+            <div class="checkout__order__subtotal border-0 pt-0 pb-3">Grand Total <span class="text-danger" id="total">₱ ${parseFloat(cart['cart']['total']).toFixed(2)}</span></div>
+         `)
       }
    </script>
 </body>
