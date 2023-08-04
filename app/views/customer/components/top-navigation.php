@@ -7,7 +7,7 @@
     <div class="humberger__menu__overlay"></div>
     <div class="humberger__menu__wrapper">
        <div class="humberger__menu__logo">
-          <a href="#"><img src="<?= BASE_URL ?>public/logo.png" alt=""></a>
+          <a href="#"><img src="<?= BASE_URL ?>public/logo.png" alt="" height="40px"></a>
        </div>
        <div class="humberger__menu__cart">
           <ul>
@@ -20,7 +20,7 @@
                 <a href="<?= site_url('account/login') ?>"><i class="fa fa-user"></i> Login</a>
              <?php else : ?>
                 <a href="<?= site_url('customer/profile') ?>"><i class="fa fa-user"></i>Profile</a>
-                <a style="margin-left: 10px;" href="<?= site_url('account/login') ?>"><i class="fa fa-arrow-circle-left"></i>Logout</a>
+                <a style="margin-left: .8rem;" href="<?= site_url('account/login') ?>"><i class="fa fa-arrow-circle-left"></i>Logout</a>
              <?php endif; ?>
           </div>
        </div>
@@ -70,7 +70,7 @@
                             <a href="<?= site_url('account/login') ?>"><i class="fa fa-user"></i> Login</a>
                          <?php else : ?>
                             <a href="<?= site_url('customer/profile') ?>"><i class="fa fa-user"></i>Profile</a>
-                            <a style="margin-left: 10px;" href="<?= site_url('account/login') ?>"><i class="fa fa-arrow-circle-left"></i>Logout</a>
+                            <a style="margin-left: .8rem;" href="<?= site_url('account/login') ?>"><i class="fa fa-arrow-circle-left"></i>Logout</a>
                          <?php endif; ?>
                       </div>
                    </div>
@@ -81,8 +81,8 @@
        <div class="container">
           <div class="row">
              <div class="col-lg-3">
-                <div class="header__logo d-flex justify-content-center">
-                   <a href="<?= site_url('customer/homepage') ?>"><img src="<?= BASE_URL ?>public/logo.png" alt=""></a>
+                <div class="header__logo d-flex justify-content-start">
+                   <a href="<?= site_url('customer/homepage') ?>"><img src="<?= BASE_URL ?>public/logo.png" height="40px" alt=""></a>
                 </div>
              </div>
              <div class="col-lg-6">
@@ -105,8 +105,8 @@
              </div>
              <div class="col-lg-3">
                 <div class="header__cart">
-                   <ul>
-                      <li><a href="<?= site_url('customer/shopping-cart') ?>"><i class="fa fa-shopping-bag"></i> <span></span></a></li>
+                   <ul class="m-0">
+                      <li class="m-2"><a href="<?= site_url('customer/shopping-cart') ?>"><i class="fa fa-shopping-bag"></i> <span></span></a></li>
                    </ul>
                 </div>
              </div>

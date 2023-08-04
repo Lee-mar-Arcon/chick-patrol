@@ -145,4 +145,15 @@ class customer extends Controller
 			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null
 		]);
 	}
+
+	public function profile()
+	{
+		$this->loggedIn();
+		$this->call->model('m_admin');
+		$this->call->view('customer/profile', [
+			'pageTitle' => 'Profile',
+			'user' => array_merge($this->session->userdata('user'), $this->db->table('barangays')->select('name as barangay_name, delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()),
+			'barangays' => $this->m_admin->barangay_index()
+		]);
+	}
 }
