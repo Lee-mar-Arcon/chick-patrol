@@ -197,36 +197,39 @@ class customer_api extends Controller
 			$this->is_authorized();
 			$updatePassword = false;
 			$updateEmail = false;
-			$inputValid = true;
+			$responseSuccess = true;
 			// changing password validation
 			if (strlen($_POST['old_password']) > 0) {
 				if (strlen($_POST['new_password']) == 0 || strlen($_POST['retype_new_password']) == 0)
-					$inputValid = 'new password required';
+					$responseSuccess = 'new password required';
 				else {
-					$inputValid = $this->validate_password_values($_POST['old_password'], $_POST['new_password'], $_POST['retype_new_password']);
-					$inputValid ? $updatePassword = true : '';
+					$responseSuccess = $this->validate_password_values($_POST['old_password'], $_POST['new_password'], $_POST['retype_new_password']);
+					$responseSuccess ? $updatePassword = true : '';
 				}
 			} else if ((strlen($_POST['new_password']) > 0 || strlen($_POST['retype_new_password']) > 0) && strlen($_POST['old_password']) == 0)
-				$inputValid = 'old password required';
+				$responseSuccess = 'old password required';
 
+			// changing basic information
+			if ($responseSuccess == true) {
+				$responseSuccess = $this->validate_user_basic_information($_POST);
+			}
 
 			// changing email validation
-			if ($this->session->userdata('user')['email'] != $_POST['email'] && $inputValid == true)
+			if ($this->session->userdata('user')['email'] != $_POST['email'] && $responseSuccess == true)
 				if (!preg_match('/@gmail\.com$/i', $_POST['email']))
-					$inputValid = 'email is not a valid Gmail address.';
+					$responseSuccess = 'email is not a valid Gmail address.';
 				else {
 					$updateEmail = true;
 				}
 
-
-
-			if ($updateEmail && $inputValid == true) {
+			// update user email
+			if ($updateEmail && $responseSuccess == true) {
 				$this->call->model('m_mailer');
 				$userID = $this->session->userdata('user')['id'];
 				$encryptedID = $this->m_encrypt->encrypt($this->session->userdata('user')['id']);
 				$result = $this->m_mailer->send_change_email_mail($_POST['email'], $encryptedID);
 				if ($result == false) {
-					$inputValid = 'sending email failed';
+					$responseSuccess = 'sending email failed';
 				} else {
 					$this->call->database();
 					$exists = $this->db->table('change_email_code')->where('user_id', $userID)->get();
@@ -236,14 +239,86 @@ class customer_api extends Controller
 						$this->db->table('change_email_code')->insert(array('user_id' => $userID, 'email' => $_POST['email']));
 				}
 			}
-
-			if ($updatePassword && $inputValid == true)
+			// update user password
+			if ($updatePassword && $responseSuccess == true)
 				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update(array('password' => password_hash($_POST['new_password'], PASSWORD_DEFAULT)));
-
+			// 
+			if ($responseSuccess == true) {
+				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update([
+					'barangay' => $this->m_encrypt->decrypt($_POST['barangay']),
+					'birth_date' => $_POST['birth_date'],
+					'contact' => $_POST['contact'],
+					'first_name' => $_POST['first_name'],
+					'middle_name' => $_POST['middle_name'],
+					'last_name' => $_POST['last_name'],
+					'sex' => $_POST['sex'],
+					'street' => $_POST['street'],
+				]);
+			}
 			echo json_encode($_POST);
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
+	}
+
+	function validate_user_basic_information($postData)
+	{
+		$errors = array();
+		// first name
+		$this->form_validation
+			->name('first_name')
+			->required('required.')
+			->min_length(1, 'required..')
+			->max_length(100, 'must be less than 100 characters only.');
+		$result = $this->check_input('first_name');
+		$result != null ? $errors['first_name'] = $result : '';
+		// last name
+		$this->form_validation
+			->name('last_name')
+			->required('required.')
+			->min_length(1, 'required..')
+			->max_length(100, 'must be less than 100 characters only.');
+		$result = $this->check_input('last_name');
+		$result != null ? $errors['last_name'] = $result : '';
+		// birth date
+		$this->form_validation
+			->name('birth_date')
+			->required('required.')
+			->min_length(1, 'required..')
+			->max_length(100, 'must be less than 100 characters only.');
+		$result = $this->check_input('birth_date');
+		$result != null ? $errors['birth_date'] = $result : '';
+		// sex
+		if (!($_POST['sex'] == 'Female' || $_POST['sex'] == 'Male'))
+			$errors['sex'] = 'invalid';
+		// contact
+		if (!preg_match('/^09\d{9}$/', $_POST['contact']))
+			$errors['contact'] = 'must be 11 digits long and starts with 09';
+		// street
+		$this->form_validation
+			->name('street')
+			->required('required.')
+			->min_length(1, 'required..')
+			->max_length(100, 'must be less than 100 characters only.');
+		$result = $this->check_input('street');
+		$result != null ? $errors['street'] = $result : '';
+		// barangay
+		$barangayExists = $this->db->table('barangays')->where('id', $this->m_encrypt->decrypt($_POST['barangay']))->get();
+		if (!is_array($barangayExists))
+			$errors['barangay'] = 'invalid data';
+
+		if (count($errors) > 0)
+			return $errors;
+		else
+			return true;
+	}
+
+	function check_input($input)
+	{
+		$this->form_validation->run();
+		$result = isset($this->form_validation->get_errors()[0]) ? $this->form_validation->get_errors()[0] : null;
+		$this->form_validation->errors = array();
+		return $result;
 	}
 
 	function validate_password_values($oldPassword, $newPassword, $retypeNewPassword)
