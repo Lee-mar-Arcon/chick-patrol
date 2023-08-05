@@ -198,6 +198,7 @@ class customer_api extends Controller
 			$updatePassword = false;
 			$updateEmail = false;
 			$responseSuccess = true;
+			$emailSent = false;
 			// changing password validation
 			if (strlen($_POST['old_password']) > 0) {
 				if (strlen($_POST['new_password']) == 0 || strlen($_POST['retype_new_password']) == 0)
@@ -227,8 +228,8 @@ class customer_api extends Controller
 				$this->call->model('m_mailer');
 				$userID = $this->session->userdata('user')['id'];
 				$encryptedID = $this->m_encrypt->encrypt($this->session->userdata('user')['id']);
-				$result = $this->m_mailer->send_change_email_mail($_POST['email'], $encryptedID);
-				if ($result == false) {
+				$emailSent = $this->m_mailer->send_change_email_mail($_POST['email'], $encryptedID);
+				if ($emailSent == false) {
 					$responseSuccess = 'sending email failed';
 				} else {
 					$this->call->database();
@@ -242,7 +243,7 @@ class customer_api extends Controller
 			// update user password
 			if ($updatePassword && $responseSuccess == true)
 				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update(array('password' => password_hash($_POST['new_password'], PASSWORD_DEFAULT)));
-			// 
+			// update user basic information
 			if ($responseSuccess == true) {
 				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update([
 					'barangay' => $this->m_encrypt->decrypt($_POST['barangay']),
@@ -255,7 +256,10 @@ class customer_api extends Controller
 					'street' => $_POST['street'],
 				]);
 			}
-			echo json_encode($responseSuccess);
+			if ($updateEmail && $emailSent)
+				echo json_encode($responseSuccess = 'mail sent and updated');
+			else
+				echo json_encode($responseSuccess);
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

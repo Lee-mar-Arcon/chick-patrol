@@ -555,4 +555,12 @@ class admin extends Controller
 			'breadCrumb' => 'On Delivery'
 		]);
 	}
+
+	function profile()
+	{
+		$this->call->view('admin/profile', [
+			'pageTitle' => 'Admin | Profile',
+			'breadCrumb' => 'User Profile'
+		]);
+	}
 }

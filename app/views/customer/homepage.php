@@ -23,6 +23,14 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>public/customer/css/style.css" type="text/css">
     <!-- toastify -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- icons -->
+    <!-- <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" /> -->
+    <style>
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            color: #FF0000 !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -58,23 +66,25 @@
                             <li data-target="#carouselExampleCaptions" data-slide-to="1"></li>
                             <li data-target="#carouselExampleCaptions" data-slide-to="2"></li>
                         </ol>
-                        <div class="carousel-inner">
+                        <div class="carousel-inner bg-light">
                             <?php $featuredProducts = [1, 2, 3, 4, 5];
                             foreach ($featuredProducts as $featureProduct) { ?>
                                 <div class="carousel-item <?= $featureProduct == 1 ? 'active' : '' ?>">
-                                    <img height="500px" width="auto" src="https://chick-patrol.test/public/images/category/cropped/2044bf96fac1777639a48de6a75006bfa616d7be.png" class="d-block w-100" alt="...">
-                                    <div class="carousel-caption d-none d-md-block">
-                                        <h5><?= $featureProduct . ' label' ?></h5>
-                                        <p>Some representative placeholder content for the first slide.</p>
+                                    <div class="d-flex justify-content-center">
+                                        <img width="300px" height="300px" src="https://chick-patrol.test/public/images/category/cropped/2044bf96fac1777639a48de6a75006bfa616d7be.png" class="align-self-center" alt="...">
+                                        <div class="carousel-caption d-none d-md-block">
+                                            <h5><?= $featureProduct . ' label' ?></h5>
+                                            <p>Some representative placeholder content for the first slide.</p>
+                                        </div>
                                     </div>
                                 </div>
                             <?php } ?>
                         </div>
-                        <button class="carousel-control-prev" type="button" data-target="#carouselExampleCaptions" data-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <button class="carousel-control-prev bg-transparent border-0" type="button" data-target="#carouselExampleCaptions" data-slide="prev">
+                            <span class="carousel-control-prev-icon" style="color: red !important;" aria-hidden="true"></span>
                             <span class="sr-only">Previous</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-target="#carouselExampleCaptions" data-slide="next">
+                        <button class="carousel-control-next bg-transparent border-0" type="button" data-target="#carouselExampleCaptions" data-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="sr-only">Next</span>
                         </button>

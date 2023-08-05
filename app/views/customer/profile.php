@@ -175,6 +175,33 @@ $LAVA = lava_instance();
    </section>
    <?php include 'components/footer.php' ?>
 
+
+   <div class="modal fade" id="mailNotificationReminder" data-bs-backdrop="" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg rounded" role="document">
+         <div class="modal-content border-0 rounded-0 rounded-top">
+            <form action="<?= site_url('Admin/Add_Marketer') ?>" method="POST">
+               <div class="modal-body p-0">
+                  <div class="text-white d-flex justify-content-between m-0 p-3 pb-0 border-0">
+                     <div></div>
+                     <h5 class="h3 text-dark fw-bold" id="staticBackdropLabel">Mail Changing Reminder</h5>
+                     <i class="fas fa-times-circle align-content-center text-dark" data-dismiss="modal" aria-label="Close" style="font-size: 1.5rem; cursor:pointer"></i>
+                  </div>
+                  <div class="container-fluid p-4 pt-0">
+                     <div class="d-flex justify-content-center py-5 my-3">
+                        <div class="h4 fw-bold"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To completely change your account bounded email and for security purpose. We sent an email to your new gmail address to verify that the new email is yours. Please check it before the link expires.</div>
+                     </div>
+                  </div>
+               </div>
+         </div>
+         <div class="modal-footer border-0 bg-white">
+            <!-- <button type="button" class="btn-receive rounded-0 primary-btn border-0" id="">Rate</button> -->
+            <button type="button" class="btn-close rounded-0 px-4 py-2 secondary-btn border-0" data-dismiss="modal">Close</button>
+         </div>
+         </form>
+      </div>
+   </div>
+
+
    <!-- Js Plugins -->
    <script src="<?= BASE_URL ?>public/customer/js/jquery-3.3.1.min.js"></script>
    <script src="<?= BASE_URL ?>public/customer/js/bootstrap.min.js"></script>
@@ -189,6 +216,7 @@ $LAVA = lava_instance();
 
 
    <script>
+      $('#mailNotificationReminder').modal('show')
       $(document).ready(function() {
          updateCartBadge()
       })
@@ -225,8 +253,10 @@ $LAVA = lava_instance();
                if (typeof response === 'object' && !Array.isArray(response) && response !== null) {
                   showToast('Some fields are invalid please double check your information.', "linear-gradient(to right, #ac1414, #f12b00)", 3000)
                   showErrors(response)
-               } else
+               } else {
+                  $('.help-text').html('')
                   responseValidation(response)
+               }
                element.html('update account').attr('disabled', false)
             }).catch(function(error) {
                console.log(error);
@@ -256,6 +286,13 @@ $LAVA = lava_instance();
                break;
             case 'sending email failed':
                showToast('Sending changing email verification failed.', "linear-gradient(to right, #ac1414, #f12b00)")
+               break;
+            case 'mail sent and updated':
+               showToast('Sending changing email verification failed.', "linear-gradient(to right,  #3ab902, #14ac34)")
+               $('#mailNotificationReminder').modal('show')
+               break;
+            case true:
+               showToast('Profile Updated', "linear-gradient(to right, #3ab902, #14ac34)")
                break;
          }
       }
