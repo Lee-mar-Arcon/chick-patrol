@@ -156,4 +156,18 @@ class customer extends Controller
 			'barangays' => $this->m_admin->barangay_index()
 		]);
 	}
+
+	public function view_product($productID)
+	{
+		$this->loggedIn();
+		$productID = $this->m_encrypt->decrypt($productID);
+		$product = $this->db->table('products as p')->select('p.*, c.name as category_name')->inner_join('categories as c', 'p.category=c.id')->where('p.id', $productID)->get();
+		$product['id'] = $this->m_encrypt->encrypt($product['id']);
+		$this->call->view('customer/view-product', [
+			'pageTitle' => $product['name'],
+			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null,
+			'product' => $product,
+			'relatedProducts' => $this->m_encrypt->encrypt($this->db->table('products as p')->select('p.*, c.name as category_name')->inner_join('categories as c', 'p.category=c.id')->where('p.category', $product['category'])->not_where('p.id', $productID)->limit(5)->get_all())
+		]);
+	}
 }

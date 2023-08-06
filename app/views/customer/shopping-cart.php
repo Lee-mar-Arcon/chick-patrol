@@ -305,7 +305,6 @@ $LAVA = lava_instance();
                 }).fail(function(response) {
                     console.log(response)
                 })
-
         })
 
 
@@ -348,23 +347,6 @@ $LAVA = lava_instance();
                     newVal = parseFloat($(element).next().val()) - 1;
             }
 
-            if ($(element).hasClass('inc')) {
-                $(element).prev().val(newVal)
-            } else {
-                $(element).next().val(newVal)
-            }
-            return newVal
-        }
-
-        function updateQuantity(element, maxQuantity) {
-            let newVal = 0;
-            if ($(element).hasClass('inc'))
-                newVal = parseFloat($(element).prev().val()) + 1
-            else {
-                newVal = parseFloat($(element).next().val())
-                if (parseFloat($(element).next().val()) != 1)
-                    newVal = parseFloat($(element).next().val()) - 1;
-            }
             if ($(element).hasClass('inc')) {
                 $(element).prev().val(newVal)
             } else {

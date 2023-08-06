@@ -140,7 +140,18 @@
                                 <?php if ($product['quantity'] > 0 || ($product['available'] && $product['quantity'] == '')) : ?>
                                     <ul class="featured__item__pic__hover">
                                         <li>
-                                            <div style="cursor: pointer;" data-id="<?= $product['id'] ?>" class="add-to-cart"><i class="fa fa-shopping-cart cursor-pointer"></i></div>
+                                            <a onclick="return false">
+                                                <div style="cursor: pointer;" data-id="<?= $product['id'] ?>" class="add-to-cart">
+                                                    <i class="fa fa-shopping-cart cursor-pointer"></i>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="<?= site_url('customer/view-product/' . $product['id']) ?>">
+                                                <div v style="cursor: pointer;" data-id="<?= $product['id'] ?>">
+                                                    <i class="fa fa-eye cursor-pointer"></i>
+                                                </div>
+                                            </a>
                                         </li>
                                     </ul>
                                 <?php endif; ?>
@@ -542,18 +553,7 @@
         function AddToCart(element) {
             // not logged in toast
             if (!isLoggedIn) {
-                Toastify({
-                    text: "Log in first!",
-                    duration: 1500,
-                    newWindow: true,
-                    close: true,
-                    gravity: "bottom",
-                    position: "center",
-                    stopOnFocus: true,
-                    style: {
-                        background: "linear-gradient(to right, #0d6982, #02768e)",
-                    },
-                }).showToast();
+                showToast("Log in first!", "linear-gradient(to right, #0d6982, #02768e)")
             } else {
                 let id = element.attr('data-id')
                 $.post('<?= site_url('customer_api/add_to_cart') ?>', {
@@ -563,37 +563,31 @@
                         console.log(response)
                         // show error if product exists
                         if (response == 'product exists')
-                            Toastify({
-                                text: "Product already in cart!",
-                                duration: 1500,
-                                newWindow: true,
-                                close: true,
-                                gravity: "bottom",
-                                position: "center",
-                                stopOnFocus: true,
-                                style: {
-                                    background: "linear-gradient(to right, #ac1414, #f12b00)",
-                                },
-                            }).showToast();
+                            showToast("Product already in cart!", "linear-gradient(to right, #ac1414, #f12b00)")
                         updateCartBadge()
+
                         // show toast if product added
                         if (response == 'product added')
-                            Toastify({
-                                text: "Product added!",
-                                duration: 1500,
-                                newWindow: true,
-                                close: true,
-                                gravity: "bottom",
-                                position: "center",
-                                stopOnFocus: true,
-                                style: {
-                                    background: "linear-gradient(to right, #14ac34, #3ab902)",
-                                },
-                            }).showToast();
+                            showToast("Product added!", "linear-gradient(to right, #14ac34, #3ab902)")
                     }).catch(function(error) {
                         console.log(error);
                     })
             }
+        }
+
+        function showToast(message, color) {
+            Toastify({
+                text: message,
+                duration: 1500,
+                newWindow: true,
+                close: true,
+                gravity: "bottom",
+                position: "center",
+                stopOnFocus: true,
+                style: {
+                    background: color,
+                },
+            }).showToast();
         }
 
         function updateCartBadge() {

@@ -25,13 +25,12 @@ class customer_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-
 			$user = $this->session->userdata('user');
 			$hasPendingCart = $this->db->table('cart')->where(['user_id' => $user['id'], 'status' => 'pending'])->get();
 			$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
 			// if there is no current pending cart for the user
 			if ($hasPendingCart == false) {
-				$data[] = array('id' => $productId, 'quantity' => 1);
+				$data[] = array('id' => $productId, 'quantity' => isset($_POST['quantity']) ? $_POST['quantity'] : 1);
 				$this->db->table('cart')->insert(array(
 					'user_id' => $user['id'],
 					'products' => json_encode($data)
@@ -45,7 +44,7 @@ class customer_api extends Controller
 				if ($this->productExists($product, $productId))
 					echo json_encode('product exists');
 				else
-					echo json_encode($this->addProductToCart($product, $pendingCart['id'], $productId));
+					echo json_encode($this->addProductToCart($product, $pendingCart['id'], $productId, isset($_POST['quantity']) ? $_POST['quantity'] : 1));
 			}
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -64,9 +63,9 @@ class customer_api extends Controller
 		return $productExists;
 	}
 
-	function addProductToCart($productList, $cartId, $newProduct)
+	function addProductToCart($productList, $cartId, $newProduct, $quantity)
 	{
-		$productList[] = array('id' => (int)$newProduct, 'quantity' => 1);
+		$productList[] = array('id' => (int)$newProduct, 'quantity' => $quantity);
 		$this->db->table('cart')->where('id', $cartId)->update(array('products' => json_encode($productList)));
 		return 'product added';
 	}
