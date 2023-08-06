@@ -21,8 +21,8 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/app.min.css" rel="stylesheet" type="text/css" id="app-style" />
     <!-- icons -->
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
-    <!-- toastr -->
-    <link rel="stylesheet" href="<?= BASE_URL . PUBLIC_DIR ?>/libraries/toastr.css">
+    <!-- toastify -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <!-- Sweet alert -->
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
 
@@ -39,44 +39,157 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
 
         <div class="content-page">
             <div class="content">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="">Basic Information</h3>
 
-                
-            </div>
+                                <div class="row">
+                                    <!-- first_name  -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <label for="first_name" class="form-label">First Name <span class="text-danger"> *</span></label>
+                                        <input value="<?= $user['first_name'] ?>" type="text" name="first_name" id="first_name" class="form-control">
+                                        <span class="help-block text-danger ms-1"><small></small></span>
+                                    </div>
 
-            <!-- Footer Start -->
-            <footer class="footer">
-                <div class="container-fluid">
+                                    <!-- middle name -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <label for="middle_name" class="form-label">Middle Name</label>
+                                        <input value="<?= $user['middle_name'] ?>" type="text" name="middle_name" id="middle_name" class="form-control">
+                                        <span class="help-block text-danger ms-1"><small></small></span>
+                                    </div>
+
+                                    <!-- last_name -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <label for="last_name" class="form-label">Last Name <span class="text-danger"> *</span></label>
+                                        <input value="<?= $user['last_name'] ?>" type="text" name="last_name" id="last_name" class="form-control">
+                                        <span class="help-block text-danger ms-1"><small></small></span>
+                                    </div>
+
+                                    <!-- birth_date -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <div class="mb-3">
+                                            <label for="birth_date" class="form-label">Date <span class="text-danger"> *</span></label>
+                                            <input value="<?= $user['birth_date'] ?>" class="form-control" id="birth_date" type="date" name="birth_date">
+                                            <span class="help-block text-danger ms-1"><small></small></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- sex -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <div class="mb-3">
+                                            <label for="sex" class="form-label">Sex <span class="text-danger"> *</span></label>
+                                            <select class="form-select" id="sex">
+                                                <option <?= $user['sex'] != 'Female' ? 'selected' : '' ?> value="Male">Male</option>
+                                                <option <?= $user['sex'] == 'Female' ? 'selected' : '' ?> value="Female">Female</option>
+                                            </select>
+                                            <span class="help-block text-danger ms-1"><small></small></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- contact -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <label for="contact" class="form-label">Contact <span class="text-danger"> *</span></label>
+                                        <input value="<?= $user['contact'] ?>" type="text" name="contact" id="contact" class="form-control">
+                                        <span class="help-block text-danger ms-1"><small></small></span>
+                                    </div>
+                                </div>
+
+                                <h3 class="">Address</h3>
+                                <div class="row">
+                                    <!-- barangay -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <div class="mb-3">
+                                            <label for="barangay" class="form-label">Barangay <span class="text-danger"> *</span></label>
+                                            <select class="form-select" id="barangay">
+                                                <?php foreach ($barangays as $barangay) :  ?>
+                                                    <option <?= $user['barangay'] == $LAVA->m_encrypt->decrypt($barangay['id']) ? 'selected' : '' ?> value="<?= $barangay['id'] ?>"><?= $barangay['name'] ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <span class="help-block text-danger ms-1"><small></small></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- street -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <label for="street" class="form-label">Street <span class="text-danger"> *</span></label>
+                                        <input value="<?= $user['street'] ?>" type="text" name="street" id="street" class="form-control">
+                                        <span class="help-block text-danger ms-1"><small></small></span>
+                                    </div>
+
+                                    <!-- email -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <label for="email" class="form-label">Email <span class="text-danger"> *</span></label>
+                                        <input value="<?= $user['email'] ?>" type="email" name="email" id="email" class="form-control">
+                                        <span class="help-block text-danger ms-1"><small></small></span>
+                                    </div>
+                                </div>
+
+                                <h3 class="">Password</h3>
+
+                                <div class="row">
+                                    <!-- old_password -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <label for="old_password" class="form-label">Old Password <span class="text-danger"> *</span></label>
+                                        <input type="password" name="old_password" id="old_password" class="form-control">
+                                        <span class="help-block text-danger ms-1"><small></small></span>
+                                    </div>
+
+                                    <!-- new_password -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <label for="new_password" class="form-label">New Password <span class="text-danger"> *</span></label>
+                                        <input disabled type="password" name="new_password" id="new_password" class="form-control">
+                                        <span class="help-block text-danger ms-1"><small></small></span>
+                                    </div>
+
+                                    <!-- retype_new_password -->
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <label for="retype_new_password" class="form-label">Retype New Password <span class="text-danger"> *</span></label>
+                                        <input disabled type="password" name="retype_new_password" id="retype_new_password" class="form-control">
+                                        <span class="help-block text-danger ms-1"><small></small></span>
+                                    </div>
+
+                                    <div class="col-12 d-flex justify-content-end">
+
+                                        <button type="button" class="btn btn-success waves-effect waves-light update-button">Update Account</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </footer>
+            </div>
+        </div>
 
+        <!-- Footer Start -->
+        <footer class="footer">
+            <div class="container-fluid">
+            </div>
+        </footer>
+
+    </div>
+
+
+    <div class="modal fade" id="mailNotificationReminder" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Mail Changing Reminder</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; To completely change your account bounded email and for security purpose. We sent an email to your new gmail address to verify that the new email is yours. Please check it before the link expires.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
+
 
     <?php include 'components/right-navigation.php' ?>
-
-    <!-- Off Canvas -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-        <div class="offcanvas-header">
-            <h5 class="fs-3" id="offcanvasRightLabel">Offcanvas right</h5>
-            <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <form method="post" action="" id="form" class="offcanvas-body">
-            <input type="hidden" id="id" name="id">
-            <div class="mb-3 mt-2">
-                <label for="name" class="form-label">Name<span class="text-danger"> *</span></label>
-                <input type="text" required placeholder="Enter Barangay name" class="form-control" id="name" name="name">
-            </div>
-            <div class="mb-3 mt-2">
-                <label for="delivery_fee" class="form-label">Delivery Fee<span class="text-danger"> *</span></label>
-                <input type="number" required step="0.01" placeholder="Enter deliver fee" class="form-control" id="delivery_fee" name="delivery_fee">
-            </div>
-            <div class="text-end mt-3">
-                <button id="submit-form" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="delete-restore-form"></div>
     <!-- Vendor -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -87,127 +200,118 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/feather-icons/feather.min.js"></script>
     <!-- App js -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
-    <!-- taostr -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <!-- Sweet Alerts js -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
-    <script>
-        // form validation response handler
-        const formMessage = '<?= $formMessage ?>'
-        const formData = JSON.parse('<?= json_encode($formData) ?>')
+    <!-- toastify -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-        switch (formMessage) {
-            case '':
-                break;
-            case 'success':
-                toastr.success('New barangay added.')
-                break;
-            case 'restored':
-                toastr.info('Barangay restored.')
-                break;
-            case 'updated':
-                toastr.info('Barangay updated.')
-                break;
-            case 'deleted':
-                toastr.info('Barangay deleted.')
-                break;
-            default:
-                const url = '<?= BASE_URL ?>admin/barangay_store'
-                $('#form').attr('action', url)
-                $('#add-barangay').click()
-                console.log(formMessage)
-                $('#name').val(formData.name)
-                $('#delivery_fee').val(formData.delivery_fee)
-                let inputElement = '#' + ((formMessage == 'Delivery fee is required.') ? 'delivery_fee' : 'name')
-                console.log(inputElement)
-                $('<div class="ms-1 text-danger form-error-message">' + formMessage + '</div>').insertAfter(inputElement)
-                break;
+    <script>
+        $('#old_password').on('input', function() {
+            if ($(this).val().length == 0) {
+                $('#new_password').attr('disabled', true)
+                $('#retype_new_password').attr('disabled', true)
+                $('#new_password').val('')
+                $('#retype_new_password').val('')
+            } else {
+                $('#new_password').attr('disabled', false)
+                $('#retype_new_password').attr('disabled', false)
+            }
+        })
+
+        $('.update-button').on('click', function() {
+            let element = $(this)
+            element.html('<i class="mdi mdi-spin mdi-loading"></i>').attr('disabled', true)
+            $.post('<?= site_url('customer_api/update-account') ?>', {
+                    first_name: $('#first_name').val(),
+                    middle_name: $('#middle_name').val(),
+                    last_name: $('#last_name').val(),
+                    birth_date: $('#birth_date').val(),
+                    sex: $('#sex').val(),
+                    contact: $('#contact').val(),
+                    barangay: $('#barangay').val(),
+                    street: $('#street').val(),
+                    email: $('#email').val(),
+                    old_password: $('#old_password').val(),
+                    new_password: $('#new_password').val(),
+                    new_password: $('#new_password').val(),
+                    retype_new_password: $('#retype_new_password').val(),
+                })
+                .then(function(response) {
+                    console.log(response)
+                    if (typeof response === 'object' && !Array.isArray(response) && response !== null) {
+                        showToast('Some fields are invalid please double check your information.', "linear-gradient(to right, #ac1414, #f12b00)", 3000)
+                        showErrors(response)
+                    } else {
+                        $('.help-block').html('')
+                        responseValidation(response)
+                    }
+                    element.html('update account').attr('disabled', false)
+                }).catch(function(error) {
+                    console.log(error);
+                    element.html('update account').attr('disabled', false)
+                })
+        })
+
+        function responseValidation(response) {
+            switch (response) {
+                case 'new password required':
+                    showToast('New password is required', "linear-gradient(to right, #ac1414, #f12b00)")
+                    break;
+                case 'old password required':
+                    showToast('Old password is required', "linear-gradient(to right, #ac1414, #f12b00)")
+                    break;
+                case 'incorrect old password':
+                    showToast('Incorrect old password', "linear-gradient(to right, #ac1414, #f12b00)")
+                    break;
+                case 'new password must be the same':
+                    showToast('New Password must be the same', "linear-gradient(to right, #ac1414, #f12b00)")
+                    break;
+                case 'new password must be 8-16 characters.':
+                    showToast('New password must be 8-16 characters.', "linear-gradient(to right, #ac1414, #f12b00)")
+                    break;
+                case 'email is not a valid Gmail address.':
+                    showToast('Email is not a valid Gmail address.', "linear-gradient(to right, #ac1414, #f12b00)")
+                    break;
+                case 'sending email failed':
+                    showToast('Sending changing email verification failed.', "linear-gradient(to right, #ac1414, #f12b00)")
+                    break;
+                case 'mail sent and updated':
+                    showToast('Sending changing email verification failed.', "linear-gradient(to right,  #3ab902, #14ac34)")
+                    $('#mailNotificationReminder').modal('show')
+                    break;
+                case true:
+                    showToast('Profile Updated', "linear-gradient(to right, #3ab902, #14ac34)")
+                    clearPasswordFields()
+                    break;
+            }
         }
 
-        // add barangay form
-        $('#add-barangay').on('click', function() {
-            $('.form-error-message').remove()
-            const url = '<?= BASE_URL ?>admin/barangay_store'
-            $('#form').attr('action', url)
-            $('#name').val('')
-            $('#offcanvasRightLabel').html('Add new barangay')
-        })
+        function showErrors(errors) {
+            $('.help-block').html('')
+            for (let key in errors) {
+                $('#' + key).next().html(errors[key])
+            }
+        }
 
-        // edit barangay form
-        $('.edit-barangay').on('click', function() {
-            $('.form-error-message').remove()
-            const url = '<?= BASE_URL ?>admin/barangay_update'
-            $('#form').attr('action', url)
-            $('#offcanvasRightLabel').html('Edit barangay')
-            $('#offcanvasRightLabel').html('Edit barangay')
-            let delivery_fee = parseFloat($(this).closest('td').prev().prev().prev().prev().html().replace(/,/g, ""))
-            $('#delivery_fee').val(delivery_fee)
-            $('#name').val($(this).closest('td').prev().prev().prev().prev().prev().find('span:first').html())
-            $('#id').val($(this).closest('tr').attr('id'))
-        })
+        function showToast(message, backgroundColor, duration = 1500) {
+            Toastify({
+                text: message,
+                duration: duration,
+                newWindow: true,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: backgroundColor,
+                },
+            }).showToast();
+        }
 
-        // show restore confirmation
-        $('.mdi-delete-restore').on('click', function() {
-            id = $(this).closest('tr').attr('id')
-            Swal.fire({
-                title: 'Restore barangay?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Restore'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    handleDeleteRestoreSubmit(id, 'continue')
-                }
-            })
-        })
-
-        // show delete confirmation
-        $('.mdi-delete').on('click', function() {
-            id = $(this).closest('tr').attr('id')
-            Swal.fire({
-                title: 'Delete barangay?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Delete'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    handleDeleteRestoreSubmit(id, 'destroy')
-                }
-            })
-        })
-
-        // form restore and delete submit handler
-        function handleDeleteRestoreSubmit(id, httpMethod) {
-            const deleteUrl = '<?= BASE_URL ?>admin/barangay_destroy';
-            const restoreUrl = '<?= BASE_URL ?>admin/barangay_restore';
-
-            var form = $('<form>');
-
-            form.attr({
-                method: 'POST',
-                action: httpMethod == 'destroy' ? deleteUrl : restoreUrl
-            });
-
-            var idInput = $('<input>').attr({
-                type: 'text',
-                name: 'id',
-                placeholder: 'Enter your username',
-                value: id
-            });
-            form.append(idInput);
-            var submitBtn = $('<input>').attr({
-                type: 'submit',
-                value: 'Submit'
-            });
-            $('#delete-restore-form').append(form);
-            form.append(submitBtn);
-            form.submit();
+        function clearPasswordFields() {
+            $("#old_password").val('')
+            $("#new_password").val('').attr('disabled', true)
+            $("#retype_new_password").val('').attr('disabled', true)
         }
     </script>
 </body>

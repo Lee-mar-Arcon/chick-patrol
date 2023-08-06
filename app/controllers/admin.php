@@ -560,7 +560,9 @@ class admin extends Controller
 	{
 		$this->call->view('admin/profile', [
 			'pageTitle' => 'Admin | Profile',
-			'breadCrumb' => 'User Profile'
+			'breadCrumb' => 'User Profile',
+			'barangays' => $this->m_admin->barangay_index(),
+			'user' => array_merge($this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get(), $this->db->table('barangays')->select('name as barangay_name, delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()),
 		]);
 	}
 }

@@ -216,7 +216,6 @@ $LAVA = lava_instance();
 
 
    <script>
-      $('#mailNotificationReminder').modal('show')
       $(document).ready(function() {
          updateCartBadge()
       })
@@ -278,8 +277,8 @@ $LAVA = lava_instance();
             case 'new password must be the same':
                showToast('New Password must be the same', "linear-gradient(to right, #ac1414, #f12b00)")
                break;
-            case 'new password must be 8 characters above':
-               showToast('New password must be 8 characters above.', "linear-gradient(to right, #ac1414, #f12b00)")
+            case 'new password must be 8-16 characters.':
+               showToast('New password must be 8-16 characters.', "linear-gradient(to right, #ac1414, #f12b00)")
                break;
             case 'email is not a valid Gmail address.':
                showToast('Email is not a valid Gmail address.', "linear-gradient(to right, #ac1414, #f12b00)")
@@ -293,6 +292,7 @@ $LAVA = lava_instance();
                break;
             case true:
                showToast('Profile Updated', "linear-gradient(to right, #3ab902, #14ac34)")
+               clearPasswordFields()
                break;
          }
       }
@@ -330,6 +330,12 @@ $LAVA = lava_instance();
             $('#retype_new_password').attr('disabled', false)
          }
       })
+
+      function clearPasswordFields() {
+         $("#old_password").val('')
+         $("#new_password").val('')
+         $("#retype_new_password").val('')
+      }
    </script>
 </body>
 

@@ -152,7 +152,7 @@ class customer extends Controller
 		$this->call->model('m_admin');
 		$this->call->view('customer/profile', [
 			'pageTitle' => 'Profile',
-			'user' => array_merge($this->session->userdata('user'), $this->db->table('barangays')->select('name as barangay_name, delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()),
+			'user' => array_merge($this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get(), $this->db->table('barangays')->select('name as barangay_name, delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()),
 			'barangays' => $this->m_admin->barangay_index()
 		]);
 	}

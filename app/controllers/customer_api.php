@@ -205,15 +205,16 @@ class customer_api extends Controller
 					$responseSuccess = 'new password required';
 				else {
 					$responseSuccess = $this->validate_password_values($_POST['old_password'], $_POST['new_password'], $_POST['retype_new_password']);
-					$responseSuccess ? $updatePassword = true : '';
+					$updatePassword = is_string($responseSuccess) ? false : true;
 				}
 			} else if ((strlen($_POST['new_password']) > 0 || strlen($_POST['retype_new_password']) > 0) && strlen($_POST['old_password']) == 0)
 				$responseSuccess = 'old password required';
 
 			// changing basic information
-			if ($responseSuccess == true) {
+			if (!is_string($responseSuccess)) {
 				$responseSuccess = $this->validate_user_basic_information($_POST);
 			}
+
 
 			// changing email validation
 			if ($this->session->userdata('user')['email'] != $_POST['email'] && $responseSuccess == true)
@@ -240,11 +241,12 @@ class customer_api extends Controller
 						$this->db->table('change_email_code')->insert(array('user_id' => $userID, 'email' => $_POST['email']));
 				}
 			}
+
 			// update user password
 			if ($updatePassword && $responseSuccess == true)
 				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update(array('password' => password_hash($_POST['new_password'], PASSWORD_DEFAULT)));
 			// update user basic information
-			if ($responseSuccess == true) {
+			if (!is_array($responseSuccess)) {
 				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update([
 					'barangay' => $this->m_encrypt->decrypt($_POST['barangay']),
 					'birth_date' => $_POST['birth_date'],
@@ -327,13 +329,13 @@ class customer_api extends Controller
 
 	function validate_password_values($oldPassword, $newPassword, $retypeNewPassword)
 	{
-		$user = $this->session->userdata('user');
+		$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
 		if (password_verify($oldPassword, $user['password']) == false)
 			return 'incorrect old password';
 		else if ($newPassword != $retypeNewPassword)
 			return 'new password must be the same';
-		else if (strlen($newPassword) == 0 || strlen($newPassword) < 8)
-			return 'new password must be 8 characters above';
+		else if (!(strlen($newPassword) >= 8 &&  strlen($newPassword) <= 16))
+			return 'new password must be 8-16 characters.';
 		else
 			return true;
 	}

@@ -26,7 +26,7 @@
             </div>
 
             <!-- item-->
-            <a href="contacts-profile.html" class="dropdown-item notify-item">
+            <a href="<?= site_url('admin/profile')?>" class="dropdown-item notify-item">
                <i class="fe-user"></i>
                <span>My Account</span>
             </a>
