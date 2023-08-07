@@ -148,6 +148,7 @@
                   <option value="rejected">Rejected</option>
                   <option value="on delivery">On Delivery</option>
                   <option value="finished">Finished</option>
+                  <option value="canceled">Canceled</option>
                </select>
             </div>
          </div>
@@ -176,29 +177,27 @@
 
 
 
-   <div class="modal fade" id="viewOrder" data-bs-backdrop="" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+   <div class="modal fade" id="viewOrder" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg rounded" role="document">
          <div class="modal-content border-0 rounded-0 rounded-top">
-            <form action="<?= site_url('Admin/Add_Marketer') ?>" method="POST">
-               <div class="modal-body p-0">
-                  <div class="text-white d-flex justify-content-between m-0 p-3 pb-0 border-0">
-                     <div></div>
-                     <h5 class="h3 text-dark fw-bold" id="staticBackdropLabel">Order Details</h5>
-                     <i class="fas fa-times-circle align-content-center text-dark" data-dismiss="modal" aria-label="Close" style="font-size: 1.5rem; cursor:pointer"></i>
-                  </div>
-                  <div class="container-fluid p-4 pt-0">
-                     <div class="d-flex justify-content-center py-5 my-3">
-                        <div class="timeline-steps aos-init aos-animate" data-aos="fade-up"></div>
-                     </div>
-                  </div>
-                  <div class="checkout__order m-3"></div>
+            <div class="modal-body p-0">
+               <div class="text-white d-flex justify-content-between m-0 p-3 pb-0 border-0">
+                  <div></div>
+                  <h5 class="h3 text-dark fw-bold" id="staticBackdropLabel">Order Details</h5>
+                  <i class="fas fa-times-circle align-content-center text-dark" data-dismiss="modal" aria-label="Close" style="font-size: 1.5rem; cursor:pointer"></i>
                </div>
+               <div class="container-fluid p-4 pt-0">
+                  <div class="d-flex justify-content-center py-5 my-3">
+                     <div class="timeline-steps aos-init aos-animate" data-aos="fade-up"></div>
+                  </div>
+               </div>
+               <div class="checkout__order m-3"></div>
+            </div>
+            <div class="modal-footer border-0 d-flex justify-content-between bg-white">
+               <button type="button" class="btn rounded-0 btn-danger border-0" style="cursor: pointer;">Cancel Order</button>
+               <button type="button" class="btn-close rounded-0 px-4 py-2 secondary-btn border-0" data-dismiss="modal" style="cursor: pointer;">Close</button>
+            </div>
          </div>
-         <div class="modal-footer border-0 bg-white">
-            <!-- <button type="button" class="btn-receive rounded-0 primary-btn border-0" id="">Rate</button> -->
-            <button type="button" class="btn-close rounded-0 px-4 py-2 secondary-btn border-0" data-dismiss="modal">Close</button>
-         </div>
-         </form>
       </div>
    </div>
 
@@ -369,6 +368,44 @@
             <div class="checkout__order__subtotal border-0 p-0">Delivery Fee <span id="shipping">₱ ${parseFloat(cart['cart']['delivery_fee']).toFixed(2)}</span></div>
             <div class="checkout__order__subtotal border-0 pt-0 pb-3">Grand Total <span class="text-danger" id="total">₱ ${parseFloat(cart['cart']['total']).toFixed(2)}</span></div>
          `)
+
+         if (cart['cart']['status'] == "for approval") {
+            $('.modal-footer').children(':first-child').attr('data-id', cart['cart']['id'])
+            $('.modal-footer').children(':first-child').attr('hidden', false)
+         } else {
+            $('.modal-footer').children(':first-child').attr('data-id', '')
+            $('.modal-footer').children(':first-child').attr('hidden', true)
+         }
+      }
+
+      $('.modal-footer').children(':first-child').on('click', function() {
+         const cartID = $(this).attr('data-id')
+         $.post('<?= site_url('customer_api/cancel_order') ?>', {
+               cartID: cartID
+            })
+            .then(function(response) {
+               if (!response == 0) {
+                  fetchCartList()
+                  $('#viewOrder').modal('hide')
+                  showToast('Order Cancelled Successfully', "linear-gradient(to right, #0d6982, #02768e)")
+               } else
+                  showToast('Something went wrong.', "linear-gradient(to right, #ac1414, #f12b00)")
+            })
+      })
+
+      function showToast(message, color) {
+         Toastify({
+            text: message,
+            duration: 1500,
+            newWindow: true,
+            close: true,
+            gravity: "top",
+            position: "right",
+            stopOnFocus: true,
+            style: {
+               background: color,
+            },
+         }).showToast();
       }
    </script>
 </body>

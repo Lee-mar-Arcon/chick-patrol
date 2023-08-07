@@ -146,7 +146,7 @@ class customer_api extends Controller
 			$status = $_POST['status'];
 			if ($status == 'all') $status = '%%';
 			else $status = '%' . $status . '%';
-			$carts = $this->db->table('cart as c')->select('id, DATE_FORMAT(for_approval_at, "%b %d, %Y %h:%i %p") as for_approval_at, status')->where('c.user_id', $this->session->userdata('user')['id'])->like('c.status', $status)->order_by('for_approval_at', 'desc')->get_all();
+			$carts = $this->db->table('cart as c')->select('id, DATE_FORMAT(for_approval_at, "%b %d, %Y %h:%i %p") as for_approval_at, status')->where('c.user_id', $this->session->userdata('user')['id'])->like('c.status', $status)->not_like('c.status', 'pending')->order_by('for_approval_at', 'desc')->get_all();
 			echo json_encode($carts);
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -337,6 +337,25 @@ class customer_api extends Controller
 			return 'new password must be 8-16 characters.';
 		else
 			return true;
+	}
+
+	// cancel order
+	function cancel_order()
+	{
+		try {
+			$this->is_authorized();
+			$responseResult = 0;
+			$cartID = $_POST['cartID'];
+			$cart = $this->db->table('cart')->where('id', $cartID)->get();
+			if ($cart['status'] == 'for approval') {
+				$this->db->table('cart')->where('id', $cartID)->update(array('status' => 'canceled'));
+				$responseResult = 1;
+			} else
+				$responseResult = 0;
+			echo json_encode($responseResult);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
 	}
 
 
