@@ -24,11 +24,14 @@
     <!-- toastify -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <!-- icons -->
-    <!-- <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" /> -->
+    <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- swiperjs -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
     <style>
-        .carousel-control-prev-icon,
-        .carousel-control-next-icon {
-            color: #FF0000 !important;
+        .swiper {
+            background-image: url('<?= BASE_URL . 'public/images/carousel banner.jpg' ?>');
+            background-repeat: no-repeat;
+            background-size: cover;
         }
     </style>
 </head>
@@ -40,54 +43,57 @@
     <section class="hero">
         <div class="container">
             <div class="row">
-                <div class="col-sm-12 col-md-3 mb-5 mt-2">
-                    <div class="d-flex justify-content-center">
-                        <div class="hero__search__phone">
-                            <div class="hero__search__phone__icon">
-                                <i class="fa fa-phone"></i>
+                <div class="col-12 p-0 py-5">
+                    <div class="row mx-4">
+                        <div class="col-sm-12 col-md-3">
+                            <div class="d-flex justify-content-center">
+                                <div class="hero__search__phone">
+                                    <div class="hero__search__phone__icon">
+                                        <i class="fa fa-phone"></i>
+                                    </div>
+                                    <div class="hero__search__phone__text">
+                                        <h5>0911-111-1111</h5>
+                                        <span>support 24/7 time</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="hero__search__phone__text">
-                                <h5>0911-111-1111</h5>
-                                <span>support 24/7 time</span>
-                            </div>
+                        </div>
+                        <div class="hero__search__form col-sm-12 col-md-9">
+                            <form action="#">
+                                <input type="text" placeholder="What do yo u need?">
+                                <button type="submit" class="site-btn">SEARCH</button>
+                            </form>
                         </div>
                     </div>
                 </div>
-                <div class="hero__search__form col-sm-12 col-md-9 mb-5 mt-2">
-                    <form action="#">
-                        <input type="text" placeholder="What do yo u need?">
-                        <button type="submit" class="site-btn">SEARCH</button>
-                    </form>
-                </div>
-                <div class="col-12 p-0">
-                    <div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
-                        <ol class="carousel-indicators">
-                            <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
-                            <li data-target="#carouselExampleCaptions" data-slide-to="1"></li>
-                            <li data-target="#carouselExampleCaptions" data-slide-to="2"></li>
-                        </ol>
-                        <div class="carousel-inner bg-light">
+
+                <div class="col-12 p-0 rounded">
+                    <div class="swiper rounded">
+                        <div class="swiper-wrapper">
                             <?php $featuredProducts = [1, 2, 3, 4, 5];
                             foreach ($featuredProducts as $featureProduct) { ?>
-                                <div class="carousel-item <?= $featureProduct == 1 ? 'active' : '' ?>">
-                                    <div class="d-flex justify-content-center">
-                                        <img width="300px" height="300px" src="https://chick-patrol.test/public/images/category/cropped/2044bf96fac1777639a48de6a75006bfa616d7be.png" class="align-self-center" alt="...">
-                                        <div class="carousel-caption d-none d-md-block">
-                                            <h5><?= $featureProduct . ' label' ?></h5>
-                                            <p>Some representative placeholder content for the first slide.</p>
+                                <div class="swiper-slide">
+                                    <div class="row">
+                                        <h3 class="text-center text-white col-12 pt-5 pb-0 fw-bold col-12"><?= $featureProduct . ' label' ?></h3>
+                                        <div class="col-12">
+                                            <div class="d-flex justify-content-center">
+                                                <img width="300px" height="300px" src="https://chick-patrol.test/public/images/category/cropped/2044bf96fac1777639a48de6a75006bfa616d7be.png" class="align-self-centermt-0 pt-0" alt="...">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex justify-content-center pb-4">
+                                            <button type="submit" class="site-btn">Add to Cart</button>
+                                        </div>
+                                        <div class="px-4 mx-4 text-justify text-white pb-5">
+                                            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ice cream is a popular frozen dessert enjoyed by people of all ages. It is made by combining ingredients such as milk, cream, sugar, and flavorings, which are then churned and frozen to create a smooth and creamy texture. Various flavors, such as vanilla, chocolate, strawberry, and many more, are added to give ice cream its distinct taste. Additional ingredients like fruits, nuts, chocolate chips, or cookie pieces can be mixed in for added texture and flavor.</p>
                                         </div>
                                     </div>
                                 </div>
                             <?php } ?>
                         </div>
-                        <button class="carousel-control-prev bg-transparent border-0" type="button" data-target="#carouselExampleCaptions" data-slide="prev">
-                            <span class="carousel-control-prev-icon" style="color: red !important;" aria-hidden="true"></span>
-                            <span class="sr-only">Previous</span>
-                        </button>
-                        <button class="carousel-control-next bg-transparent border-0" type="button" data-target="#carouselExampleCaptions" data-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="sr-only">Next</span>
-                        </button>
+                        <div class="swiper-pagination"></div>
+                        <div class="swiper-button-prev text-white"></div>
+                        <div class="swiper-button-next text-white"></div>
+                        <div class="swiper-scrollbar"></div>
                     </div>
                 </div>
             </div>
@@ -538,9 +544,34 @@
     <script src="<?= BASE_URL ?>public/customer/js/main.js"></script>
     <!-- toastify -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
+    <!-- swiperjs -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
     <script>
+        const swiper = new Swiper('.swiper', {
+            direction: 'horizontal',
+            loop: true,
+            autoHeight: true,
+            loop: true,
+
+            // If we need pagination
+            pagination: {
+                el: '.swiper-pagination',
+            },
+
+            // Navigation arrows
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+
+            // And if we need scrollbar
+            scrollbar: {
+                el: '.swiper-scrollbar',
+            },
+        });
+
+
         $(document).ready(function() {
             updateCartBadge()
         })
