@@ -45,6 +45,8 @@
             <div class="row">
                 <div class="col-12 p-0 py-5">
                     <div class="row mx-4">
+                        <div class="col-12">
+                        </div>
                         <div class="col-sm-12 col-md-3">
                             <div class="d-flex justify-content-center">
                                 <div class="hero__search__phone">
@@ -60,8 +62,8 @@
                         </div>
                         <div class="hero__search__form col-sm-12 col-md-9">
                             <form action="#">
-                                <input type="text" placeholder="What do yo u need?">
-                                <button type="submit" class="site-btn">SEARCH</button>
+                                <input id="product-search" type="text" placeholder="What do yo u need?">
+                                <a href="#" onclick="scrollToElement('products-list'); return false;"><button type="submit" class="site-btn" id="search-product-button">SEARCH</button></a>
                             </form>
                         </div>
                     </div>
@@ -100,7 +102,6 @@
         </div>
     </section>
 
-
     <!-- Categories Section Begin -->
     <section class="categories">
         <div class="container">
@@ -117,61 +118,23 @@
             </div>
         </div>
     </section>
-    <!-- Categories Section End -->
 
     <!-- Featured Section Begin -->
     <section class="featured spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="section-title">
-                        <h2>Featured Product</h2>
+                    <div id="products-list" class="section-title pt-4">
+                        <h2>Our Products</h2>
                     </div>
                     <div class="featured__controls">
                         <ul>
-                            <li class="active" data-filter="*">All</li>
-                            <?php foreach ($categories as $category) : ?>
-                                <li data-filter=".<?= str_replace(' ', '', $category['name']) ?>"><?= $category['name'] ?></li>
-                            <?php endforeach; ?>
-
                         </ul>
                     </div>
                 </div>
             </div>
             <div class="row featured__filter">
-                <?php foreach ($products as $product) : ?>
-                    <div class="col-lg-3 col-md-4 col-sm-6 mix <?= str_replace(' ', '', $product['category_name']) ?>">
-                        <div class="featured__item">
-                            <div class="featured__item__pic set-bg" data-setbg="<?= BASE_URL . PUBLIC_DIR . '/images/products/cropped/' . $product['image'] ?>">
-                                <?php if ($product['quantity'] > 0 || ($product['available'] && $product['quantity'] == '')) : ?>
-                                    <ul class="featured__item__pic__hover">
-                                        <li>
-                                            <a onclick="return false">
-                                                <div style="cursor: pointer;" data-id="<?= $product['id'] ?>" class="add-to-cart">
-                                                    <i class="fa fa-shopping-cart cursor-pointer"></i>
-                                                </div>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="<?= site_url('customer/view-product/' . $product['id']) ?>">
-                                                <div v style="cursor: pointer;" data-id="<?= $product['id'] ?>">
-                                                    <i class="fa fa-eye cursor-pointer"></i>
-                                                </div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                <?php endif; ?>
-                            </div>
-                            <div class="featured__item__text">
-                                <?php if (($product['quantity'] != '' && $product['quantity'] == 0) || !$product['available']) : ?>
-                                    <h1 class="badge badge-danger">Unavailable</h1>
-                                <?php endif; ?>
-                                <h6><a href="#"><?= $product['product_name'] ?></a></h6>
-                                <h5>₱ <?= number_format($product['price'], 2) ?></h5>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+
             </div>
         </div>
     </section>
@@ -574,6 +537,7 @@
 
         $(document).ready(function() {
             updateCartBadge()
+            getAvailableCategories()
         })
 
         const isLoggedIn = <?= $user == null ? 0 : 1 ?>;
@@ -629,6 +593,124 @@
                         $('.fa-shopping-bag').next().html(response)
                 })
         }
+
+        function getAvailableCategories() {
+            $.post('<?= site_url('customer_api/get_available_categories') ?>', {})
+                .then(function(response) {
+                    populateFeatureControls(response)
+                    getProducts()
+                })
+        }
+
+        function populateFeatureControls(categoryList) {
+            $('.featured__controls ul').html('')
+            $('.featured__controls ul').append(`
+                <li class="active" data-filter="*">All</li>
+            `)
+            categoryList.forEach(category => {
+                $('.featured__controls ul').append(`
+                    <li data-filter=".${category['name'].replace(' ', '')}">${category['name']}</li>
+                `)
+            });
+        }
+
+        function scrollToElement(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        var mixer = null;
+
+        function initMixitup() {
+            if(mixer)
+            mixer.destroy()
+            mixer = mixitup('.featured__filter', {
+                selectors: {
+                    target: '.mix'
+                },
+                animation: {
+                    duration: 500
+                }
+            });
+            const buttons = document.querySelectorAll('.featured__controls ul li');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filterValue = button.getAttribute('data-filter');
+                    const sortValue = button.getAttribute('data-sort');
+                    mixer.filter(filterValue);
+                    if (sortValue) {
+                        mixer.sort(sortValue);
+                    }
+                });
+            });
+        }
+
+        function getProducts() {
+            $.post('<?= site_url('customer_api/get_products') ?>', {
+                    q: $('#product-search').val()
+                })
+                .then(function(response) {
+                    console.log(response)
+                    populateProductsList(response)
+                    initMixitup()
+                })
+        }
+
+        function populateProductsList(products) {
+            $('.featured__filter').html('')
+            const productLink = '<?= BASE_URL . PUBLIC_DIR . '/images/products/cropped/' ?>'
+            const viewProductLink = '<?= site_url('customer/view-product/') ?>'
+            products.forEach(product => {
+                $('.featured__filter').append(`
+                <div class="col-lg-3 col-md-4 col-sm-6 mix ${product['category_name'].replace(' ', '')}">
+                    <div class="featured__item">
+                        <div class="featured__item__pic set-bg" data-setbg="${productLink + product['image']}">
+                            <ul class="featured__item__pic__hover">
+                                <li>
+                                    <a onclick="return false">
+                                        <div style="cursor: pointer;" data-id="${product['id']}" class="add-to-cart">
+                                            <i class="fa fa-shopping-cart cursor-pointer"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="${viewProductLink + product['id']}">
+                                        <div v style="cursor: pointer;" data-id="${product['id']}">
+                                            <i class="fa fa-eye cursor-pointer"></i>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="featured__item__text">
+                        ${((product['quantity'] != '' && product['quantity'] == 0) || !product['available']) ? '<h1 class="badge badge-danger">Unavailable</h1>' : ''}
+
+                            <h6><a href="#">${product['product_name']}</a></h6>
+                            <h5>₱ ${parseFloat(product['price']).toFixed(2)}</h5>
+                        </div>
+                    </div>
+                </div>
+                `)
+            });
+
+            $('.set-bg').each(function() {
+                var bg = $(this).data('setbg');
+                $(this).css('background-image', 'url(' + bg + ')');
+            });
+        }
+
+        $(document).on('click', '.featured__controls ul li', function() {
+            $('.featured__controls ul li').removeClass('active')
+            $(this).addClass('active')
+        })
+
+        $('#search-product-button').on('click', function() {
+            getAvailableCategories()
+        })
     </script>
 </body>
 

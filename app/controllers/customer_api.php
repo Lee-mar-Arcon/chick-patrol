@@ -358,6 +358,29 @@ class customer_api extends Controller
 		}
 	}
 
+	function get_available_categories()
+	{
+		try {
+			$this->is_authorized();
+			echo json_encode($this->m_encrypt->encrypt($this->db->table('categories as c')->select('distinct c.*')->inner_join('products as p', 'c.id = p.category')->get_all()));
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function get_products()
+	{
+		try {
+			$this->is_authorized();
+			// $q = '%' . '%';
+			$q = (isset($_POST['q']) ? $_POST['q'] : '') . '%';
+			$products = $this->m_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.available, p.quantity')->inner_join('categories as c', 'p.category=c.id')->like('LOWER(p.name)', strtolower($q))->get_all());
+			// echo json_encode(123);
+			echo json_encode($products);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 
 	// template
 	// function user_index()

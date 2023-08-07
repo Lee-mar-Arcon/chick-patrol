@@ -32,8 +32,7 @@ class customer extends Controller
 	{
 		$this->call->view('customer/homepage', [
 			'pageTitle' => 'Home',
-			'categories' => $this->db->table('categories')->get_all(),
-			'products' => $this->m_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.available, p.quantity')->inner_join('categories as c', 'p.category=c.id')->get_all()),
+			'categories' => $this->db->table('categories as c')->select('distinct c.*')->inner_join('products as p', 'c.id = p.category')->get_all(),
 			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null
 		]);
 	}
