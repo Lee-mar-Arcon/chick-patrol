@@ -565,4 +565,13 @@ class admin extends Controller
 			'user' => array_merge($this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get(), $this->db->table('barangays')->select('name as barangay_name, delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()),
 		]);
 	}
+
+	function view_product()
+	{
+		$this->call->view('admin/view-product', [
+			'pageTitle' => 'Admin | View Product',
+			'breadCrumb' => 'View Product',
+			'product' => $this->db->table('products as p')->select('p.*, c.name as category_name')->inner_join('categories as c', 'c.id=p.category')->where('p.id', 42)->get()
+		]);
+	}
 }

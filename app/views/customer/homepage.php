@@ -626,8 +626,8 @@
         var mixer = null;
 
         function initMixitup() {
-            if(mixer)
-            mixer.destroy()
+            if (mixer)
+                mixer.destroy()
             mixer = mixitup('.featured__filter', {
                 selectors: {
                     target: '.mix'
