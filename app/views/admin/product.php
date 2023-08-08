@@ -133,7 +133,7 @@
             <h5 class="fs-3 ms-2" id="offcanvasRightLabel"></h5>
             <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <form method="post" action="" id="form" class="offcanvas-body" enctype="multipart/form-data">
+        <div method="post" action="" id="form" class="offcanvas-body" enctype="multipart/form-data">
             <input type="hidden" id="id" name="id">
             <!-- Image -->
             <label for="example-fileinput" class="form-label text-center fs-3 w-100">Product Image</label>
@@ -160,11 +160,25 @@
 
             <!-- inventory type -->
             <div class="mb-3">
-                <label for="inventory-type" class="form-label">Inventory type<span class="text-danger"> *</span></label>
-                <select class="form-select form-select-md" name="inventory-type" id="inventory-type">
+                <label for="inventory_type" class="form-label">Inventory type<span class="text-danger"> *</span></label>
+                <select class="form-select form-select-md" name="inventory_type" id="inventory_type">
                     <option value="perishable" selected>Perishable</option>
                     <option value="durable">Durable goods</option>
                 </select>
+            </div>
+
+            <!-- quantity -->
+            <div class="mb-3" hidden>
+                <label for="quantity" class="form-label">Quantity
+                    <span class="text-danger"> *</span>
+                </label>
+                <input type="number" class="form-control" name="quantity" id="quantity" step="0.01" placeholder="product price">
+            </div>
+
+            <!-- expiration date -->
+            <div class="mb-3" hidden>
+                <label for="expiration_date" class="form-label">Expiration Date<span class="text-danger"> *</span></label>
+                <input type="text" placeholder="Enter product name" class="form-control" id="expiration_date" name="expiration_date">
             </div>
 
             <!-- price -->
@@ -181,7 +195,7 @@
             <div class="text-end mt-3">
                 <button id="submit-form" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
             </div>
-        </form>
+        </div>
     </div>
 
     <!-- Off Canvas for quantity update -->
@@ -532,15 +546,15 @@
         // add input for cropped image
         function addCroppedImageInput(dataURL) {
             // deletes the input if exists
-            if ($('input[name="croppedImage"]').length > 0)
-                $('input[name="croppedImage"]').remove();
+            if ($('#croppedImage').length > 0)
+                $('#croppedImage').remove();
             const inputText = document.createElement('input');
             inputText.type = 'text';
             inputText.value = dataURL;
-            inputText.name = 'croppedImage';
+            inputText.id = 'croppedImage';
             document.getElementById('form').prepend(inputText);
-            $('input[name="croppedImage"]').prop('readonly', true)
-            $('input[name="croppedImage"]').prop('hidden', true)
+            $('#croppedImage').prop('readonly', true)
+            $('#croppedImage').prop('hidden', true)
         }
 
         // add product button event
@@ -569,9 +583,9 @@
                 $('#form').attr('action', addProductLink)
                 $('#inventory-type').attr('disabled', false)
                 $('#inventory-type').val('perishable')
-                if ($('#inventory-type').parent().next().find('#quantity').attr('id') == 'quantity') {
-                    $('#inventory-type').parent().next().remove()
-                }
+                // if ($('#inventory-type').parent().next().find('#quantity').attr('id') == 'quantity') {
+                //     $('#inventory-type').parent().next().remove()
+                // }
             } else {
                 $('#form').attr('action', updateProductLink)
                 $('#offcanvasRightLabel').html('Update product')
@@ -755,16 +769,23 @@
         })
 
         // let updateQuantityOffcanvas = 0
-        $('#inventory-type, #update_inventory_type').on('change', function() {
-            let element = "#" + $(this).attr('id')
-            let updateQuantityOffcanvas = parseFloat($('#' + $('#update_id').val()).find('td:eq(4)').html())
-            quantityId = $(this).attr('id') == 'inventory-type' ? 'quantity' : 'update_quantity'
-            if ($(element).val() == 'perishable') {
-                $('#update_quantity').parent().prop('hidden', true)
+        $('#inventory_type').on('change', function() {
+            // let element = "#" + $(this).attr('id')
+            // let updateQuantityOffcanvas = parseFloat($('#' + $('#update_id').val()).find('td:eq(4)').html())
+            // quantityId = $(this).attr('id') == 'inventory-type' ? 'quantity' : 'update_quantity'
+            // if ($(element).val() == 'perishable') {
+            //     $('#update_quantity').parent().prop('hidden', true)
+            // } else {
+            //     $('#update_quantity').parent().prop('hidden', false)
+            // }
+            // $('#update_quantity').val(updateQuantityOffcanvas)
+            if ($(this).val() == 'durable') {
+                $('#quantity').attr('required', true).parent().attr('hidden', false)
+                $('#expiration_date').attr('required', true).parent().attr('hidden', false)
             } else {
-                $('#update_quantity').parent().prop('hidden', false)
+                $('#quantity').attr('required', false).parent().attr('hidden', true)
+                $('#expiration_date').attr('required', false).parent().attr('hidden', true)
             }
-            $('#update_quantity').val(updateQuantityOffcanvas)
         })
 
 
@@ -827,6 +848,69 @@
                         }
                     }
                 })
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $('#submit-form').on('click', function() {
+            addNewProduct()
+        })
+
+        function addNewProduct() {
+            const formData = new FormData();
+            formData.append('name', $('#name').val());
+            formData.append('category', $('#category').val());
+            formData.append('inventory_type', $('#inventory_type').val());
+            formData.append('price', $('#price').val());
+            formData.append('croppedImage', $('#croppedImage').val());
+            formData.append('description', $('#description').val());
+            formData.append('imageInput', $('#imageInput')[0].files[0]);
+            if ($('#inventory_type').val() == 'durable') {
+                formData.append('expiration_date', $('#expiration_date').val());
+                formData.append('quantity', $('#quantity').val());
+            }
+            // Make the AJAX request using $.ajax to handle file upload
+            $.ajax({
+                url: '<?= site_url('admin_api/product_store') ?>',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log(response);
+                }
+            });
         }
     </script>
 </body>

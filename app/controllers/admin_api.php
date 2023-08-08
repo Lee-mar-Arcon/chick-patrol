@@ -392,6 +392,124 @@ class admin_api extends Controller
 		}
 	}
 
+	function product_store()
+	{
+		try {
+			$this->is_authorized();
+			echo json_encode($_FILES);
+			// if ($this->form_validation->submitted()) {
+			// 	$errors = array();
+			// 	// name
+			// 	$this->form_validation
+			// 		->name('name')
+			// 		->required('required.')
+			// 		->min_length(1, 'required..')
+			// 		->max_length(100, 'must be less than 100 characters only.');
+			// 	$result = $this->check_input('name');
+			// 	$result != null ? $errors['name'] = $result : '';
+			// 	// category
+			// 	$this->form_validation
+			// 		->name('category')
+			// 		->required('required.');
+			// 	$result = $this->check_input('category');
+			// 	$result != null ? $errors['category'] = $result : '';
+			// 	// inventory type
+			// 	$this->form_validation
+			// 		->name('inventory_type')
+			// 		->required('required.');
+			// 	$result = $this->check_input('inventory_type');
+			// 	$result != null ? $errors['inventory_type'] = $result : '';
+
+			// 	if ($this->io->post('inventory_type') == 'durable') {
+			// 		// quantity
+			// 		$this->form_validation
+			// 			->name('quantity')
+			// 			->required('required.');
+			// 		$result = $this->check_input('quantity');
+			// 		$result != null ? $errors['quantity'] = $result : '';
+			// 		// expiration_date
+			// 		$this->form_validation
+			// 			->name('expiration_date')
+			// 			->required('required.');
+			// 		$result = $this->check_input('expiration_date');
+			// 		$result != null ? $errors['expiration_date'] = $result : '';
+			// 	}
+			// 	// price
+			// 	$this->form_validation
+			// 		->name('price')
+			// 		->required('required.')
+			// 		->numeric('invalid value');
+			// 	$result = $this->check_input('price');
+			// 	$result != null ? $errors['price'] = $result : '';
+			// 	// description
+			// 	$this->form_validation
+			// 		->name('description')
+			// 		->required('required.')
+			// 		->min_length(0, 'required')
+			// 		->max_length(800, 'must be less than 800 characters, current length is ' . strlen($this->io->post('description')) . '.');
+			// 	$result = $this->check_input('description');
+			// 	$result != null ? $errors['description'] = $result : '';
+			// 	// product image
+			// 	if (strlen($_FILES['imageInput']['name']) == 0)
+			// 		$errors['imageInput'] = 'upload failed.';
+
+
+
+			// 	if ($this->db->table('products')->where('name', $this->io->post('name'))->get()) {
+			// 		$this->session->set_flashdata(['formErrors' => $errors]);
+			// 		$this->session->set_flashdata(['formMessage' => 'add exists']);
+			// 		$this->session->set_flashdata(['formData' => $_POST]);
+			// 	} else if (count($errors) > 0) {
+			// 		$this->session->set_flashdata(['formErrors' => $errors]);
+			// 		$this->session->set_flashdata(['formMessage' => 'failed']);
+			// 		$this->session->set_flashdata(['formData' => $_POST]);
+			// 	} else {
+			// 		if ($this->form_validation->run()) {
+			// 			($this->io->post('inventory-type') == 'durable') ?
+			// 				$quantity = strlen($this->io->post('quantity')) == 0 ? '' : $this->io->post('quantity') : $quantity = null;
+			// 			$filename = $this->upload_cropped_image($this->uploadOriginalImage('product'), 'product');
+			// 			$this->m_admin->product_store(
+			// 				$this->io->post('name'),
+			// 				$this->io->post('category'),
+			// 				$this->io->post('price'),
+			// 				$this->io->post('description'),
+			// 				$filename,
+			// 				$quantity
+			// 			);
+			// 			$this->session->set_flashdata(['formMessage' => 'success']);
+			// 		} else {
+			// 			echo var_dump($this->form_validation->get_errors());
+			// 		}
+			// 	}
+			// } else
+			// 	echo 'error';
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	// UPLOAD CROPPED IMAGE 
+	function upload_cropped_image($filename, $table)
+	{
+		$base64Image = $_POST['croppedImage'];
+		$data = str_replace('data:image/png;base64,', '', $base64Image);
+		$imageData = base64_decode($data);
+		$savePath = $table == 'product' ? 'public/images/products/cropped/' . $filename : 'public/images/category/cropped/' . $filename;
+		file_put_contents($savePath, $imageData);
+		return $filename;
+	}
+
+	// UPLOAD ORIGINAL IMAGE 
+	function uploadOriginalImage($table)
+	{
+		$directory = $table == 'product' ? 'public/images/products/original' : 'public/images/category/original';
+		$this->call->library('upload', $_FILES['imageInput']);
+		$this->upload->max_size(10)->set_dir($directory)->allowed_extensions(array('jpg', 'png'))->is_image()->encrypt_name();
+		if ($this->upload->do_upload()) {
+			return $this->upload->get_filename();
+		}
+	}
+
 	// template
 	// function user_index()
 	// {
