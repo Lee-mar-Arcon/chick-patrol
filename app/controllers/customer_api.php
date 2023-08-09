@@ -374,7 +374,7 @@ class customer_api extends Controller
 			$this->is_authorized();
 			// $q = '%' . '%';
 			$q = (isset($_POST['q']) ? $_POST['q'] : '') . '%';
-			$products = $this->m_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.available, p.quantity')->inner_join('categories as c', 'p.category=c.id')->like('LOWER(p.name)', strtolower($q))->get_all());
+			$products = $this->m_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.selling, p.quantity')->inner_join('categories as c', 'p.category=c.id')->like('LOWER(p.name)', strtolower($q))->get_all());
 			// echo json_encode(123);
 			echo json_encode($products);
 		} catch (Exception $e) {

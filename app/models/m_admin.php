@@ -131,7 +131,7 @@ class m_admin extends Model
 			FROM products AS p
 			INNER JOIN categories AS c ON p.category = c.id
 			LEFT JOIN product_inventory AS pi ON p.id = pi.product_id
-			WHERE p.name LIKE ? AND p.category LIKE ? AND p.available LIKE ? AND pi.expiration_date > CURRENT_DATE
+			WHERE p.name LIKE ? AND p.category LIKE ? AND p.selling LIKE ? AND pi.expiration_date > CURRENT_DATE
 			group by p.id",
 			[$q, $category, $availability]
 		);
@@ -142,7 +142,7 @@ class m_admin extends Model
 				FROM products AS p
 				INNER JOIN categories AS c ON p.category = c.id
 				LEFT JOIN product_inventory AS pi ON p.id = pi.product_id
-				WHERE p.name LIKE ? AND p.category LIKE ? AND p.available LIKE ? AND pi.expiration_date > CURRENT_DATE
+				WHERE p.name LIKE ? AND p.category LIKE ? AND p.selling LIKE ? AND pi.expiration_date > CURRENT_DATE
 				GROUP BY p.id
 				ORDER BY p.name
 				LIMIT 10 OFFSET ?",

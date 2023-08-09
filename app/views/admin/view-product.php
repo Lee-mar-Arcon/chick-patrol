@@ -46,6 +46,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                             <div class="card">
                                 <div class="card-header">
                                     <div class="display-6 fw-bold"><?= $product['name'] ?></div>
+                                    <div class="text-muted fs-4">(Ingredients)</div>
                                 </div>
                                 <div class="card-body row flex-sm-row-reverse">
                                     <div class="col-md-3">
@@ -65,6 +66,11 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                     </div>
                                     <div class="col-md-9">
                                         <div class="bg-light rounded py-3 px-3 my-2">
+                                            <?php if ($product['inventory_type'] == 'durable') : ?>
+                                                <div class="py-5 my-5 fw-bold h2 text-muted text-center">
+                                                    This product does not have any ingredients.
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -85,29 +91,6 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
 
     <?php include 'components/right-navigation.php' ?>
 
-    <!-- Off Canvas -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-        <div class="offcanvas-header">
-            <h5 class="fs-3" id="offcanvasRightLabel">Offcanvas right</h5>
-            <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <form method="post" action="" id="form" class="offcanvas-body">
-            <input type="hidden" id="id" name="id">
-            <div class="mb-3 mt-2">
-                <label for="name" class="form-label">Name<span class="text-danger"> *</span></label>
-                <input type="text" required placeholder="Enter Barangay name" class="form-control" id="name" name="name">
-            </div>
-            <div class="mb-3 mt-2">
-                <label for="delivery_fee" class="form-label">Delivery Fee<span class="text-danger"> *</span></label>
-                <input type="number" required step="0.01" placeholder="Enter deliver fee" class="form-control" id="delivery_fee" name="delivery_fee">
-            </div>
-            <div class="text-end mt-3">
-                <button id="submit-form" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="delete-restore-form"></div>
     <!-- Vendor -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>

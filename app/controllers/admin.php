@@ -383,8 +383,8 @@ class admin extends Controller
 		if ($this->form_validation->run()) {
 			$this->call->model('m_encrypt');
 			$id = $this->m_encrypt->decrypt($this->io->post('id'));
-			$this->db->table('products')->where('id', $id)->update(['available' => 1]);
-			$this->session->set_flashdata(['formMessage' => 'available']);
+			$this->db->table('products')->where('id', $id)->update(['selling' => 1]);
+			$this->session->set_flashdata(['formMessage' => 'selling']);
 			redirect('admin/product');
 		} else {
 			echo 'ID is required';
@@ -398,7 +398,7 @@ class admin extends Controller
 		if ($this->form_validation->run()) {
 			$this->call->model('m_encrypt');
 			$id = $this->m_encrypt->decrypt($this->io->post('id'));
-			$this->db->table('products')->where('id', $id)->update(['available' => 0]);
+			$this->db->table('products')->where('id', $id)->update(['selling' => 0]);
 			$this->session->set_flashdata(['formMessage' => 'unavailable']);
 			redirect('admin/product');
 		} else {
@@ -481,12 +481,22 @@ class admin extends Controller
 		]);
 	}
 
-	function view_product()
+	function view_product($id)
 	{
+		$id = $this->m_encrypt->decrypt($id);
+		$product = $this->m_encrypt->encrypt($this->db->raw(
+			"SELECT p.*, c.name AS category_name, SUM(pi.quantity) AS quantity
+			FROM products AS p
+			INNER JOIN categories AS c ON p.category = c.id
+			LEFT JOIN product_inventory AS pi ON p.id = pi.product_id
+			WHERE p.id = ? AND pi.expiration_date > CURRENT_DATE
+			GROUP BY p.id",
+			array($id)
+		))[0];
 		$this->call->view('admin/view-product', [
 			'pageTitle' => 'Admin | View Product',
 			'breadCrumb' => 'View Product',
-			'product' => $this->db->table('products as p')->select('p.*, c.name as category_name')->inner_join('categories as c', 'c.id=p.category')->where('p.id', 42)->get()
+			'product' => $product
 		]);
 	}
 }

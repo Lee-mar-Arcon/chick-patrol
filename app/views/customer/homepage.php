@@ -597,12 +597,12 @@
         function getAvailableCategories() {
             $.post('<?= site_url('customer_api/get_available_categories') ?>', {})
                 .then(function(response) {
-                    populateFeatureControls(response)
+                    populateCategoriesFilter(response)
                     getProducts()
                 })
         }
 
-        function populateFeatureControls(categoryList) {
+        function populateCategoriesFilter(categoryList) {
             $('.featured__controls ul').html('')
             $('.featured__controls ul').append(`
                 <li class="active" data-filter="*">All</li>

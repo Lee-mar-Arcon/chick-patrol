@@ -73,8 +73,8 @@
                                             <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> <span>All</span> <i class="mdi mdi-chevron-down"></i> </button>
                                             <div class="dropdown-menu">
                                                 <button class="dropdown-item option-availability" data-value="all">All</button>
-                                                <button class="dropdown-item option-availability" data-value="1">Available</button>
-                                                <button class="dropdown-item option-availability" data-value="0">Unavailable</button>
+                                                <button class="dropdown-item option-availability" data-value="1">Selling</button>
+                                                <button class="dropdown-item option-availability" data-value="0">Archived</button>
                                             </div>
                                         </div>
                                     </div>
@@ -103,7 +103,7 @@
                                             <th class="text-center">Quantity(pcs)</th>
                                             <th style="width: 130px;">Date added</th>
                                             <th style="width: 130px;">Updated at</th>
-                                            <th class="text-center" style="width: 130px;">available</th>
+                                            <th class="text-center" style="width: 130px;">Selling </th>
                                             <th class="text-center" style="width: 180px;">Action</th>
                                         </tr>
                                     </thead>
@@ -407,6 +407,7 @@
             products = products['products']
             $('tbody').html('');
             const productLink = '<?= BASE_URL ?>/public/images/products/cropped/'
+            const viewProductLink = '<?= site_url('admin/view-product') . '/' ?>'
             for (let i = 0; i < products.length; i++) {
                 console.log(products[i])
                 $('tbody').append(
@@ -420,17 +421,17 @@
                         <td> ${products[i]['date_added']} </td>
                         <td> ${products[i]['updated_at']} </td>
                         <td class="text-center">
-                            ${products[i]['available'] == 1 ? 
-                                '<span class="badge badge-soft-success rounded-pill px-1 py-1 ms-2"> Available </span>' : 
-                                '<span class="badge badge-soft-danger rounded-pill px-1 py-1 ms-2"> Unavailable </span>'}
+                            ${products[i]['selling'] == 1 ? 
+                                '<span class="badge badge-soft-success rounded-pill px-1 py-1 ms-2"> Selling </span>' : 
+                                '<span class="badge badge-soft-danger rounded-pill px-1 py-1 ms-2"> Archived </span>'}
                         </td>
                         <td class="text-center">
                             <span data-tippy-content="Delete Permanently" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 delete-product">
                                 <i class="mdi mdi-delete fs-3 text-danger"></i>
                             </span>
-                            <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-quantity" data-bs-toggle="offcanvas" data-bs-target="#edit-quantity-offcanvas" aria-controls="edit-quantity-offcanvas">
-                                <i class="mdi mdi-package fs-3 text-info"></i>
-                            </span>
+                            <a href="${viewProductLink + products[i]['id']}" data-tippy-content="View product" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1">
+                                <i class="mdi mdi-eye fs-3 text-info"></i>
+                            </a>
                             <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-product" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                 <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
                             </span>
@@ -618,7 +619,7 @@
         $(document).on('click', '.mdi-delete-restore', function() {
             id = $(this).closest('tr').attr('id')
             Swal.fire({
-                title: 'Make product available again?',
+                title: 'Sell product again?',
                 text: "",
                 icon: 'warning',
                 showCancelButton: true,
@@ -627,7 +628,7 @@
                 confirmButtonText: 'Restore'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    handleDeleteRestoreSubmit(id, 'available')
+                    handleDeleteRestoreSubmit(id, 'selling')
                 }
             })
         })
