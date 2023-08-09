@@ -425,7 +425,7 @@
                                 '<span class="badge badge-soft-danger rounded-pill px-1 py-1 ms-2"> Unavailable </span>'}
                         </td>
                         <td class="text-center">
-                            <span data-tippy-content="Delete Permanently" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 make-product-available">
+                            <span data-tippy-content="Delete Permanently" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 delete-product">
                                 <i class="mdi mdi-delete fs-3 text-danger"></i>
                             </span>
                             <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-quantity" data-bs-toggle="offcanvas" data-bs-target="#edit-quantity-offcanvas" aria-controls="edit-quantity-offcanvas">
@@ -632,24 +632,6 @@
             })
         })
 
-        // show delete confirmation
-        $(document).on('click', '.mdi-delete', function() {
-            id = $(this).closest('tr').attr('id')
-            Swal.fire({
-                title: 'Make product unavaialble??',
-                text: "",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Continue'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    handleDeleteRestoreSubmit(id, 'unavailable')
-                }
-            })
-        })
-
         // form restore and delete submit handler
         function handleDeleteRestoreSubmit(id, httpMethod) {
             const unavailableUrl = '<?= BASE_URL ?>admin/product_unavailable';
@@ -781,6 +763,11 @@
             toggleQuantityExpirationDate($(this))
         })
 
+
+        $('#submit-form').on('click', function() {
+            addNewProduct()
+        })
+
         function toggleQuantityExpirationDate(inventoryTypeElement) {
             if ($(inventoryTypeElement).val() == 'durable') {
                 $('#quantity').attr('required', true).parent().attr('hidden', false)
@@ -790,9 +777,6 @@
                 $('#expiration_date').attr('required', false).parent().attr('hidden', true)
             }
         }
-        $('#submit-form').on('click', function() {
-            addNewProduct()
-        })
 
         function addNewProduct() {
             const formData = new FormData();
@@ -814,7 +798,8 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    if (Array.isArray(response))
+                    console.log(response)
+                    if (typeof response === 'object')
                         setValidationErrors(response)
                     else {
                         resetForm()
@@ -854,7 +839,6 @@
             }).showToast();
         }
 
-        // reset form values
         function resetForm() {
             clearValidationErrors()
             let previewImage = '<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png'
@@ -868,6 +852,55 @@
             $('#expiration_date').val('')
             $('#previewImage').attr('src', previewImage)
             $('#imageInput').val(null)
+        }
+
+        $(document).on('click', '.delete-product', function() {
+            let productID = $(this).closest('tr').attr('id')
+
+            Swal.fire({
+                title: 'Are you sure you want to delete this Product?',
+                text: 'Enter your password',
+                icon: 'error',
+                input: 'password',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                allowOutsideClick: false,
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                preConfirm: function(password) {
+                    return deleteProduct(password, productID);
+                }
+            }).then((result) => {
+                console.log(result.isConfirmed)
+                if (result.isConfirmed) {
+
+                }
+            });
+        })
+
+        function deleteProduct(password, productID) {
+            return new Promise(function(resolve, reject) {
+                $.post('<?= site_url('admin_api/delete-product') ?>', {
+                        password: password,
+                        productID: productID
+                    })
+                    .then(function(response) {
+                        console.log(response)
+                        if (response == 'wrong password') {
+                            showToast('you entered the wrong password', "linear-gradient(to right, #ac1414, #f12b00)")
+                            resolve(false)
+                        } else if (response == 'invalid ID') {
+                            showToast('ID does not exists', "linear-gradient(to right, #ac1414, #f12b00)")
+                            resolve(false)
+                        } else {
+                            showToast('Product deletion success.', "linear-gradient(to right,  #3ab902, #14ac34)")
+                            handleFetchProducts(q)
+                            resolve(true)
+                        }
+                    })
+            })
         }
     </script>
 </body>

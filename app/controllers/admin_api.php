@@ -522,6 +522,29 @@ class admin_api extends Controller
 		}
 	}
 
+	function delete_product()
+	{
+		try {
+			$this->is_authorized();
+			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
+			$productID = $this->m_encrypt->decrypt($_POST['productID']);
+
+			if ($this->db->table('products')->where('id', $productID)->get() == false) {
+				echo json_encode('invalid ID');
+			} else if (password_verify($_POST['password'], $user['password'])) {
+				$productImage = $this->db->table('products')->where('id', $productID)->get()['image'];
+				$this->db->table('products')->where('id', $productID)->delete();
+				unlink('public/images/products/cropped/' . $productImage);
+				unlink('public/images/products/original/' . $productImage);
+				echo json_encode('success');
+			} else {
+				echo json_encode('wrong password');
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	// template
 	// function user_index()
 	// {

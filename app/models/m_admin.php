@@ -134,8 +134,8 @@ class m_admin extends Model
 			WHERE p.name LIKE ? AND p.category LIKE ? AND p.available LIKE ? AND pi.expiration_date > CURRENT_DATE
 			group by p.id",
 			[$q, $category, $availability]
-		)[0]['total'];
-
+		);
+		$totalRows = count($totalRows) > 0 ? $totalRows[0]['total'] : 0;
 		return [
 			'products' => $this->m_encrypt->encrypt($this->db->raw(
 				"SELECT p.*, c.name AS category_name, SUM(pi.quantity) AS available_quantity
