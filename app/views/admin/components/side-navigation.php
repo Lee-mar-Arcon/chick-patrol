@@ -9,7 +9,7 @@
       <div id="sidebar-menu">
 
          <ul id="side-menu">
-            <li class="menu-title">Navigation</li>
+            <li class="menu-title fs-6 text-black">Navigation</li>
 
             <li>
                <a href="<?= BASE_URL ?>admin/dashboard">
@@ -39,6 +39,8 @@
                </a>
             </li>
 
+            <li class="menu-title fs-6 text-black">Products</li>
+
             <li>
                <a href="<?= BASE_URL ?>admin/product">
                   <i class="fas fa-boxes"></i>
@@ -46,7 +48,14 @@
                </a>
             </li>
 
-            <li class="menu-title">Orders</li>
+            <li>
+               <a href="<?= BASE_URL ?>admin/ingredients">
+                  <i class="fas fa-boxes"></i>
+                  <span>&nbsp;&nbsp;Ingredients </span>
+               </a>
+            </li>
+
+            <li class="menu-title fs-6 text-black">Orders</li>
 
             <li>
                <a href="<?= BASE_URL ?>admin/rejected-order">

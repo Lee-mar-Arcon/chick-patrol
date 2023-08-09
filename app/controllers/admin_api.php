@@ -472,6 +472,8 @@ class admin_api extends Controller
 						echo json_encode('product name already exists');
 					} else {
 						$filename = $this->upload_cropped_image($this->uploadOriginalImage('product'), 'product');
+						// set selling to false if product is perishable
+						$selling = $this->io->post('inventory_type') == 'durable' ? 1 : 0;
 						$this->m_admin->product_store(
 							$this->io->post('name'),
 							$this->io->post('category'),
@@ -479,16 +481,18 @@ class admin_api extends Controller
 							$this->io->post('description'),
 							$filename,
 							$this->io->post('inventory_type'),
+							$selling
 						);
-						// if type is durable insert to inventory
-						if ($this->io->post('inventory_type') == 'durable') {
-							$lastProductId = $this->db->last_id();
-							$this->db->table('product_inventory')->insert(array(
-								'product_id' => $lastProductId,
-								'quantity' => $this->io->post('quantity'),
-								'expiration_date' => $this->io->post('expiration_date')
-							));
-						}
+						$lastProductId = $this->db->last_id();
+						$data = array(
+							'product_id' => $lastProductId,
+							'quantity' => $this->io->post('inventory_type') == 'durable' ? $this->io->post('quantity') : 0,
+							'expiration_date' => $this->io->post('inventory_type') == 'durable' ? $this->io->post('expiration_date') : null
+						);
+						// add expiration date if product is durable
+						$this->io->post('inventory_type') == 'durable' ? $data['remaining_quantity'] = $this->io->post('quantity') : "";
+						
+						$this->db->table('product_inventory')->insert($data);
 						echo json_encode('success');
 					}
 				} else

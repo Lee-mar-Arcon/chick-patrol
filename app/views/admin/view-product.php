@@ -57,7 +57,14 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                             </div>
                                             <div class="py-1">Price: ₱ <span><?= number_format($product['price'], 2) ?></span></div>
                                             <div class="py-1">Category: <span><?= $product['category_name'] ?></span></div>
-                                            <div class="py-1">Quantity: <span><?= $product['quantity'] == null ? '<span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">perishable</span>' : $product['quantity'] ?></span></div>
+                                            <div class="py-1">Inventory Type:
+                                                <span><?= $product['inventory_type'] == 'perishable' ?
+                                                            '<span class="text-start badge badge-soft-warning rounded-pill px-1 py-1 ms-2">perishable</span>' :
+                                                            '<span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">durable</span>'
+                                                        ?>
+                                                </span>
+                                            </div>
+                                            <div class="py-1">Quantity: <span><?= $product['quantity'] ?></span></div>
                                             <div class="py-1">Date added: <span><?= date('M d, Y', strtotime($product['date_added'])) ?></span></div>
                                             <div class="py-1">Last Updated at: : <span><?= date('M d, Y', strtotime($product['updated_at'])) ?></span></div>
                                             <div class="py-1 pt-3">Description: : </div>

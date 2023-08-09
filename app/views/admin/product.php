@@ -100,11 +100,12 @@
                                             <th>Name</th>
                                             <th>Price</th>
                                             <th>Category</th>
-                                            <th class="text-center">Quantity(pcs)</th>
+                                            <th class="text-center">Inventory type</th>
+                                            <th class="text-center">Quantity</th>
                                             <th style="width: 130px;">Date added</th>
                                             <th style="width: 130px;">Updated at</th>
                                             <th class="text-center" style="width: 130px;">Selling </th>
-                                            <th class="text-center" style="width: 180px;">Action</th>
+                                            <th class="text-center" style="width: 230px;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="align-middle">
@@ -413,11 +414,20 @@
                 $('tbody').append(
                     `
                     <tr id="${products[i]['id']}">
-                        <td><img src="${productLink +  products[i]['image']}" alt="" height="150" width="150" class="img-fluid rounded product-image" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#preview-image-modal"></td>
+                        <td>
+                            <img src="${productLink +  products[i]['image']}" alt="" height="150" width="150" class="img-fluid rounded product-image" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#preview-image-modal">
+                        </td>
                         <td> ${products[i]['name']} </td>
                         <td>₱ ${parseFloat(products[i]['price']).toFixed(2)} </td>
                         <td> ${products[i]['category_name']} </td>
-                        <td class="text-center"> ${products[i]['inventory_type'] == 'durable' ? products[i]['available_quantity'] : '<span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">perishable</span>'} </td>
+                        <td class="text-center"> 
+                            ${products[i]['inventory_type'] == 'durable' ? 
+                                '<span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">durable</span>' : 
+                                '<span class="text-start badge badge-soft-warning rounded-pill px-1 py-1 ms-2">perishable</span>'} 
+                        </td>
+                        <td class="text-center"> 
+                            ${products[i]['available_quantity']} 
+                        </td>
                         <td> ${products[i]['date_added']} </td>
                         <td> ${products[i]['updated_at']} </td>
                         <td class="text-center">
@@ -432,7 +442,13 @@
                             <a href="${viewProductLink + products[i]['id']}" data-tippy-content="View product" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1">
                                 <i class="mdi mdi-eye fs-3 text-info"></i>
                             </a>
-                            <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-product" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                            <span data-tippy-content="${products[i]['selling'] == 1 ? 'archive product' : 'sell product'}" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 ${products[i]['selling'] == 1 ? 'archive-product' : 'sell-product'}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                ${products[i]['selling'] == 1 ? 
+                                    '<i class="mdi mdi-tag-off fs-3 text-danger"></i>' :
+                                    '<i class="mdi mdi-tag fs-3 text-info"></i>'
+                                }    
+                            </span>
+                            <span data-tippy-content="Edit product" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-product" data-bs-toggle="offcanvas" data-bs-target="#productForm" aria-controls="offcanvasRight">
                                 <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
                             </span>
                         </td>
@@ -526,17 +542,6 @@
             $('#croppedImage').prop('readonly', true)
             $('#croppedImage').prop('hidden', true)
         }
-
-        // add product button event
-        $('#add-product').on('click', function() {
-            $('#productFormLabel').html('ADD NEW PRODUCT')
-            resetForm()
-        })
-
-        // edit product button event
-        $(document).on('click', '.edit-product', function() {
-            resetForm('update', this);
-        });
 
         // compress cropped image
         function compressImage(image, maxWidth, maxHeight) {
@@ -757,8 +762,15 @@
 
 
 
+        $('#add-product').on('click', function() {
+            $('#productFormLabel').html('ADD NEW PRODUCT')
+            resetForm()
+        })
 
-
+        $(document).on('click', '.edit-product', function() {
+            $('#productFormLabel').html('EDIT PRODUCT')
+            resetForm()
+        });
 
         $('#inventory_type').on('change', function() {
             toggleQuantityExpirationDate($(this))
