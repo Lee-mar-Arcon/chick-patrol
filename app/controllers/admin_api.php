@@ -15,7 +15,7 @@ class admin_api extends Controller
 		$this->call->database();
 	}
 
-	function check_input($input)
+	function check_input()
 	{
 		$this->form_validation->run();
 		$result = isset($this->form_validation->get_errors()[0]) ? $this->form_validation->get_errors()[0] : null;
@@ -149,7 +149,7 @@ class admin_api extends Controller
 			$this->form_validation
 				->name('update_id')
 				->required('required.');
-			$result = $this->check_input('update_id');
+			$result = $this->check_input();
 			$result != null ? $errors['update_id'] = $result : '';
 			// inventory type
 			if ($this->io->post('update_inventory_type') !== null) {
@@ -162,7 +162,7 @@ class admin_api extends Controller
 				->name('update_price')
 				->required('required.')
 				->numeric('invalid');
-			$result = $this->check_input('update_price');
+			$result = $this->check_input();
 			$result != null ? $errors['update_price'] = $result : '';
 			// quantity
 			if ($this->io->post('update_inventory_type') == 'durable') {
@@ -170,7 +170,7 @@ class admin_api extends Controller
 					->name('update_quantity')
 					->required('required.')
 					->numeric('invalid');
-				$result = $this->check_input('update_quantity');
+				$result = $this->check_input();
 				$result != null ? $errors['update_quantity'] = $result : '';
 			}
 
@@ -396,93 +396,104 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($_FILES);
-			// if ($this->form_validation->submitted()) {
-			// 	$errors = array();
-			// 	// name
-			// 	$this->form_validation
-			// 		->name('name')
-			// 		->required('required.')
-			// 		->min_length(1, 'required..')
-			// 		->max_length(100, 'must be less than 100 characters only.');
-			// 	$result = $this->check_input('name');
-			// 	$result != null ? $errors['name'] = $result : '';
-			// 	// category
-			// 	$this->form_validation
-			// 		->name('category')
-			// 		->required('required.');
-			// 	$result = $this->check_input('category');
-			// 	$result != null ? $errors['category'] = $result : '';
-			// 	// inventory type
-			// 	$this->form_validation
-			// 		->name('inventory_type')
-			// 		->required('required.');
-			// 	$result = $this->check_input('inventory_type');
-			// 	$result != null ? $errors['inventory_type'] = $result : '';
+			if ($this->form_validation->submitted()) {
+				$errors = array();
 
-			// 	if ($this->io->post('inventory_type') == 'durable') {
-			// 		// quantity
-			// 		$this->form_validation
-			// 			->name('quantity')
-			// 			->required('required.');
-			// 		$result = $this->check_input('quantity');
-			// 		$result != null ? $errors['quantity'] = $result : '';
-			// 		// expiration_date
-			// 		$this->form_validation
-			// 			->name('expiration_date')
-			// 			->required('required.');
-			// 		$result = $this->check_input('expiration_date');
-			// 		$result != null ? $errors['expiration_date'] = $result : '';
-			// 	}
-			// 	// price
-			// 	$this->form_validation
-			// 		->name('price')
-			// 		->required('required.')
-			// 		->numeric('invalid value');
-			// 	$result = $this->check_input('price');
-			// 	$result != null ? $errors['price'] = $result : '';
-			// 	// description
-			// 	$this->form_validation
-			// 		->name('description')
-			// 		->required('required.')
-			// 		->min_length(0, 'required')
-			// 		->max_length(800, 'must be less than 800 characters, current length is ' . strlen($this->io->post('description')) . '.');
-			// 	$result = $this->check_input('description');
-			// 	$result != null ? $errors['description'] = $result : '';
-			// 	// product image
-			// 	if (strlen($_FILES['imageInput']['name']) == 0)
-			// 		$errors['imageInput'] = 'upload failed.';
+				// name
+				$this->form_validation
+					->name('name')
+					->required('required.')
+					->min_length(1, 'required..')
+					->max_length(100, 'must be less than 100 characters only.');
+				$result = $this->check_input();
+				$result != null ? $errors['name'] = $result : '';
+				// category
+				$this->form_validation
+					->name('category')
+					->required('required.');
+				$result = $this->check_input();
+				// check if category id exists
+				if ($result != null) {
+					$errors['category'] = $result;
+				} else 
+					if ($this->db->table('categories')->where('id', $this->m_encrypt->decrypt($this->io->post('category')))->get() == false) $errors['category'] = 'invalid ID';
+				// inventory type
+				$this->form_validation
+					->name('inventory_type')
+					->required('required.');
+				$result = $this->check_input();
+				if ($result != null) {
+					$errors['inventory_type'] = $result;
+				} else 
+				if (!($this->io->post('inventory_type') == 'durable' || $this->io->post('inventory_type') == 'perishable'))
+					$errors['inventory_type'] = 'invalid inventory type';
 
+				if ($this->io->post('inventory_type') == 'durable') {
+					// quantity
+					$this->form_validation
+						->name('quantity')
+						->required('required.');
+					$result = $this->check_input();
+					$result != null ? $errors['quantity'] = $result : '';
+					// expiration_date
+					$this->form_validation
+						->name('expiration_date')
+						->required('required.');
+					$result = $this->check_input();
+					if ($result != null) {
+						$errors['expiration_date'] = $result;
+					} else 
+						if (!strtotime($this->io->post('expiration_date')))
+						$errors['expiration_date'] =  "invalid date.";
+				}
+				// price
+				$this->form_validation
+					->name('price')
+					->required('required.')
+					->numeric('invalid value');
+				$result = $this->check_input();
+				$result != null ? $errors['price'] = $result : '';
+				// description
+				$this->form_validation
+					->name('description')
+					->required('required.')
+					->min_length(0, 'required')
+					->max_length(800, 'must be less than 800 characters, current length is ' . strlen($this->io->post('description')) . '.');
+				$result = $this->check_input();
+				$result != null ? $errors['description'] = $result : '';
+				// product image
+				if (isset($_FILES['imageInput']['name']) == 0)
+					$errors['imageInput'] = 'required.';
 
-
-			// 	if ($this->db->table('products')->where('name', $this->io->post('name'))->get()) {
-			// 		$this->session->set_flashdata(['formErrors' => $errors]);
-			// 		$this->session->set_flashdata(['formMessage' => 'add exists']);
-			// 		$this->session->set_flashdata(['formData' => $_POST]);
-			// 	} else if (count($errors) > 0) {
-			// 		$this->session->set_flashdata(['formErrors' => $errors]);
-			// 		$this->session->set_flashdata(['formMessage' => 'failed']);
-			// 		$this->session->set_flashdata(['formData' => $_POST]);
-			// 	} else {
-			// 		if ($this->form_validation->run()) {
-			// 			($this->io->post('inventory-type') == 'durable') ?
-			// 				$quantity = strlen($this->io->post('quantity')) == 0 ? '' : $this->io->post('quantity') : $quantity = null;
-			// 			$filename = $this->upload_cropped_image($this->uploadOriginalImage('product'), 'product');
-			// 			$this->m_admin->product_store(
-			// 				$this->io->post('name'),
-			// 				$this->io->post('category'),
-			// 				$this->io->post('price'),
-			// 				$this->io->post('description'),
-			// 				$filename,
-			// 				$quantity
-			// 			);
-			// 			$this->session->set_flashdata(['formMessage' => 'success']);
-			// 		} else {
-			// 			echo var_dump($this->form_validation->get_errors());
-			// 		}
-			// 	}
-			// } else
-			// 	echo 'error';
+				// perform insert
+				if (count($errors) == 0) {
+					// echo json_encode($this->db->table('products')->where('name', $this->io->post('name'))->get() == false);
+					if ($this->db->table('products')->where('name', $this->io->post('name'))->get() == true) {
+						echo json_encode('product name already exists');
+					} else {
+						$filename = $this->upload_cropped_image($this->uploadOriginalImage('product'), 'product');
+						$this->m_admin->product_store(
+							$this->io->post('name'),
+							$this->io->post('category'),
+							$this->io->post('price'),
+							$this->io->post('description'),
+							$filename,
+						);
+						// if type is durable insert to inventory
+						if ($this->io->post('inventory_type') == 'durable') {
+							$lastProductId = $this->db->last_id();
+							$this->db->table('product_inventory')->insert(array(
+								'product_id' => $lastProductId,
+								'quantity' => $this->io->post('quantity'),
+								'expiration_date' => $this->io->post('expiration_date')
+							));
+						}
+						echo json_encode('success');
+					}
+				} else
+					echo json_encode($errors);
+			} else
+				echo json_encode("something went wrong");
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

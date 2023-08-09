@@ -15,10 +15,10 @@
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
     <link rel="stylesheet" href="<?= BASE_URL ?>node_modules/cropperjs/dist/cropper.css">
-    <!-- toastr -->
-    <link rel="stylesheet" href="<?= BASE_URL . PUBLIC_DIR ?>/libraries/toastr.css">
     <!-- Sweet alert -->
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
+    <!-- toastify -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <style>
         table {
             border-collapse: separate;
@@ -59,7 +59,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>Products</div>
-                            <button id="add-product" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Add</button>
+                            <button id="add-product" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light" data-bs-toggle="offcanvas" data-bs-target="#productForm" aria-controls="offcanvasRight">Add</button>
                         </div>
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center my-3">
@@ -128,9 +128,9 @@
     <?php include 'components/right-navigation.php' ?>
 
     <!-- Off Canvas -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="productForm" aria-labelledby="productFormLabel">
         <div class="offcanvas-header">
-            <h5 class="fs-3 ms-2" id="offcanvasRightLabel"></h5>
+            <h5 class="fs-3 ms-2" id="productFormLabel"></h5>
             <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div method="post" action="" id="form" class="offcanvas-body" enctype="multipart/form-data">
@@ -140,12 +140,14 @@
             <div class="text-center">
                 <img src="<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png" alt="" id="previewImage" height="150" width="150" class="img-fluid rounded my-2 mb-5">
                 <input type="file" id="imageInput" name="imageInput" class="form-control" accept="image/png, image/jpg, image/jpeg">
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- product name -->
             <div class="mb-3 mt-2">
                 <label for="name" class="form-label">Product name<span class="text-danger"> *</span></label>
                 <input type="text" placeholder="Enter product name" class="form-control" id="name" name="name">
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- category -->
@@ -156,6 +158,7 @@
                         <option value="<?= $category['id'] ?>"><?= $category['name'] ?></option>
                     <?php endforeach; ?>
                 </select>
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- inventory type -->
@@ -165,6 +168,7 @@
                     <option value="perishable" selected>Perishable</option>
                     <option value="durable">Durable goods</option>
                 </select>
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- quantity -->
@@ -173,24 +177,28 @@
                     <span class="text-danger"> *</span>
                 </label>
                 <input type="number" class="form-control" name="quantity" id="quantity" step="0.01" placeholder="product price">
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- expiration date -->
             <div class="mb-3" hidden>
                 <label for="expiration_date" class="form-label">Expiration Date<span class="text-danger"> *</span></label>
-                <input type="text" placeholder="Enter product name" class="form-control" id="expiration_date" name="expiration_date">
+                <input type="date" placeholder="Enter product name" class="form-control" id="expiration_date" name="expiration_date">
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- price -->
             <div class="mb-3">
                 <label for="price" class="form-label">price<span class="text-danger"> *</span></label>
                 <input type="number" class="form-control" name="price" id="price" step="0.01" placeholder="product price">
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- description -->
             <div class="mb-3">
                 <label for="description" class="form-label">description<span class="text-danger"> *</span></label>
                 <textarea class="form-control" name="description" id="description" rows="12"></textarea>
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
             <div class="text-end mt-3">
                 <button id="submit-form" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
@@ -288,14 +296,14 @@
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/js/app.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script src="<?= BASE_URL ?>node_modules/cropperjs/dist/cropper.min.js"></script>
-    <!-- taostr -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <!-- Sweet Alerts js -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.all.min.js"></script>
     <!-- loadash -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <!-- axios -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- toastify -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
         // form response data 
         const formMessage = '<?= $formMessage ?>'
@@ -310,50 +318,6 @@
 
         $(document).ready(function() {
             handleFetchProducts(q)
-
-            // form validation response handler
-            switch (formMessage) {
-                case 'failed':
-                    // populate form with formData
-                    $("#add-product").click();
-                    $('#name').val(formData.name)
-                    $('#price').val(formData.price)
-                    $('#description').val(formData.description)
-                    displayErrors()
-                    break;
-                case 'success':
-                    toastr.success('New product added.')
-                    break;
-                case 'add exists':
-                    toastr.error('Product name already exists.')
-                    $("#add-product").click();
-                    formErrors.name = 'name already exists'
-                    $('#name').val(formData.name)
-                    $('#price').val(formData.price)
-                    $('#description').val(formData.description)
-                    displayErrors()
-                    break;
-                case 'update exists':
-                    toastr.error('Product name already exists.')
-                    formErrors.name = 'name already exists'
-                    $('#offcanvasRight').offcanvas('show');
-                    $('#form').attr('action', '<?= site_url('admin/product_update') ?>')
-                    $('#id').val(formData.id)
-                    $('#name').val(formData.name)
-                    $('#price').val(formData.price)
-                    $('#description').val(formData.description)
-                    displayErrors()
-                    break;
-                case 'updated':
-                    toastr.info('Product updated.')
-                    break;
-                case 'available':
-                    toastr.success('Product made available.')
-                    break;
-                case 'unavailable':
-                    toastr.info('Product made unavailable.')
-                    break;
-            }
         })
 
         // Query data
@@ -436,62 +400,60 @@
         function populateTable(products) {
             products = products['products']
             $('tbody').html('');
-            const keys = ['name', 'price', 'category_name', 'quantity', 'date_added', 'updated_at'];
-            let imagelink = '<?= BASE_URL . 'public/images/products/cropped/' ?>'
+            const productLink = '<?= BASE_URL ?>/public/images/products/cropped/'
             for (let i = 0; i < products.length; i++) {
-                const tableTR = $('<tr></tr>').attr('id', products[i]['id']);
-                $('tbody').append(tableTR);
-                tableTR.append('<td><img src="' + imagelink + products[i]['image'] + '" alt="" height="150" width="150" class="img-fluid rounded product-image" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#preview-image-modal"></td>')
-                for (let x = 0; x < keys.length; x++) {
-                    if (keys[x] == 'quantity')
-                        if (products[i][keys[x]] == null)
-                            tableTR.append('<td> ' + '<span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">perishable</span>' + ' </td>')
-                    else
-                        tableTR.append('<td> ' + products[i][keys[x]] + ' </td>')
-                    else
-                        tableTR.append('<td> ' + products[i][keys[x]] + ' </td>')
-                }
-
-                // available
-                tableTR.append(
-                    '<td class="text-center">' +
-                    (products[i]['available'] ? '<span class="badge badge-soft-success rounded-pill px-1 py-1 ms-2">Available   </span>' : '<span class="badge badge-soft-danger rounded-pill px-1 py-1 ms-2">Deleted</span>') +
-                    '</td>'
-                )
-                // action
-                const isAvailableClass = products[i]['available'] ? 'make-product-available' : 'make-product-unavailable'
-                const isAvailableIcon = !products[i]['available'] ? '<i class="mdi mdi-delete-restore fs-3 text-info"></i>' : '<i class="mdi mdi-delete fs-3 text-danger"></i>'
-                tableTR.append(`                                                        
-                    <td class="text-center">
-                        <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 ${isAvailableClass}">
-                            ${isAvailableIcon}
-                        </span>
-                        <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-quantity" data-bs-toggle="offcanvas" data-bs-target="#edit-quantity-offcanvas" aria-controls="edit-quantity-offcanvas">
-                            <i class="mdi mdi-package fs-3 text-info"></i>
-                        </span>
-                        <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-product" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                            <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
-                        </span>
-                    </td>`)
-
-                // table row for description
-                $('tbody').append($('<tr></tr>').append(`
-                <td class="p-0" colspan="100">                         
-                    <div class="accordion accordion-flush" id="accordion-${products[i]['id']}">
-                        <div class="accordion-item bg-light rounded">
-                            <h2 class="accordion-header m-0" id="flush-headingOne">
-                                <button class="accordion-button collapsed fw-bold  bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#flush-accordion-${products[i]['id']}" aria-expanded="true" aria-controls="flush-accordion-${products[i]['id']}">
-                                    Description
-                                </button>
-                            </h2>
-                            <div id="flush-accordion-${products[i]['id']}" class="accordion-collapse collapse bg-light" aria-labelledby="flush-headingOne" data-bs-parent="#accordion-${products[i]['id']}">
-                                <div class="accordion-body">
-                                &emsp; &emsp; ${products[i]['description']}
+                console.log(products[i])
+                $('tbody').append(
+                    `
+                    <tr id="${products[i]['id']}">
+                        <td><img src="${productLink +  products[i]['image']}" alt="" height="150" width="150" class="img-fluid rounded product-image" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#preview-image-modal"></td>
+                        <td> ${products[i]['name']} </td>
+                        <td>₱ ${parseFloat(products[i]['price']).toFixed(2)} </td>
+                        <td> ${products[i]['category_name']} </td>
+                        <td> <span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">perishable</span> </td>
+                        <td> ${products[i]['date_added']} </td>
+                        <td> ${products[i]['updated_at']} </td>
+                        <td class="text-center">
+                            ${products[i]['available'] == 1 ? 
+                                '<span class="badge badge-soft-success rounded-pill px-1 py-1 ms-2"> Available </span>' : 
+                                '<span class="badge badge-soft-danger rounded-pill px-1 py-1 ms-2"> Unavailable </span>'}
+                        </td>
+                        <td class="text-center">
+                            <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 make-product-available">
+                                <i class="mdi mdi-delete fs-3 text-danger"></i>
+                            </span>
+                            <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-quantity" data-bs-toggle="offcanvas" data-bs-target="#edit-quantity-offcanvas" aria-controls="edit-quantity-offcanvas">
+                                <i class="mdi mdi-package fs-3 text-info"></i>
+                            </span>
+                            <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-product" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
+                            </span>
+                        </td>
+                    </tr>
+                    `
+                );
+                $('tbody').append(
+                    `
+                    <tr>
+                        <td class="p-0" colspan="100">
+                            <div class="accordion accordion-flush" id="accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ">
+                                <div class="accordion-item bg-light rounded">
+                                    <h2 class="accordion-header m-0" id="flush-headingOne">
+                                        <button class="accordion-button fw-bold bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#flush-accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ" aria-expanded="true" aria-controls="flush-accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ">
+                                            Description
+                                        </button>
+                                    </h2>
+                                    <div id="flush-accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ" class="accordion-collapse bg-light collapse show" aria-labelledby="flush-headingOne" data-bs-parent="#accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ" style="">
+                                        <div class="accordion-body">
+                                                123123
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </td>`));
+                        </td>
+                    </tr>
+                    `
+                );
             }
         }
 
@@ -559,68 +521,14 @@
 
         // add product button event
         $('#add-product').on('click', function() {
-            resetForm('add', this)
+            $('#productFormLabel').html('ADD NEW PRODUCT')
+            resetForm()
         })
 
         // edit product button event
         $(document).on('click', '.edit-product', function() {
             resetForm('update', this);
         });
-
-        // reset form values
-        function resetForm(mode, element = null) {
-            $('.form-error-message').remove()
-            const addProductLink = '<?= site_url('admin/product_store') ?>'
-            const updateProductLink = '<?= site_url('admin/product_update') ?>'
-            let previewImage = '<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png'
-            let imageInputRequired = true
-            let name = ''
-            let price = null;
-            let category = $('#category option:first').val();
-            let description = ''
-            if (mode == 'add') {
-                $('#offcanvasRightLabel').html('Add new product')
-                $('#form').attr('action', addProductLink)
-                $('#inventory-type').attr('disabled', false)
-                $('#inventory-type').val('perishable')
-                // if ($('#inventory-type').parent().next().find('#quantity').attr('id') == 'quantity') {
-                //     $('#inventory-type').parent().next().remove()
-                // }
-            } else {
-                $('#form').attr('action', updateProductLink)
-                $('#offcanvasRightLabel').html('Update product')
-                // set inventory type value
-                inventoryType = parseFloat($(element).closest('td').prev().prev().prev().prev().html().trim())
-                if (isNaN(inventoryType))
-                    $('#inventory-type').val('perishable')
-                else {
-                    $('#inventory-type').val('durable')
-                    // add new quantity input
-                    if ($('#inventory-type').parent().next().find('#quantity').attr('id') == 'quantity')
-                        $('#inventory-type').parent().next().remove()
-                    $('#inventory-type').parent().after($('<div class="mb-3"><label for="quantity" class="form-label">Quantity<span class="text-danger"> *</span></label><input style="cursor:not-allowed" disabled type="number" class="form-control" required name="quantity" value="' + $(element).closest('td').prev().prev().prev().prev().html().trim() + '" id="quantity" step="0.01" placeholder="product price"></div>'))
-                }
-                $('#inventory-type').attr('disabled', true)
-
-                name = $(element).closest('td').prev().prev().prev().prev().prev().prev().prev().html().trim()
-                price = $(element).closest('td').prev().prev().prev().prev().prev().prev().html().trim()
-                category = $(element).closest('td').prev().prev().prev().prev().prev().html().trim()
-                category = $('#category option').map(function() {
-                    if ($(this).html() == category)
-                        return $(this).val()
-                }).get();
-                description = $(element).closest('tr').next().children('td').find('div.accordion-body').html().trim();
-                previewImage = $(element).closest('tr').find('td:eq(0)').find('img:eq(0)').prop('src')
-                imageInputRequired = false
-            }
-            $('#id').val($(element).closest('tr').attr('id'))
-            $('#name').val(name)
-            $('#price').val(price)
-            $('#category').val(category)
-            $('#description').val(description)
-            $('#previewImage').attr('src', previewImage)
-            $('#imageInput').prop('required', imageInputRequired)
-        }
 
         // compress cropped image
         function compressImage(image, maxWidth, maxHeight) {
@@ -768,26 +676,6 @@
             $('#preview-image-modal').find('img:eq(0)').attr('src', $(this).attr('src'))
         })
 
-        // let updateQuantityOffcanvas = 0
-        $('#inventory_type').on('change', function() {
-            // let element = "#" + $(this).attr('id')
-            // let updateQuantityOffcanvas = parseFloat($('#' + $('#update_id').val()).find('td:eq(4)').html())
-            // quantityId = $(this).attr('id') == 'inventory-type' ? 'quantity' : 'update_quantity'
-            // if ($(element).val() == 'perishable') {
-            //     $('#update_quantity').parent().prop('hidden', true)
-            // } else {
-            //     $('#update_quantity').parent().prop('hidden', false)
-            // }
-            // $('#update_quantity').val(updateQuantityOffcanvas)
-            if ($(this).val() == 'durable') {
-                $('#quantity').attr('required', true).parent().attr('hidden', false)
-                $('#expiration_date').attr('required', true).parent().attr('hidden', false)
-            } else {
-                $('#quantity').attr('required', false).parent().attr('hidden', true)
-                $('#expiration_date').attr('required', false).parent().attr('hidden', true)
-            }
-        })
-
 
         $(document).on('click', '.edit-quantity', function() {
             $('.form-error-message').remove()
@@ -882,7 +770,19 @@
 
 
 
+        $('#inventory_type').on('change', function() {
+            toggleQuantityExpirationDate($(this))
+        })
 
+        function toggleQuantityExpirationDate(inventoryTypeElement) {
+            if ($(inventoryTypeElement).val() == 'durable') {
+                $('#quantity').attr('required', true).parent().attr('hidden', false)
+                $('#expiration_date').attr('required', true).parent().attr('hidden', false)
+            } else {
+                $('#quantity').attr('required', false).parent().attr('hidden', true)
+                $('#expiration_date').attr('required', false).parent().attr('hidden', true)
+            }
+        }
         $('#submit-form').on('click', function() {
             addNewProduct()
         })
@@ -900,7 +800,6 @@
                 formData.append('expiration_date', $('#expiration_date').val());
                 formData.append('quantity', $('#quantity').val());
             }
-            // Make the AJAX request using $.ajax to handle file upload
             $.ajax({
                 url: '<?= site_url('admin_api/product_store') ?>',
                 type: 'POST',
@@ -908,9 +807,58 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    console.log(response);
+                    if (Array.isArray(response))
+                        setValidationErrors(response)
+                    else {
+                        showToast('Product added successfully.', "linear-gradient(to right,  #3ab902, #14ac34)")
+                        handleFetchProducts(q)
+                    }
                 }
             });
+        }
+
+        function clearValidationErrors() {
+            $('.validation-error').html('&nbsp;')
+        }
+
+        function setValidationErrors(errors) {
+            clearValidationErrors()
+            for (const key in errors) {
+                if (Object.hasOwnProperty.call(errors, key)) {
+                    $('#' + key).next().html(errors[key]);
+                }
+            }
+        }
+
+        function showToast(message, backgroundColor, duration = 1500) {
+            Toastify({
+                text: message,
+                duration: duration,
+                newWindow: true,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: backgroundColor,
+                },
+            }).showToast();
+        }
+
+        // reset form values
+        function resetForm() {
+            clearValidationErrors()
+            let previewImage = '<?= BASE_URL .  PUBLIC_DIR ?>/images/products/default.png'
+            $('#name').val('')
+            $('#price').val('')
+            $('#category').val($('#category').find('option:eq(0)').val())
+            $('#inventory_type').val($('#inventory_type').find('option:eq(0)').val())
+            toggleQuantityExpirationDate($('#inventory_type'))
+            $('#description').val('')
+            $('#quantity').val('')
+            $('#expiration_date').val('')
+            $('#previewImage').attr('src', previewImage)
+            $('#imageInput').val(null)
         }
     </script>
 </body>
