@@ -276,4 +276,22 @@ class m_admin extends Model
 			]
 		];
 	}
+
+	function ingredients_index($page, $q)
+	{
+		if (ctype_space($q) || $q == 'all')
+			$q = '%%';
+		else
+			$q = '%' . trim($q) . '%';
+		$totalRows = $this->db->table('ingredients')->select_count('id', 'total')->like('name', $q)->get()['total'];
+
+		return [
+			'ingredients' => $this->m_encrypt->encrypt($this->db->table('ingredients')->like('name', $q)->get_all()),
+			'pagination' => [
+				'totalRows' => $totalRows,
+				'totalPage' => ceil($totalRows / 10),
+				'currentPage' => (int)$page
+			],
+		];
+	}
 }

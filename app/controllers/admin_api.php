@@ -491,7 +491,7 @@ class admin_api extends Controller
 						);
 						// add expiration date if product is durable
 						$this->io->post('inventory_type') == 'durable' ? $data['remaining_quantity'] = $this->io->post('quantity') : "";
-						
+
 						$this->db->table('product_inventory')->insert($data);
 						echo json_encode('success');
 					}
@@ -544,6 +544,16 @@ class admin_api extends Controller
 			} else {
 				echo json_encode('wrong password');
 			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function ingredients_index($page, $q)
+	{
+		try {
+			$this->is_authorized();
+			echo json_encode($this->m_admin->ingredients_index($page, $q));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

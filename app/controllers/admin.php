@@ -499,4 +499,12 @@ class admin extends Controller
 			'product' => $product
 		]);
 	}
+
+	function ingredients()
+	{
+		$this->call->view('admin/ingredients', [
+			'pageTitle' => 'Admin | Ingredients',
+			'breadCrumb' => 'Ingredients'
+		]);
+	}
 }
