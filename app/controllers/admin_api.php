@@ -478,6 +478,7 @@ class admin_api extends Controller
 							$this->io->post('price'),
 							$this->io->post('description'),
 							$filename,
+							$this->io->post('inventory_type'),
 						);
 						// if type is durable insert to inventory
 						if ($this->io->post('inventory_type') == 'durable') {

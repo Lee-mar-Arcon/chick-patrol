@@ -84,7 +84,9 @@
                                         <div class="dropdown-menu">
                                             <button class="dropdown-item option-category" data-id="all">All</button>
                                             <?php foreach ($categories as $category) : ?>
-                                                <button class="dropdown-item option-category" data-id="<?= ucwords($category['id']) ?>"><?= ucwords($category['name']) ?></button>
+                                                <button class="dropdown-item option-category" data-id="<?= ucwords($category['id']) ?>">
+                                                    <?= ucwords($category['name']) ?>
+                                                </button>
                                             <?php endforeach; ?>
                                         </div>
                                     </div>
@@ -98,7 +100,7 @@
                                             <th>Name</th>
                                             <th>Price</th>
                                             <th>Category</th>
-                                            <th>Quantity(pcs)</th>
+                                            <th class="text-center">Quantity(pcs)</th>
                                             <th style="width: 130px;">Date added</th>
                                             <th style="width: 130px;">Updated at</th>
                                             <th class="text-center" style="width: 130px;">available</th>
@@ -304,6 +306,9 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <!-- toastify -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- tippy js -->
+    <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
+    <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
     <script>
         // form response data 
         const formMessage = '<?= $formMessage ?>'
@@ -339,6 +344,7 @@
                     /* OPTIONS */
                 })
                 .then(function(response) {
+                    console.log(response)
                     populateTable(response.data)
                     populatePagination(response.data['pagination'])
                 })
@@ -410,7 +416,7 @@
                         <td> ${products[i]['name']} </td>
                         <td>₱ ${parseFloat(products[i]['price']).toFixed(2)} </td>
                         <td> ${products[i]['category_name']} </td>
-                        <td> <span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">perishable</span> </td>
+                        <td class="text-center"> ${products[i]['inventory_type'] == 'durable' ? products[i]['available_quantity'] : '<span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">perishable</span>'} </td>
                         <td> ${products[i]['date_added']} </td>
                         <td> ${products[i]['updated_at']} </td>
                         <td class="text-center">
@@ -419,7 +425,7 @@
                                 '<span class="badge badge-soft-danger rounded-pill px-1 py-1 ms-2"> Unavailable </span>'}
                         </td>
                         <td class="text-center">
-                            <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 make-product-available">
+                            <span data-tippy-content="Delete Permanently" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 make-product-available">
                                 <i class="mdi mdi-delete fs-3 text-danger"></i>
                             </span>
                             <span class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-quantity" data-bs-toggle="offcanvas" data-bs-target="#edit-quantity-offcanvas" aria-controls="edit-quantity-offcanvas">
@@ -436,16 +442,16 @@
                     `
                     <tr>
                         <td class="p-0" colspan="100">
-                            <div class="accordion accordion-flush" id="accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ">
+                            <div class="accordion accordion-flush" id="accordion-${products[i]['id']}">
                                 <div class="accordion-item bg-light rounded">
                                     <h2 class="accordion-header m-0" id="flush-headingOne">
-                                        <button class="accordion-button fw-bold bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#flush-accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ" aria-expanded="true" aria-controls="flush-accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ">
+                                        <button class="accordion-button fw-bold bg-transparent collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-accordion-${products[i]['id']}" aria-expanded="false" aria-controls="flush-accordion-${products[i]['id']}">
                                             Description
                                         </button>
                                     </h2>
-                                    <div id="flush-accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ" class="accordion-collapse bg-light collapse show" aria-labelledby="flush-headingOne" data-bs-parent="#accordion-V1VUYXpnWHhIbE5yaVVacGE5bXlsUEZiM2w1NFAwVEtFbWE2SUE9PQ" style="">
+                                    <div id="flush-accordion-${products[i]['id']}" class="accordion-collapse bg-light collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordion-${products[i]['id']}" style="">
                                         <div class="accordion-body">
-                                                123123
+                                            ${products[i]['description']}
                                         </div>
                                     </div>
                                 </div>
@@ -455,6 +461,7 @@
                     `
                 );
             }
+            tippy('[data-tippy-content]');
         }
 
         // product image input on change event
@@ -810,8 +817,10 @@
                     if (Array.isArray(response))
                         setValidationErrors(response)
                     else {
+                        resetForm()
                         showToast('Product added successfully.', "linear-gradient(to right,  #3ab902, #14ac34)")
                         handleFetchProducts(q)
+                        $('#productForm').offcanvas('hide');
                     }
                 }
             });

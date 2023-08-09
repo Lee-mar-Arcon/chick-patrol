@@ -93,14 +93,15 @@ class m_admin extends Model
 	}
 
 	// PRODUCT FUNCTIONS
-	function product_store($name, $category, $price, $description, $filename)
+	function product_store($name, $category, $price, $description, $filename, $inventoryType)
 	{
 		$bind = array(
 			'name' => $name,
 			'category' => $this->m_encrypt->decrypt($category),
 			'price' => $price,
 			'description' => $description,
-			'image' => $filename
+			'image' => $filename,
+			'inventory_type' => $inventoryType,
 		);
 		$this->db->table('products')->insert($bind);
 	}
@@ -126,13 +127,25 @@ class m_admin extends Model
 			$q = '%' . trim($q) . '%';
 
 		$totalRows = $this->db->raw(
-			"SELECT COUNT(p.id) as total FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? AND p.category LIKE ? AND p.available LIKE ?",
+			"SELECT COUNT(p.id) as total
+			FROM products AS p
+			INNER JOIN categories AS c ON p.category = c.id
+			LEFT JOIN product_inventory AS pi ON p.id = pi.product_id
+			WHERE p.name LIKE ? AND p.category LIKE ? AND p.available LIKE ? AND pi.expiration_date > CURRENT_DATE
+			group by p.id",
 			[$q, $category, $availability]
 		)[0]['total'];
 
 		return [
 			'products' => $this->m_encrypt->encrypt($this->db->raw(
-				"SELECT p.*, c.name as category_name FROM products AS p INNER JOIN categories AS c ON p.category = c.id WHERE p.name LIKE ? AND p.category LIKE ? AND p.available LIKE ? order by p.name LIMIT 10 OFFSET ?",
+				"SELECT p.*, c.name AS category_name, SUM(pi.quantity) AS available_quantity
+				FROM products AS p
+				INNER JOIN categories AS c ON p.category = c.id
+				LEFT JOIN product_inventory AS pi ON p.id = pi.product_id
+				WHERE p.name LIKE ? AND p.category LIKE ? AND p.available LIKE ? AND pi.expiration_date > CURRENT_DATE
+				GROUP BY p.id
+				ORDER BY p.name
+				LIMIT 10 OFFSET ?",
 				[$q, $category, $availability, ($page - 1)  * 10]
 			)),
 			'pagination' => [
