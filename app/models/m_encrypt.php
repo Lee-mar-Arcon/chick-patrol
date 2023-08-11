@@ -3,9 +3,9 @@
 // echo '<br>' . openssl_decrypt($encrypted, $this->cipher, $this->key, 0, $iv);
 class m_encrypt extends Model
 {
-   var $key = 'fwl40t39jeogih2';
+  private  $key = 'fwl40t39jeogih2';
    var $cipher = 'aes-256-cbc';
-   var $iv = '23hjnsrroidURBJD';
+   var $iv = '';
 
    // function modify_id_with_offset($cipher, $key, $iv, $item)
    // {

@@ -285,12 +285,6 @@
             handleFetchIngredients(q);
         })
 
-        // add form error
-        // function displayErrors() {
-        //     for (let key in formErrors)
-        //         $('<div class="ms-1 text-danger form-error-message">' + formErrors[key] + '</div>').insertAfter($(`#${key}`))
-        // }
-
         $('#add-ingredient').on('click', function() {
             resetForm()
             $('#ingredientFormLabel').html('ADD NEW INGREDIENT')

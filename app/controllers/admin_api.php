@@ -609,7 +609,7 @@ class admin_api extends Controller
 				->max_length(100, 'must be less than 100 characters only.');
 			$result = $this->check_input();
 			$result != null ? $errors['name'] = $result : '';
-			
+
 			if (count($errors) == 0) {
 				$name = $this->io->post('name');
 				$exists = $this->db->table('ingredients')->where('LOWER(name)', strtolower($name))->get();
@@ -634,6 +634,82 @@ class admin_api extends Controller
 		}
 	}
 
+	function get_product_ingredients()
+	{
+		try {
+			// $this->is_authorized();
+			$productID = $this->m_encrypt->decrypt($_POST['productID']);
+			$productExists = $this->db->table('products')->where('id', $productID)->limit(1)->get_all();
+			if (count($productExists)) {
+				echo json_encode($this->m_encrypt->encrypt($this->db->table('product_ingredients as pi')->select('pi.*,i.*')->inner_join('ingredients as i', 'pi.ingredient_id=i.id')->where('pi.product_id', $productID)->order_by('i.name', 'ACS')->get_all()), true);
+			} else {
+				echo json_encode('does not exists');
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function add_product_ingredient_quantity()
+	{
+		try {
+			// $this->is_authorized();
+			$errors = array();
+			// validate ID
+			$productIngredientID = $_POST['product_ingredient_id'];
+			// id
+			$this->form_validation
+				->name('product_ingredient_id')
+				->required('required');
+			$result = $this->check_input();
+			$result != null ? $errors['product_ingredient_id'] = $result : '';
+			// check if id exists
+			$productIngredientID = $this->m_encrypt->decrypt($productIngredientID);
+			$productIngredientExists = $this->db->table('product_ingredients')->where('id', $productIngredientID)->limit(1)->get_all();
+			if (!count($productIngredientExists)) {
+				$errors['product_ingredient_id'] = 'invalid id';
+			}
+
+			// quantity
+			$this->form_validation
+				->name('quantity')
+				->numeric('invalid quantity')
+				->required('required');
+			$result = $this->check_input();
+			$result != null ? $errors['quantity'] = $result : '';
+
+			// expiration_date
+			$this->form_validation
+				->name('expiration_date')
+				->required('required');
+			$result = $this->check_input();
+			$result != null ? $errors['expiration_date'] = $result : '';
+			// check if input is valid date
+			if (!isset($errors['expiration_date'])) {
+				$dateTime = DateTime::createFromFormat('Y-m-d', $_POST['expiration_date']);
+				if (!($dateTime && $dateTime->format('Y-m-d') === $_POST['expiration_date'])) {
+					$errors['expiration_date'] = 'invalid date';
+					// check if date is later than current date
+				} else if (strtotime($_POST['expiration_date']) < time()) {
+					$errors['expiration_date'] = 'expiration date must be later that today';
+				}
+			}
+
+			if (count($errors) == 0) {
+				$this->db->table('ingredient_inventory')->insert(array(
+					'product_ingredient_id' => $productIngredientID,
+					'quantity' => $_POST['quantity'],
+					'remaining_quantity' => $_POST['quantity'],
+					'expiration_date' => $_POST['expiration_date']
+				));
+				echo json_encode('added');
+			} else {
+				echo json_encode($errors);
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 	// template
 	// function user_index()
 	// {
