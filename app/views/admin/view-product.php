@@ -66,8 +66,8 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                             </div>
                                             <div class="py-1">Quantity: <span><?= $product['quantity'] ?></span></div>
                                             <div class="py-1">Date added: <span><?= date('M d, Y', strtotime($product['date_added'])) ?></span></div>
-                                            <div class="py-1">Last Updated at: : <span><?= date('M d, Y', strtotime($product['updated_at'])) ?></span></div>
-                                            <div class="py-1 pt-3">Description: : </div>
+                                            <div class="py-1">Last Updated at: <span><?= date('M d, Y', strtotime($product['updated_at'])) ?></span></div>
+                                            <div class="py-1 pt-3">Description: </div>
                                             <div class="py-1 text-justify">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $product['description'] ?></div>
                                         </div>
                                     </div>

@@ -58,7 +58,7 @@
                 <div class="container-fluid">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <div>Products</div>
+                            <div>Ingredients</div>
                             <button id="add-ingredient" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light" data-bs-toggle="offcanvas" data-bs-target="#ingredientForm" aria-controls="offcanvasRight">Add</button>
                         </div>
                         <div class="card-body">
@@ -68,11 +68,22 @@
                                 </div>
                             </div>
                             <div class="table-responsive">
+                                <div class="d-flex justify-content-end mb-3">
+                                    <div class="btn-group-vertical row bg-primary rounded text-white text-center fs-6 fw-bold m-0 p-1">
+                                        <div class="d-flex justify-content-center bg-primary text-white w-100 px-3 py-1">Availability</div>
+                                        <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> <span>All</span> <i class="mdi mdi-chevron-down"></i> </button>
+                                        <div class="dropdown-menu">
+                                            <button class="dropdown-item option-availability" data-value="all">All</button>
+                                            <button class="dropdown-item option-availability" data-value="1">Archived</button>
+                                            <button class="dropdown-item option-availability" data-value="0">Unarchived</button>
+                                        </div>
+                                    </div>
+                                </div>
                                 <table class="table table-borderless mb-0">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
-                                            <th style="width: 150px;">Unit of measure</th>
+                                            <th class="text-center" style="width: 230px;">Deleted</th>
                                             <th class="text-center" style="width: 230px;">Action</th>
                                         </tr>
                                     </thead>
@@ -106,20 +117,10 @@
         </div>
         <div method="post" action="" id="form" class="offcanvas-body" enctype="multipart/form-data">
             <input type="hidden" id="id" name="id">
-
             <!-- ingredient name -->
             <div class="mb-3 mt-2">
                 <label for="name" class="form-label">Ingredient name<span class="text-danger"> *</span></label>
                 <input type="text" placeholder="Enter ingredient name" class="form-control" id="name" name="name">
-                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
-            </div>
-
-            <!-- unit_of_measurement -->
-            <div class="mb-3">
-                <label for="unit_of_measurement" class="form-label">unit_of_measurement
-                    <span class="text-danger"> *</span>
-                </label>
-                <input type="number" class="form-control" name="unit_of_measurement" id="unit_of_measurement" step="0.01" placeholder="product price">
                 <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
@@ -248,11 +249,17 @@
                     `
                     <tr id="${ingredients[i]['id']}">
                         <td> ${ingredients[i]['name']} </td>
-                        <td class="text-center"> ${ingredients[i]['unit_of_measurement']} </td>
+                        <td class="text-center"> ${ingredients[i]['deleted_at'] == null ? 
+                            '<span class="badge badge-soft-success rounded-pill px-1 py-1 ms-2"> Not Deleted </span>' : 
+                            ingredients[i]['deleted_at']} 
+                        </td>
                         <td class="text-center">
                             <span data-tippy-content="Delete Permanently" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 delete-product">
                                 <i class="mdi mdi-delete fs-3 text-danger"></i>
                             </span>
+                            <div class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-ingredient" data-bs-toggle="offcanvas" data-bs-target="#ingredientForm" aria-controls="offcanvasRight">
+                                <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
+                            </div>
                         </td>
                     </tr>
                     `
@@ -285,26 +292,43 @@
         // }
 
         $('#add-ingredient').on('click', function() {
-            $('#ingredientFormLabel').html('ADD NEW INGREDIENT')
             resetForm()
+            $('#ingredientFormLabel').html('ADD NEW INGREDIENT')
+            $('#submit-form').attr('data-request-type', 'add')
         })
 
         $(document).on('click', '.edit-ingredient', function() {
-            $('#ingredientFormLabel').html('EDIT INGREDIENT')
             resetForm()
+            $('#ingredientFormLabel').html('EDIT INGREDIENT')
+            $('#name').val($(this).closest('tr').find('td:eq(0)').html())
+            $('#submit-form').attr('data-request-type', 'update')
         });
 
         $('#submit-form').on('click', function() {
-            addNewIngredient()
+            $('#submit-form').attr('data-request-type') == 'add' ?
+                addNewIngredient() :
+                updateIngredient()
         })
 
         function addNewIngredient() {
-            $.post('<?= site_url('admin_api/add-ingredient') ?>', {
+            console.log(123)
+            $.post('<?= site_url('admin_api/ingredient_store') ?>', {
                     name: $('#name').val(),
-                    unit_of_measurement: $('#unit_of_measurement').val()
                 })
                 .then(function(response) {
                     console.log(response)
+                    if (response == 'success') {
+                        resetForm()
+                        showToast('New ingredient added!', "linear-gradient(to right,  #3ab902, #14ac34)");
+                        $('#ingredientForm').offcanvas('hide')
+                        handleFetchIngredients(q)
+                    } else if (response == 'restored') {
+                        resetForm()
+                        showToast('Ingredient restored!', "linear-gradient(to right,  #007d85, #008e97)");
+                        $('#ingredientForm').offcanvas('hide')
+                        handleFetchIngredients(q)
+                    } else if ('already exists')
+                        setValidationErrors(response)
                 })
         }
 
@@ -344,57 +368,56 @@
         function resetForm() {
             clearValidationErrors()
             $('#name').val('')
-            $('#unit_of_measurement').val('')
         }
 
-        $(document).on('click', '.delete-product', function() {
-            let productID = $(this).closest('tr').attr('id')
+        // $(document).on('click', '.delete-product', function() {
+        //     let productID = $(this).closest('tr').attr('id')
 
-            Swal.fire({
-                title: 'Are you sure you want to delete this Product?',
-                text: 'Enter your password',
-                icon: 'error',
-                input: 'password',
-                inputAttributes: {
-                    autocapitalize: 'off'
-                },
-                allowOutsideClick: false,
-                showCancelButton: true,
-                confirmButtonText: 'Yes',
-                cancelButtonText: 'No',
-                preConfirm: function(password) {
-                    return deleteProduct(password, productID);
-                }
-            }).then((result) => {
-                console.log(result.isConfirmed)
-                if (result.isConfirmed) {
+        //     Swal.fire({
+        //         title: 'Are you sure you want to delete this Product?',
+        //         text: 'Enter your password',
+        //         icon: 'error',
+        //         input: 'password',
+        //         inputAttributes: {
+        //             autocapitalize: 'off'
+        //         },
+        //         allowOutsideClick: false,
+        //         showCancelButton: true,
+        //         confirmButtonText: 'Yes',
+        //         cancelButtonText: 'No',
+        //         preConfirm: function(password) {
+        //             return deleteProduct(password, productID);
+        //         }
+        //     }).then((result) => {
+        //         console.log(result.isConfirmed)
+        //         if (result.isConfirmed) {
 
-                }
-            });
-        })
+        //         }
+        //     });
+        // })
 
-        function deleteProduct(password, productID) {
-            return new Promise(function(resolve, reject) {
-                $.post('<?= site_url('admin_api/delete-product') ?>', {
-                        password: password,
-                        productID: productID
-                    })
-                    .then(function(response) {
-                        console.log(response)
-                        if (response == 'wrong password') {
-                            showToast('you entered the wrong password', "linear-gradient(to right, #ac1414, #f12b00)")
-                            resolve(false)
-                        } else if (response == 'invalid ID') {
-                            showToast('ID does not exists', "linear-gradient(to right, #ac1414, #f12b00)")
-                            resolve(false)
-                        } else {
-                            showToast('Product deletion success.', "linear-gradient(to right,  #3ab902, #14ac34)")
-                            handleFetchProducts(q)
-                            resolve(true)
-                        }
-                    })
-            })
-        }
+        // function deleteProduct(password, productID) {
+        //     return new Promise(function(resolve, reject) {
+        //         $.post('<?= site_url('admin_api/delete-product') ?>', {
+        //                 password: password,
+        //                 productID: productID
+        //             })
+        //             .then(function(response) {
+        //                 console.log(response)
+        //                 if (response == 'wrong password') {
+        //                     showToast('you entered the wrong password', "linear-gradient(to right, #ac1414, #f12b00)")
+        //                     resolve(false)
+        //                 } else if (response == 'invalid ID') {
+        //                     showToast('ID does not exists', "linear-gradient(to right, #ac1414, #f12b00)")
+        //                     resolve(false)
+        //                 } else {
+        //                     showToast('Product deletion success.', "linear-gradient(to right,  #3ab902, #14ac34)")
+        //                     handleFetchProducts(q)
+        //                     resolve(true)
+        //                 }
+        //             })
+        //     })
+        // }
     </script>
 </body>
 

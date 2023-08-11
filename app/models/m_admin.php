@@ -286,7 +286,7 @@ class m_admin extends Model
 		$totalRows = $this->db->table('ingredients')->select_count('id', 'total')->like('name', $q)->get()['total'];
 
 		return [
-			'ingredients' => $this->m_encrypt->encrypt($this->db->table('ingredients')->like('name', $q)->get_all()),
+			'ingredients' => $this->m_encrypt->encrypt($this->db->table('ingredients as i')->select('i.*, DATE_FORMAT(i.deleted_at, "%M %e, %Y %l:%i %p") as deleted_at')->like('i.name', $q)->get_all()),
 			'pagination' => [
 				'totalRows' => $totalRows,
 				'totalPage' => ceil($totalRows / 10),

@@ -559,6 +559,81 @@ class admin_api extends Controller
 		}
 	}
 
+	function ingredient_store()
+	{
+		try {
+			$this->is_authorized();
+			$errors = array();
+			// name
+			$this->form_validation
+				->name('name')
+				->required('required.')
+				->min_length(1, 'required.')
+				->max_length(100, 'must be less than 100 characters only.');
+			$result = $this->check_input();
+			$result != null ? $errors['name'] = $result : '';
+			if (count($errors) == 0) {
+				$name = $this->io->post('name');
+				$exists = $this->db->table('ingredients')->where('LOWER(name)', strtolower($name))->get();
+
+				if ($exists) {
+					if ($exists['deleted_at'] == null) {
+						$errors['name'] = 'already exists';
+						echo json_encode($errors);
+					} else {
+						$this->db->table('ingredients')->where('LOWER(name)', strtolower($name))->update(['deleted_at' => null]);
+						echo json_encode('restored');
+					}
+				} else {
+					$this->db->table('ingredients')->insert(['name' => $name]);
+					echo json_encode('success');
+				}
+			} else {
+				echo json_encode($errors);
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function ingredient_update()
+	{
+		try {
+			$this->is_authorized();
+			$errors = array();
+			// name
+			$this->form_validation
+				->name('name')
+				->required('required.')
+				->min_length(1, 'required.')
+				->max_length(100, 'must be less than 100 characters only.');
+			$result = $this->check_input();
+			$result != null ? $errors['name'] = $result : '';
+			
+			if (count($errors) == 0) {
+				$name = $this->io->post('name');
+				$exists = $this->db->table('ingredients')->where('LOWER(name)', strtolower($name))->get();
+
+				if ($exists) {
+					if ($exists['deleted_at'] == null) {
+						$errors['name'] = 'already exists';
+						echo json_encode($errors);
+					} else {
+						$this->db->table('ingredients')->where('LOWER(name)', strtolower($name))->update(['deleted_at' => null]);
+						echo json_encode('restored');
+					}
+				} else {
+					$this->db->table('ingredients')->insert(['name' => $name]);
+					echo json_encode('success');
+				}
+			} else {
+				echo json_encode($errors);
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	// template
 	// function user_index()
 	// {
