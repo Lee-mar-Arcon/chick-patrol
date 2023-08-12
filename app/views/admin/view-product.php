@@ -185,8 +185,8 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 ingredientList += `
                 <tr class="align-middle bg-light col-12 mb-2" data-id="${ingredients[i]['id']}">
                         <td scope="row">${ingredients[i]['name']}</td>
-                        <td>${ingredients[i]['unit_of_measurement']}</td>
-                        <td>${parseFloat(ingredients[i]['quantity']).toFixed(2)}</td>
+                        <td>${parseFloat(ingredients[i]['available_quantity']).toFixed(2)}</td>
+                        <td>${parseFloat(ingredients[i]['need_quantity']).toFixed(2)}</td>
                         <td>${ingredients[i]['unit_of_measurement']}</td>
                         <td class="text-center">
                             <span data-tippy-content="Add quantity" class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded add-ingredient-quantity-button" data-bs-toggle="offcanvas" data-bs-target="#addIngredientQuantity" aria-controls="offcanvasRight">

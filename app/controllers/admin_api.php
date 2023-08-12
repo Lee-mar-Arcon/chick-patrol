@@ -638,12 +638,27 @@ class admin_api extends Controller
 	{
 		try {
 			// $this->is_authorized();
-			$productID = $this->m_encrypt->decrypt($_POST['productID']);
-			$productExists = $this->db->table('products')->where('id', $productID)->limit(1)->get_all();
-			if (count($productExists)) {
-				echo json_encode($this->m_encrypt->encrypt($this->db->table('product_ingredients as pi')->select('pi.*,i.*')->inner_join('ingredients as i', 'pi.ingredient_id=i.id')->where('pi.product_id', $productID)->order_by('i.name', 'ACS')->get_all()), true);
-			} else {
+			if (!isset($_POST['productID']))
 				echo json_encode('does not exists');
+			else {
+				$productID = $this->m_encrypt->decrypt($_POST['productID']);
+				// echo json_encode($productID);
+				$productExists = $this->db->table('products')->where('id', $productID)->limit(1)->get_all();
+				if (count($productExists)) {
+					$productIngerdients = $this->m_encrypt->encrypt($this->db->raw(
+						'SELECT pi.id, i.name, pi.unit_of_measurement, pi.need_quantity, SUM(ii.remaining_quantity) AS available_quantity
+						FROM product_ingredients AS pi
+						INNER JOIN ingredients as i ON pi.ingredient_id=i.id
+						LEFT JOIN ingredient_inventory AS ii ON pi.id = ii.product_ingredient_id
+						WHERE pi.product_id =?
+						GROUP BY pi.id ORDER BY i.name',
+						array($productID)
+					));
+
+					echo json_encode($productIngerdients, true);
+				} else {
+					echo json_encode('does not exists');
+				}
 			}
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -669,7 +684,6 @@ class admin_api extends Controller
 			if (!count($productIngredientExists)) {
 				$errors['product_ingredient_id'] = 'invalid id';
 			}
-
 			// quantity
 			$this->form_validation
 				->name('quantity')
@@ -696,13 +710,13 @@ class admin_api extends Controller
 			}
 
 			if (count($errors) == 0) {
-				$this->db->table('ingredient_inventory')->insert(array(
+				echo json_encode($this->db->table('ingredient_inventory')->insert(array(
 					'product_ingredient_id' => $productIngredientID,
 					'quantity' => $_POST['quantity'],
 					'remaining_quantity' => $_POST['quantity'],
 					'expiration_date' => $_POST['expiration_date']
-				));
-				echo json_encode('added');
+				)));
+				// echo json_encode('added');
 			} else {
 				echo json_encode($errors);
 			}
