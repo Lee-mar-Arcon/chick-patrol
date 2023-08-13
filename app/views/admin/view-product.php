@@ -23,7 +23,8 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
     <!-- Sweet alert -->
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
-
+    <!-- select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 </head>
 
@@ -91,7 +92,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <?php include 'components/right-navigation.php' ?>
 
     <!-- Add ingredient quantity offcanvas -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="addIngredientQuantity" aria-labelledby="addIngredientQuantityLabel">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="addIngredientQuantityForm" aria-labelledby="addIngredientQuantityLabel">
         <div class="offcanvas-header">
             <h5 class="fs-3 ms-2" id="addIngredientQuantityLabel">Add Ingredient Quantity</h5>
             <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -125,6 +126,43 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         </div>
     </div>
 
+    <!-- Add product ingredient offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="addProductIngredientForm" aria-labelledby="addProductIngredientLabel">
+        <div class="offcanvas-header">
+            <h5 class="fs-3 ms-2" id="addProductIngredientLabel">Add product ingredient</h5>
+            <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div method="post" action="" id="form" class="offcanvas-body" enctype="multipart/form-data">
+            <input type="hidden" id="product_id" name="product_id">
+
+            <!-- ingredient_name -->
+            <div class="mb-3 mt-2">
+                <label for="ingredient_name" class="form-label">Ingredient name<span class="text-danger"> *</span></label>
+                <select class="form-select" id="ingredient_name" name="ingredient_name">
+                </select>
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
+            </div>
+
+            <!-- unit_of_measurement -->
+            <div class="mb-3 mt-2">
+                <label for="unit_of_measurement" class="form-label">unit of measurement<span class="text-danger"> *</span></label>
+                <input type="text" placeholder="unit of measurement" class="form-control" id="unit_of_measurement" name="unit_of_measurement">
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
+            </div>
+
+            <!-- need_quantity -->
+            <div class="mb-3 mt-2">
+                <label for="need_quantity" class="form-label">needed quantity<span class="text-danger"> *</span></label>
+                <input type="text" placeholder="need quantity" class="form-control" id="need_quantity" name="need_quantity">
+                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
+            </div>
+
+            <div class="text-end mt-3">
+                <button id="submit-add-product-ingredient" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Vendor -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -140,6 +178,8 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <!-- tippy js -->
     <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.min.js"></script>
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
+    <!-- select 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         const product = <?= json_encode($product) ?>;
 
@@ -150,6 +190,45 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         $(document).ready(function() {
             if (product.inventory_type == 'perishable') getProductIngredients()
             else ingredientNotNeededMessage()
+            initSelect2()
+        })
+
+        function initSelect2() {
+            ingredientSelect = $('#ingredient_name')
+            ingredientSelect.select2({
+                theme: "classic",
+                placeholder: 'search ingredient',
+                dropdownParent: $('#addProductIngredientForm'),
+                ajax: {
+                    url: '<?= site_url('admin_api/search-ingredients') ?>',
+                    type: 'POST',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            q: params.term,
+                            productID: product.id
+                        }
+                    },
+                    processResults: function(data) {
+                        console.log(data)
+                        return {
+                            results: data
+                        }
+                    }
+                }
+            });
+        }
+
+        $(document).on('click', '#add-product-ingredient', function() {
+            $('#product_id').val(product.id)
+        })
+
+        $(document).on('click', '#submit-add-product-ingredient', function() {
+            console.log($('#product_id').val())
+            console.log($('#ingredient_name').val())
+            console.log($('#need_quantity').val())
+            console.log($('#unit_of_measurement').val())
         })
 
         function showLoader(element) {
@@ -161,8 +240,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         }
 
         function ingredientNotNeededMessage() {
-            $('.ingredient-container').html('')
-            $('.ingredient-container').append(`
+            $('.ingredient-container').html(`
                 <div class="py-5 my-5 fw-bold h2 text-muted text-center">
                     This product does not need any ingredients.
                 </div>
@@ -189,7 +267,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                         <td>${parseFloat(ingredients[i]['need_quantity']).toFixed(2)}</td>
                         <td>${ingredients[i]['unit_of_measurement']}</td>
                         <td class="text-center">
-                            <span data-tippy-content="Add quantity" class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded add-ingredient-quantity-button" data-bs-toggle="offcanvas" data-bs-target="#addIngredientQuantity" aria-controls="offcanvasRight">
+                            <span data-tippy-content="Add quantity" class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded add-ingredient-quantity-button" data-bs-toggle="offcanvas" data-bs-target="#addIngredientQuantityForm" aria-controls="offcanvasRight">
                                 <i class="mdi mdi-plus-thick fs-3 text-info"></i>
                             </span>
                             <span class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded">
@@ -199,6 +277,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                     </tr>`
             }
             $('.ingredient-container').append(`
+            <div class="m-2 d-flex justify-content-end">
+                <button id="add-product-ingredient" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light" data-bs-toggle="offcanvas" data-bs-target="#addProductIngredientForm" aria-controls="offcanvasRight">add ingredient</button>
+            </div>
             <div class="table-responsive">
                 <table class="table table-transparent table-borderless">
                     <thead>
@@ -206,7 +287,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                             <th scope="col">Name</th>
                             <th scope="col" style="width: 150px;">Available Quantity</th>
                             <th scope="col" style="width: 100px;">Need QTY</th>
-                            <th scope="col" style="width: 100px;">Unit</th>
+                            <th scope="col" style="width: 50px;">Unit</th>
                             <th scope="col" class="text-center" style="width: 150px;">Action</th>
                         </tr>
                     </thead>
@@ -216,7 +297,6 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             `)
             tippy('[data-tippy-content]');
         }
-
 
         $(document).on('click', '.add-ingredient-quantity-button', function() {
             $('#product_ingredient_id').val($(this).closest('tr').attr('data-id'))
@@ -237,7 +317,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 if (typeof response === 'object')
                     displayFormErrors(response)
                 else {
-                    $('#addIngredientQuantity').offcanvas('hide')
+                    $('#addIngredientQuantityForm').offcanvas('hide')
                     resetForm(['product_ingredient_id', 'quantity', 'expiration_date', 'product_ingredient_name'])
                 }
 

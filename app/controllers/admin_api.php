@@ -724,6 +724,36 @@ class admin_api extends Controller
 			echo $e->getMessage();
 		}
 	}
+
+	function search_ingredients()
+	{
+		try {
+			// $this->is_authorized();
+			// if required input is not sent
+			if (!isset($_POST['productID']) || !isset($_POST['q']))
+				echo json_encode(array());
+			// check product id if valid
+			else if (isset($_POST['productID'])) {
+				$exists = $this->db->table('products')->where('id', $this->m_encrypt->decrypt($_POST['productID']))->limit(1)->get_all();
+				if (!count($exists))
+					echo json_encode(array());
+				else {
+					$productID = $this->m_encrypt->decrypt($_POST['productID']);
+					$currentProductIngredient = $this->db->table('product_ingredients')->select('ingredient_id')->where('product_id', $productID)->get_all();
+					$currentProductIngredient =
+						array_map(function ($item) {
+							return $item['ingredient_id'];
+						}, $currentProductIngredient);
+					echo json_encode($this->db->table('ingredients')->select('name as text, id')->not_in('id', $currentProductIngredient)->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
+				}
+			} else {
+				$q = '%' . $_POST['q'] . '%';
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	// template
 	// function user_index()
 	// {
