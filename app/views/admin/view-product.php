@@ -25,6 +25,8 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet" type="text/css" />
     <!-- select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- toastify -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
 </head>
 
@@ -101,23 +103,20 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             <input type="hidden" id="product_ingredient_id" name="product_ingredient_id">
             <!-- ingredient name -->
             <div class="mb-3 mt-2">
-                <label for="product_ingredient_name" class="form-label">Ingredient name<span class="text-danger"> *</span></label>
+                <label for="product_ingredient_name" class="form-label">Ingredient name</label>
                 <input readonly type="text" class="form-control" id="product_ingredient_name" name="product_ingredient_name">
-                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- quantity -->
             <div class="mb-3 mt-2">
                 <label for="quantity" class="form-label">Quantity<span class="text-danger"> *</span></label>
                 <input type="text" placeholder="quantity" class="form-control" id="quantity" name="quantity">
-                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- expiration_date -->
             <div class="mb-3 mt-2">
                 <label for="expiration_date" class="form-label">Expiration date<span class="text-danger"> *</span></label>
                 <input type="date" class="form-control" id="expiration_date" name="expiration_date">
-                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <div class="text-end mt-3">
@@ -135,26 +134,23 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         <div method="post" action="" id="form" class="offcanvas-body" enctype="multipart/form-data">
             <input type="hidden" id="product_id" name="product_id">
 
-            <!-- ingredient_name -->
+            <!-- ingredient_id -->
             <div class="mb-3 mt-2">
-                <label for="ingredient_name" class="form-label">Ingredient name<span class="text-danger"> *</span></label>
-                <select class="form-select" id="ingredient_name" name="ingredient_name">
+                <label for="ingredient_id" class="form-label">Ingredient name<span class="text-danger"> *</span></label>
+                <select class="form-select" id="ingredient_id" name="ingredient_id">
                 </select>
-                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- unit_of_measurement -->
             <div class="mb-3 mt-2">
                 <label for="unit_of_measurement" class="form-label">unit of measurement<span class="text-danger"> *</span></label>
                 <input type="text" placeholder="unit of measurement" class="form-control" id="unit_of_measurement" name="unit_of_measurement">
-                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <!-- need_quantity -->
             <div class="mb-3 mt-2">
                 <label for="need_quantity" class="form-label">needed quantity<span class="text-danger"> *</span></label>
                 <input type="text" placeholder="need quantity" class="form-control" id="need_quantity" name="need_quantity">
-                <div class="text-danger fs-6 text-start ps-1 validation-error">&nbsp;</div>
             </div>
 
             <div class="text-end mt-3">
@@ -180,9 +176,10 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.js"></script>
     <!-- select 2 -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- react-toastify -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
         const product = <?= json_encode($product) ?>;
-
         (function() {
             showLoader($('.ingredient-container'))
         })();
@@ -194,7 +191,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         })
 
         function initSelect2() {
-            ingredientSelect = $('#ingredient_name')
+            ingredientSelect = $('#ingredient_id')
             ingredientSelect.select2({
                 theme: "classic",
                 placeholder: 'search ingredient',
@@ -221,15 +218,60 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         }
 
         $(document).on('click', '#add-product-ingredient', function() {
+            clearValidationErrors()
             $('#product_id').val(product.id)
         })
 
         $(document).on('click', '#submit-add-product-ingredient', function() {
-            console.log($('#product_id').val())
-            console.log($('#ingredient_name').val())
-            console.log($('#need_quantity').val())
-            console.log($('#unit_of_measurement').val())
+            let submitAddProductIngredientElement = $(this)
+            submitAddProductIngredientElement.attr('disabled', true)
+
+            $.post('<?= site_url('admin_api/add_product_ingredient') ?>', {
+                product_id: $('#product_id').val(),
+                ingredient_id: $('#ingredient_id').val(),
+                need_quantity: $('#need_quantity').val(),
+                unit_of_measurement: $('#unit_of_measurement').val(),
+            }).then(function(response) {
+                if (typeof response === 'object') {
+                    displayFormErrors(response)
+                } else {
+                    getProductIngredients()
+                    resetForm(['product_id', 'ingredient_id', 'need_quantity', 'unit_of_measurement'])
+                    $('#addProductIngredientForm').offcanvas('hide')
+                    showToast('product ingredient added', 'success')
+                }
+                submitAddProductIngredientElement.attr('disabled', false)
+            })
         })
+
+        function clearValidationErrors() {
+            $('.form-error-message').html('&nbsp;')
+        }
+
+        function showToast(message, type, duration = 1500) {
+            backgroundColor = '';
+            switch (type) {
+                case 'success':
+                    backgroundColor = 'linear-gradient(to right,  #3ab902, #14ac34)'
+                    break;
+                case 'info':
+                    backgroundColor = 'linear-gradient(to right,  #007d85, #008e97)'
+                    break;
+            }
+
+            Toastify({
+                text: message,
+                duration: duration,
+                newWindow: true,
+                close: true,
+                gravity: "top",
+                position: "right",
+                stopOnFocus: true,
+                style: {
+                    background: backgroundColor,
+                },
+            }).showToast();
+        }
 
         function showLoader(element) {
             element.html(`
@@ -299,6 +341,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         }
 
         $(document).on('click', '.add-ingredient-quantity-button', function() {
+            clearValidationErrors()
             $('#product_ingredient_id').val($(this).closest('tr').attr('data-id'))
             $('#product_ingredient_name').val($(this).closest('tr').children(':first-child').text())
         })
@@ -327,10 +370,11 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
 
         function displayFormErrors(formErrors) {
             for (let key in formErrors) {
-                if (!$(`#${key}`).next().hasClass('form-error-message'))
-                    $('<div class="ms-1 text-danger form-error-message">' + formErrors[key] + '</div>').insertAfter($(`#${key}`))
+                console.log($(`#${key}`).parent().children(':last-child').html())
+                if (!$(`#${key}`).parent().children(':last-child').hasClass('form-error-message'))
+                    $(`#${key}`).parent().append('<div class="ms-1 text-danger form-error-message">' + formErrors[key] + '</div>')
                 else
-                    $(`#${key}`).next().html(formErrors[key])
+                    $(`#${key}`).parent().children(':last-child').html(formErrors[key])
             }
         }
 

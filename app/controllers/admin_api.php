@@ -744,7 +744,8 @@ class admin_api extends Controller
 						array_map(function ($item) {
 							return $item['ingredient_id'];
 						}, $currentProductIngredient);
-					echo json_encode($this->db->table('ingredients')->select('name as text, id')->not_in('id', $currentProductIngredient)->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
+					$ingredients = $this->m_encrypt->encrypt($this->db->table('ingredients')->select('name as text, id')->not_in('id', $currentProductIngredient)->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
+					echo json_encode($ingredients);
 				}
 			} else {
 				$q = '%' . $_POST['q'] . '%';
@@ -754,6 +755,62 @@ class admin_api extends Controller
 		}
 	}
 
+	function add_product_ingredient()
+	{
+		try {
+			$this->is_authorized();
+			$errors = array();
+			// product_id
+			$this->form_validation
+				->name('product_id')
+				->required('required');
+			$result = $this->check_input();
+			$result != null ? $errors['product_id'] = $result : '';
+			// if product is exists
+			if (!isset($errors['product_id']))
+				if (count($this->db->table('products')->where('id', $this->m_encrypt->decrypt($_POST['product_id']))->limit(1)->get_all()) == 0)
+					$errors['product_id'] = 'invalid id';
+
+			// ingredient_id
+			$this->form_validation
+				->name('ingredient_id')
+				->required('required');
+			$result = $this->check_input();
+			$result != null ? $errors['ingredient_id'] = $result : '';
+			// if ingredient is exists
+			if (!isset($errors['ingredient_id']))
+				if (count($this->db->table('ingredients')->where('id', $this->m_encrypt->decrypt($_POST['ingredient_id']))->limit(1)->get_all()) == 0)
+					$errors['ingredient_id'] = 'invalid id';
+
+			// need_quantity
+			$this->form_validation
+				->name('need_quantity')
+				->required('required')
+				->numeric('invalid quantity');
+			$result = $this->check_input();
+			$result != null ? $errors['need_quantity'] = $result : '';
+
+			// unit_of_measurement
+			$this->form_validation
+				->name('unit_of_measurement')
+				->required('required')
+				->min_length(1, 'must be 1-10 characters')
+				->max_length(10, 'must be 1-10 characters');
+			$result = $this->check_input();
+			$result != null ? $errors['unit_of_measurement'] = $result : '';
+
+			if (count($errors) > 0)
+				echo json_encode($errors);
+			else {
+				$_POST['ingredient_id'] = $this->m_encrypt->decrypt($_POST['ingredient_id']);
+				$_POST['product_id'] = $this->m_encrypt->decrypt($_POST['product_id']);
+				$this->db->table('product_ingredients')->insert($_POST);
+				echo json_encode('success');
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 	// template
 	// function user_index()
 	// {
