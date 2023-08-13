@@ -493,6 +493,7 @@ class admin extends Controller
 			GROUP BY p.id",
 			array($id)
 		))[0];
+		echo var_dump($product);
 		$this->call->view('admin/view-product', [
 			'pageTitle' => 'Admin | View Product',
 			'breadCrumb' => 'View Product',

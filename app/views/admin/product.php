@@ -410,7 +410,7 @@
             const productLink = '<?= BASE_URL ?>/public/images/products/cropped/'
             const viewProductLink = '<?= site_url('admin/view-product') . '/' ?>'
             for (let i = 0; i < products.length; i++) {
-                console.log(products[i])
+                console.log(products[i]['id'])
                 $('tbody').append(
                     `
                     <tr id="${products[i]['id']}">
@@ -426,7 +426,7 @@
                                 '<span class="text-start badge badge-soft-warning rounded-pill px-1 py-1 ms-2">perishable</span>'} 
                         </td>
                         <td class="text-center"> 
-                            ${products[i]['available_quantity']} 
+                            ${products[i]['available_quantity'] == null ? 0 : products[i]['available_quantity']} 
                         </td>
                         <td> ${products[i]['date_added']} </td>
                         <td> ${products[i]['updated_at']} </td>

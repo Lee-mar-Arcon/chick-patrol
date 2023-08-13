@@ -486,7 +486,7 @@ class admin_api extends Controller
 						$lastProductId = $this->db->last_id();
 						$data = array(
 							'product_id' => $lastProductId,
-							'quantity' => $this->io->post('inventory_type') == 'durable' ? $this->io->post('quantity') : 0,
+							'quantity' => $this->io->post('inventory_type') == 'durable' ? $this->io->post('quantity') : null,
 							'expiration_date' => $this->io->post('inventory_type') == 'durable' ? $this->io->post('expiration_date') : null
 						);
 						// add expiration date if product is durable
@@ -642,16 +642,22 @@ class admin_api extends Controller
 				echo json_encode('does not exists');
 			else {
 				$productID = $this->m_encrypt->decrypt($_POST['productID']);
-				// echo json_encode($productID);
 				$productExists = $this->db->table('products')->where('id', $productID)->limit(1)->get_all();
 				if (count($productExists)) {
 					$productIngerdients = $this->m_encrypt->encrypt($this->db->raw(
-						'SELECT pi.id, i.name, pi.unit_of_measurement, pi.need_quantity, IF(SUM(ii.remaining_quantity) IS Null, 0, SUM(ii.remaining_quantity)) AS available_quantity
-						FROM product_ingredients AS pi
-						INNER JOIN ingredients as i ON pi.ingredient_id=i.id
+						'SELECT 
+							i.name,
+							pi.unit_of_measurement,
+							FLOOR((IF(SUM(ii.remaining_quantity) IS NULL, 0, SUM(ii.remaining_quantity)) / pi.need_quantity)) AS can_make,
+							pi.id,
+							pi.need_quantity,
+							SUM(IF(ii.remaining_quantity IS NULL, 0, ii.remaining_quantity)) AS available_quantity
+						FROM products AS p 
+						INNER JOIN product_ingredients AS pi ON p.id=p.id
+						INNER JOIN ingredients AS i ON pi.ingredient_id=i.id
 						LEFT JOIN ingredient_inventory AS ii ON pi.id = ii.product_ingredient_id
-						WHERE pi.product_id =?
-						GROUP BY pi.id ORDER BY i.name',
+						WHERE pi.product_id = ? AND (ii.expiration_date > NOW() || ii.expiration_date IS NULL)
+						GROUP BY ii.product_ingredient_id, pi.id',
 						array($productID)
 					));
 
@@ -744,11 +750,15 @@ class admin_api extends Controller
 						array_map(function ($item) {
 							return $item['ingredient_id'];
 						}, $currentProductIngredient);
-					$ingredients = $this->m_encrypt->encrypt($this->db->table('ingredients')->select('name as text, id')->not_in('id', $currentProductIngredient)->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
+					if (count($currentProductIngredient) > 0)
+						$ingredients = $this->m_encrypt->encrypt($this->db->table('ingredients')->select('name as text, id')->where_null('deleted_at')->not_in('id', $currentProductIngredient)->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
+					else
+						$ingredients = $this->m_encrypt->encrypt($this->db->table('ingredients')->select('name as text, id')->where_null('deleted_at')->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
 					echo json_encode($ingredients);
 				}
 			} else {
 				$q = '%' . $_POST['q'] . '%';
+				echo json_encode(1);
 			}
 		} catch (Exception $e) {
 			echo $e->getMessage();

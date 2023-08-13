@@ -303,8 +303,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             let ingredientList = ''
             for (let i = 0; i < ingredients.length; i++) {
                 ingredientList += `
-                <tr class="align-middle bg-light col-12 mb-2" data-id="${ingredients[i]['id']}">
+                <tr class="align-middle bg-light col-12 mb-2 ${ingredients[i]['can_make'] == 0 ? 'text-danger': ''}" data-id="${ingredients[i]['id']}">
                         <td scope="row">${ingredients[i]['name']}</td>
+                        <td>${parseFloat(ingredients[i]['can_make'])}</td>
                         <td>${parseFloat(ingredients[i]['available_quantity']).toFixed(2)}</td>
                         <td>${parseFloat(ingredients[i]['need_quantity']).toFixed(2)}</td>
                         <td>${ingredients[i]['unit_of_measurement']}</td>
@@ -318,15 +319,21 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                         </td>
                     </tr>`
             }
-            $('.ingredient-container').append(`
+
+            $('.ingredient-container').prepend(
+                `
             <div class="m-2 d-flex justify-content-end">
                 <button id="add-product-ingredient" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light" data-bs-toggle="offcanvas" data-bs-target="#addProductIngredientForm" aria-controls="offcanvasRight">add ingredient</button>
             </div>
+            `
+            )
+            $('.ingredient-container').append(`
             <div class="table-responsive">
                 <table class="table table-transparent table-borderless">
                     <thead>
                         <tr>
                             <th scope="col">Name</th>
+                            <th scope="col" style="width: 150px;">Can make with</th>
                             <th scope="col" style="width: 150px;">Available Quantity</th>
                             <th scope="col" style="width: 100px;">Need QTY</th>
                             <th scope="col" style="width: 50px;">Unit</th>
@@ -361,6 +368,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                     displayFormErrors(response)
                 else {
                     $('#addIngredientQuantityForm').offcanvas('hide')
+                    getProductIngredients()
                     resetForm(['product_ingredient_id', 'quantity', 'expiration_date', 'product_ingredient_name'])
                 }
 
