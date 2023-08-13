@@ -41,42 +41,49 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         <div class="content-page">
             <div class="content">
                 <div class="container-fluid">
-                    <div class="row">
+                    <div class="row card">
+                        <div class="card-header">
+                            <div class="display-6 fw-bold"><?= $product['name'] ?></div>
+                            <div class="text-muted fs-4">(Ingredients)</div>
+                        </div>
                         <div class="col-sm-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <div class="display-6 fw-bold"><?= $product['name'] ?></div>
-                                    <div class="text-muted fs-4">(Ingredients)</div>
-                                </div>
-                                <div class="card-body row flex-sm-row-reverse">
-                                    <div class="col-md-3">
-                                        <div class="bg-light shadow rounded py-3 px-3 my-2 mx-0">
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <div class="h4 text-center"><?= $product['name'] ?></div>
-                                                <img src="<?= BASE_URL ?>public/images/products/cropped/<?= $product['image'] ?>" alt="" id="previewImage" height="150" width="150" class="img-fluid align-self-center rounded my-2 mb-2">
-                                            </div>
-                                            <div class="py-1">Price: ₱ <span><?= number_format($product['price'], 2) ?></span></div>
-                                            <div class="py-1">Category: <span><?= $product['category_name'] ?></span></div>
-                                            <div class="py-1">Inventory Type:
-                                                <span><?= $product['inventory_type'] == 'perishable' ?
-                                                            '<span class="text-start badge badge-soft-warning rounded-pill px-1 py-1 ms-2">perishable</span>' :
-                                                            '<span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">durable</span>'
-                                                        ?>
-                                                </span>
-                                            </div>
-                                            <div class="py-1">Quantity: <span><?= $product['quantity'] ?></span></div>
-                                            <div class="py-1">Date added: <span><?= date('M d, Y', strtotime($product['date_added'])) ?></span></div>
-                                            <div class="py-1">Last Updated at: <span><?= date('M d, Y', strtotime($product['updated_at'])) ?></span></div>
-                                            <div class="py-1 pt-3">Description: </div>
-                                            <div class="py-1 text-justify">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $product['description'] ?></div>
+                            <div class="card-body row flex-sm-row-reverse">
+                                <div class="col-md-3">
+                                    <div class="bg-light shadow rounded py-3 px-3 my-2 mx-0">
+                                        <div class="d-flex flex-column justify-content-center">
+                                            <div class="h4 text-center"><?= $product['name'] ?></div>
+                                            <img src="<?= BASE_URL ?>public/images/products/cropped/<?= $product['image'] ?>" alt="" id="previewImage" height="150" width="150" class="img-fluid align-self-center rounded my-2 mb-2">
                                         </div>
+                                        <div class="py-1">Price: ₱ <span><?= number_format($product['price'], 2) ?></span></div>
+                                        <div class="py-1">Category: <span><?= $product['category_name'] ?></span></div>
+                                        <div class="py-1">Inventory Type:
+                                            <span><?= $product['inventory_type'] == 'perishable' ?
+                                                        '<span class="text-start badge badge-soft-warning rounded-pill px-1 py-1 ms-2">perishable</span>' :
+                                                        '<span class="text-start badge badge-soft-primary rounded-pill px-1 py-1 ms-2">durable</span>'
+                                                    ?>
+                                            </span>
+                                        </div>
+                                        <div class="py-1">Quantity: <span id="product_available_quantity"><?= $product['quantity'] ?></span></div>
+                                        <div class="py-1">Date added: <span><?= date('M d, Y', strtotime($product['date_added'])) ?></span></div>
+                                        <div class="py-1">Last Updated at: <span><?= date('M d, Y', strtotime($product['updated_at'])) ?></span></div>
+                                        <div class="py-1 pt-3">Description: </div>
+                                        <div class="py-1 text-justify">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $product['description'] ?></div>
                                     </div>
-                                    <div class="col-md-9 ">
-                                        <div class="shadow-sm rounded py-3 px-3 my-2 ingredient-container">
+                                </div>
+                                <div class="col-md-9 ">
+                                    <div class="shadow-sm rounded py-3 px-3 my-2 ingredient-container">
 
-                                        </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="col-12 bg-white pb-5">
+                            <div class="card-header">
+                                <div class="fs-3 fw-bold">Inventory</div>
+                                <div id="ingredient_name_header" class="text-muted fs-4"></div>
+                            </div>
+                            <div id="ingredient_inventory" class="p-2">
+                                asd
                             </div>
                         </div>
                     </div>
@@ -185,9 +192,13 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         })();
 
         $(document).ready(function() {
-            if (product.inventory_type == 'perishable') getProductIngredients()
-            else ingredientNotNeededMessage()
+            if (product.inventory_type == 'perishable') {
+                getProductIngredients()
+            } else {
+                ingredientNotNeededMessage()
+            }
             initSelect2()
+            getProductAvailableQuantity()
         })
 
         function initSelect2() {
@@ -208,7 +219,6 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                         }
                     },
                     processResults: function(data) {
-                        console.log(data)
                         return {
                             results: data
                         }
@@ -239,6 +249,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                     resetForm(['product_id', 'ingredient_id', 'need_quantity', 'unit_of_measurement'])
                     $('#addProductIngredientForm').offcanvas('hide')
                     showToast('product ingredient added', 'success')
+                    getProductAvailableQuantity()
                 }
                 submitAddProductIngredientElement.attr('disabled', false)
             })
@@ -313,8 +324,8 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                             <span data-tippy-content="Add quantity" class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded add-ingredient-quantity-button" data-bs-toggle="offcanvas" data-bs-target="#addIngredientQuantityForm" aria-controls="offcanvasRight">
                                 <i class="mdi mdi-plus-thick fs-3 text-info"></i>
                             </span>
-                            <span class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded">
-                                <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
+                            <span data-tippy-content="view inventory list" class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded view_ingredient_inventory_list">
+                                <i class="mdi mdi-eye fs-3 text-info"></i>
                             </span>
                         </td>
                     </tr>`
@@ -370,6 +381,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                     $('#addIngredientQuantityForm').offcanvas('hide')
                     getProductIngredients()
                     resetForm(['product_ingredient_id', 'quantity', 'expiration_date', 'product_ingredient_name'])
+                    getProductAvailableQuantity()
                 }
 
                 $('#submit-add-ingredient-quantity').attr('disabled', false)
@@ -378,7 +390,6 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
 
         function displayFormErrors(formErrors) {
             for (let key in formErrors) {
-                console.log($(`#${key}`).parent().children(':last-child').html())
                 if (!$(`#${key}`).parent().children(':last-child').hasClass('form-error-message'))
                     $(`#${key}`).parent().append('<div class="ms-1 text-danger form-error-message">' + formErrors[key] + '</div>')
                 else
@@ -390,6 +401,31 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             for (let i = 0; i < InputIDs.length; i++) {
                 $(`#${InputIDs[i]}`).val(null)
             }
+        }
+
+        function getProductAvailableQuantity() {
+            $.post('<?= site_url('admin_api/get_product_available_quantity') ?>', {
+                product_id: product.id
+            }).then(function(response) {
+                $('#product_available_quantity').html(`${parseFloat(response).toFixed(2)}`)
+            })
+        }
+
+        $(document).on('click', '.view_ingredient_inventory_list', function() {
+            const ingredient_id = $(this).closest('tr').attr('data-id')
+            $.post('<?= site_url(('admin_api/get_ingredient_inventory')) ?>', {
+                ingredient_id: ingredient_id,
+                product_id: product.id
+            }).then(function(response) {
+                console.log(response)
+            })
+            scrollTo($("#ingredient_name_header"))
+        });
+
+        function scrollTo(element) {
+            $("html, body").animate({
+                scrollTop: element.prev().offset().top
+            }, 50);
         }
     </script>
 </body>

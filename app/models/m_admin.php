@@ -139,38 +139,26 @@ class m_admin extends Model
 		return [
 			'products' => $this->m_encrypt->encrypt($this->db->raw(
 				"SELECT 
-					DISTINCT p.id,
-					p.name,
-					p.price,
+					p.*,
 					c.name AS category_name,
-					p.inventory_type,
-					p.date_added,
-					p.updated_at,
-					p.selling,
-					p.image,
-					IF(p.inventory_type = 'durable', 
-						p_inventory.remaining_quantity, 
+					IF(p.inventory_type = 'durable',
+						(SELECT SUM(inner_pi.remaining_quantity) FROM product_inventory AS inner_pi WHERE inner_pi.product_id = p.id AND inner_pi.expiration_date > NOW()),
 						(
-								SELECT MIN(can_make) 
-								FROM (
+							SELECT MIN(can_make)
+							FROM (
 									SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
-									FROM products AS inner_p
-									INNER JOIN product_ingredients AS pi ON inner_p.id = pi.product_id
+									FROM product_ingredients AS pi
 									INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
 									LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
-									WHERE inner_p.id = p.id AND (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+									WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+										AND pi.product_id = p.id
 									GROUP BY pi.id
-								) AS available_quantity
+							) AS available_quantity
 						)
-					)
-					AS available_quantity
-				FROM products AS p 
-				INNER JOIN categories AS c ON p.category=c.id
-				INNER JOIN product_inventory AS p_inventory ON p.id=p_inventory.product_id
-				LEFT JOIN product_ingredients AS p_ingredients ON p_ingredients.product_id = p.id
-				LEFT JOIN ingredient_inventory AS ii ON p_ingredients.id = ii.product_ingredient_id
-				WHERE p.removed = 0 AND p.name LIKE ? AND p.category LIKE ? AND p.selling LIKE ? AND (p_inventory.expiration_date > CURRENT_DATE OR p.inventory_type = 'perishable')
-				GROUP BY p.id, p_inventory.remaining_quantity
+					) AS available_quantity
+				FROM products AS p
+				INNER JOIN categories AS c ON p.category = c.id		  
+				WHERE p.removed = 0 AND p.name LIKE ? AND p.category LIKE ? AND p.selling LIKE ?
 				ORDER BY p.name
 				LIMIT 10 OFFSET ?",
 				[$q, $category, $availability, ($page - 1)  * 10]

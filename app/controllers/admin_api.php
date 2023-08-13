@@ -637,7 +637,7 @@ class admin_api extends Controller
 	function get_product_ingredients()
 	{
 		try {
-			// $this->is_authorized();
+			$this->is_authorized();
 			if (!isset($_POST['productID']))
 				echo json_encode('does not exists');
 			else {
@@ -674,7 +674,7 @@ class admin_api extends Controller
 	function add_product_ingredient_quantity()
 	{
 		try {
-			// $this->is_authorized();
+			$this->is_authorized();
 			$errors = array();
 			// validate ID
 			$productIngredientID = $_POST['product_ingredient_id'];
@@ -734,7 +734,7 @@ class admin_api extends Controller
 	function search_ingredients()
 	{
 		try {
-			// $this->is_authorized();
+			$this->is_authorized();
 			// if required input is not sent
 			if (!isset($_POST['productID']) || !isset($_POST['q']))
 				echo json_encode(array());
@@ -757,7 +757,6 @@ class admin_api extends Controller
 					echo json_encode($ingredients);
 				}
 			} else {
-				$q = '%' . $_POST['q'] . '%';
 				echo json_encode(1);
 			}
 		} catch (Exception $e) {
@@ -821,6 +820,61 @@ class admin_api extends Controller
 			echo $e->getMessage();
 		}
 	}
+
+
+	function get_product_available_quantity()
+	{
+		try {
+			$this->is_authorized();
+			if (isset($_POST['product_id']))
+				echo json_encode($this->db->raw("
+					SELECT 
+						IF(p.inventory_type = 'durable', 
+						(SELECT SUM(inner_p_inventory.remaining_quantity) FROM product_inventory AS inner_p_inventory WHERE inner_p_inventory.product_id = p.id AND inner_p_inventory.expiration_date > NOW()), 
+							(
+									SELECT MIN(can_make) 
+									FROM (
+										SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
+										FROM products AS inner_p
+										INNER JOIN product_ingredients AS pi ON inner_p.id = pi.product_id
+										INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+										LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
+										WHERE inner_p.id = p.id AND (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+										GROUP BY pi.id
+									) AS available_quantity
+							)
+						)
+						AS available_quantity
+					FROM products AS p 
+					INNER JOIN categories AS c ON p.category=c.id
+					INNER JOIN product_inventory AS p_inventory ON p.id=p_inventory.product_id
+					LEFT JOIN product_ingredients AS p_ingredients ON p_ingredients.product_id = p.id
+					LEFT JOIN ingredient_inventory AS ii ON p_ingredients.id = ii.product_ingredient_id
+					WHERE p.removed = 0 AND (p_inventory.expiration_date > CURRENT_DATE OR p.inventory_type = 'perishable') AND p.id = ?
+					GROUP BY p.id, p_inventory.remaining_quantity
+					ORDER BY p.name", array($this->m_encrypt->decrypt($_POST['product_id'])))[0]['available_quantity']);
+			else
+				echo json_encode(null);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function get_ingredient_inventory()
+	{
+		try {
+			$this->is_authorized();
+			if (isset($_POST['ingredient_id']) && isset($_POST['product_id'])) {
+				echo json_encode($this->m_encrypt->encrypt($this->db->table('product_ingredients AS pi')->select('ii.*, i.name')->inner_join('ingredients AS i', 'pi.ingredient_id=i.id')->left_join('ingredient_inventory AS ii', 'ii.product_ingredient_id=pi.id')->where('pi.product_id', $this->m_encrypt->decrypt($_POST['product_id']))->where('pi.ingredient_id', $this->m_encrypt->decrypt($_POST['ingredient_id']))->get_all()));
+			} else {
+				echo json_encode(array());
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+}
+
 	// template
 	// function user_index()
 	// {
@@ -831,4 +885,3 @@ class admin_api extends Controller
 	// 		echo $e->getMessage();
 	// 	}
 	// }
-}
