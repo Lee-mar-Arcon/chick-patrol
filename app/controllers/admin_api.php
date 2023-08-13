@@ -646,7 +646,7 @@ class admin_api extends Controller
 				$productExists = $this->db->table('products')->where('id', $productID)->limit(1)->get_all();
 				if (count($productExists)) {
 					$productIngerdients = $this->m_encrypt->encrypt($this->db->raw(
-						'SELECT pi.id, i.name, pi.unit_of_measurement, pi.need_quantity, SUM(ii.remaining_quantity) AS available_quantity
+						'SELECT pi.id, i.name, pi.unit_of_measurement, pi.need_quantity, IF(SUM(ii.remaining_quantity) IS Null, 0, SUM(ii.remaining_quantity)) AS available_quantity
 						FROM product_ingredients AS pi
 						INNER JOIN ingredients as i ON pi.ingredient_id=i.id
 						LEFT JOIN ingredient_inventory AS ii ON pi.id = ii.product_ingredient_id
