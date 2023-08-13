@@ -637,31 +637,29 @@ class admin_api extends Controller
 	function get_product_ingredients()
 	{
 		try {
-			$this->is_authorized();
+			// $this->is_authorized();
 			if (!isset($_POST['productID']))
 				echo json_encode('does not exists');
 			else {
 				$productID = $this->m_encrypt->decrypt($_POST['productID']);
 				$productExists = $this->db->table('products')->where('id', $productID)->limit(1)->get_all();
 				if (count($productExists)) {
-					$productIngerdients = $this->m_encrypt->encrypt($this->db->raw(
+					$productIngredients = $this->m_encrypt->encrypt($this->db->raw(
 						'SELECT 
-							i.name,
-							pi.unit_of_measurement,
-							FLOOR((IF(SUM(ii.remaining_quantity) IS NULL, 0, SUM(ii.remaining_quantity)) / pi.need_quantity)) AS can_make,
-							pi.id,
-							pi.need_quantity,
-							SUM(IF(ii.remaining_quantity IS NULL, 0, ii.remaining_quantity)) AS available_quantity
-						FROM products AS p 
-						INNER JOIN product_ingredients AS pi ON p.id=p.id
-						INNER JOIN ingredients AS i ON pi.ingredient_id=i.id
-						LEFT JOIN ingredient_inventory AS ii ON pi.id = ii.product_ingredient_id
-						WHERE pi.product_id = ? AND (ii.expiration_date > NOW() || ii.expiration_date IS NULL)
-						GROUP BY ii.product_ingredient_id, pi.id',
+						pi.*, 
+						i.name,
+						(SELECT SUM(i_ii.remaining_quantity) FROM ingredient_inventory i_ii WHERE i_ii.product_ingredient_id = pi.id) AS available_quantity,
+						FLOOR(((SELECT SUM(i_ii.remaining_quantity) FROM ingredient_inventory i_ii WHERE i_ii.product_ingredient_id = pi.id)/pi.need_quantity)) AS can_make
+				  FROM product_ingredients AS pi 
+				  INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+				  WHERE pi.product_id = ?;
+						',
 						array($productID)
 					));
 
-					echo json_encode($productIngerdients, true);
+
+
+					echo json_encode($productIngredients, true);
 				} else {
 					echo json_encode('does not exists');
 				}
@@ -863,9 +861,25 @@ class admin_api extends Controller
 	function get_ingredient_inventory()
 	{
 		try {
-			$this->is_authorized();
+			// $this->is_authorized();
 			if (isset($_POST['ingredient_id']) && isset($_POST['product_id'])) {
-				echo json_encode($this->m_encrypt->encrypt($this->db->table('product_ingredients AS pi')->select('ii.*, i.name')->inner_join('ingredients AS i', 'pi.ingredient_id=i.id')->left_join('ingredient_inventory AS ii', 'ii.product_ingredient_id=pi.id')->where('pi.product_id', $this->m_encrypt->decrypt($_POST['product_id']))->where('pi.ingredient_id', $this->m_encrypt->decrypt($_POST['ingredient_id']))->get_all()));
+				echo $this->m_encrypt->decrypt($_POST['product_id']), $this->m_encrypt->decrypt($_POST['ingredient_id']);
+				echo json_encode($this->m_encrypt->encrypt($this->db->raw(
+					'
+					SELECT 
+						ii.remaining_quantity,
+						i.name,
+						ii.id,
+						ii.expiration_date,
+						ii.added_at,
+						ii.quantity
+					FROM ingredient_inventory AS ii 
+					INNER JOIN product_ingredients AS p_ingredients ON ii.product_ingredient_id = p_ingredients.id
+					INNER JOIN product_inventory AS p_inventory ON p_inventory.product_id = ?
+					INNER JOIN ingredients AS i ON i.id=p_ingredients.ingredient_id
+					WHERE p_ingredients.product_id = ? AND i.id = ?',
+					array($this->m_encrypt->decrypt($_POST['product_id']), $this->m_encrypt->decrypt($_POST['product_id']), $this->m_encrypt->decrypt($_POST['ingredient_id']))
+				)));
 			} else {
 				echo json_encode(array());
 			}

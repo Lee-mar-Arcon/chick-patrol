@@ -412,6 +412,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         }
 
         $(document).on('click', '.view_ingredient_inventory_list', function() {
+            console.log(123)
             const ingredient_id = $(this).closest('tr').attr('data-id')
             $.post('<?= site_url(('admin_api/get_ingredient_inventory')) ?>', {
                 ingredient_id: ingredient_id,
