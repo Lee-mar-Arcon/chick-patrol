@@ -77,7 +77,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 bg-white pb-5">
+                        <div class="col-md-9 col-12 bg-white pb-5">
                             <div class="card-header">
                                 <div class="fs-3 fw-bold">Inventory</div>
                                 <div id="ingredient_name_header" class="text-muted fs-4"></div>
@@ -419,8 +419,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 product_id: product.id
             }).then(function(response) {
                 console.log(response)
+                $('#ingredient_name_header').html(response['name'])
+                scrollTo($("#ingredient_name_header"))
             })
-            scrollTo($("#ingredient_name_header"))
         });
 
         function scrollTo(element) {

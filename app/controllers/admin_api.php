@@ -863,23 +863,16 @@ class admin_api extends Controller
 		try {
 			// $this->is_authorized();
 			if (isset($_POST['ingredient_id']) && isset($_POST['product_id'])) {
-				echo $this->m_encrypt->decrypt($_POST['product_id']), $this->m_encrypt->decrypt($_POST['ingredient_id']);
-				echo json_encode($this->m_encrypt->encrypt($this->db->raw(
+				$data['list'] = $this->m_encrypt->encrypt($this->db->raw(
 					'
-					SELECT 
-						ii.remaining_quantity,
-						i.name,
-						ii.id,
-						ii.expiration_date,
-						ii.added_at,
-						ii.quantity
-					FROM ingredient_inventory AS ii 
-					INNER JOIN product_ingredients AS p_ingredients ON ii.product_ingredient_id = p_ingredients.id
-					INNER JOIN product_inventory AS p_inventory ON p_inventory.product_id = ?
-					INNER JOIN ingredients AS i ON i.id=p_ingredients.ingredient_id
-					WHERE p_ingredients.product_id = ? AND i.id = ?',
-					array($this->m_encrypt->decrypt($_POST['product_id']), $this->m_encrypt->decrypt($_POST['product_id']), $this->m_encrypt->decrypt($_POST['ingredient_id']))
-				)));
+					SELECT ii.*,i.name FROM product_ingredients AS pi 
+					INNER JOIN ingredient_inventory AS ii ON ii.product_ingredient_id=pi.id
+					INNER JOIN ingredients AS i ON pi.ingredient_id=i.id
+					WHERE pi.product_id = ? AND pi.id = ? AND ii.expiration_date > NOW()',
+					array($this->m_encrypt->decrypt($_POST['product_id']), $this->m_encrypt->decrypt($_POST['ingredient_id']))
+				));
+				$data['name'] = $this->db->table('ingredients as i')->inner_join('product_ingredients as pi', 'pi.ingredient_id=i.id')->where('pi.id', $this->m_encrypt->decrypt($_POST['ingredient_id']))->get()['name'];
+				echo json_encode($data);
 			} else {
 				echo json_encode(array());
 			}
