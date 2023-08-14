@@ -307,7 +307,6 @@
                     /* OPTIONS */
                 })
                 .then(function(response) {
-                    console.log(response)
                     populateTable(response.data)
                     populatePagination(response.data['pagination'])
                 })
@@ -372,7 +371,6 @@
             const productLink = '<?= BASE_URL ?>/public/images/products/cropped/'
             const viewProductLink = '<?= site_url('admin/view-product') . '/' ?>'
             for (let i = 0; i < products.length; i++) {
-                console.log(products[i]['id'])
                 $('tbody').append(
                     `
                     <tr id="${products[i]['id']}">
@@ -663,7 +661,6 @@
                     update_price: price
                 })
                 .then(function(response) {
-                    console.log(response)
                     // Success: Handle the response
                     if (response.status == 'success') {
                         Swal.fire({
@@ -719,10 +716,10 @@
 
 
         $('#add-product').on('click', function() {
+            resetForm()
             $('#productFormLabel').addClass('add').removeClass('edit').html('ADD NEW PRODUCT')
             $('#imageInput').attr('required', true)
             $('#inventory_type').attr('disabled', false).parent().attr('hidden', false)
-            resetForm()
         })
 
         $(document).on('click', '.edit-product', function() {
@@ -761,23 +758,37 @@
         }
 
         function updateProduct() {
-            $.post('<?= site_url('admin_api/product-update') ?>', {
-                    id: $('#id').val(),
-                    category: $('#category').val(),
-                    price: $('#price').val(),
-                    name: $('#name').val(),
-                    description: $('#description').val()
-                })
-                .then(function(response) {
+            const formData = new FormData();
+            formData.append('id', $('#id').val());
+            formData.append('name', $('#name').val());
+            formData.append('category', $('#category').val());
+            formData.append('price', $('#price').val());
+            formData.append('description', $('#description').val());
+            if (typeof $('#imageInput')[0].files[0] !== 'undefined') {
+                formData.append('croppedImage', $('#croppedImage').val());
+                formData.append('imageInput', $('#imageInput')[0].files[0]);
+            }
+
+            $.ajax({
+                url: '<?= site_url('admin_api/product-update') ?>',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log(response)
                     if (typeof response == 'object') {
-                        console.log(response)
                         setValidationErrors(response)
                     } else {
                         showToast('Product updated.', "linear-gradient(to right,  #3ab902, #14ac34)")
                         handleFetchProducts(q)
                         $('#productForm').offcanvas('hide')
                     }
-                })
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error:", error);
+                }
+            });
         }
 
         function addNewProduct() {
@@ -800,7 +811,6 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    console.log(response)
                     if (typeof response === 'object')
                         setValidationErrors(response)
                     else {
@@ -875,7 +885,6 @@
                     return deleteProduct(password, productID);
                 }
             }).then((result) => {
-                console.log(result.isConfirmed)
                 if (result.isConfirmed) {
 
                 }
@@ -889,7 +898,6 @@
                         productID: productID
                     })
                     .then(function(response) {
-                        console.log(response)
                         if (response == 'wrong password') {
                             showToast('you entered the wrong password', "linear-gradient(to right, #ac1414, #f12b00)")
                             resolve(false)
@@ -909,7 +917,6 @@
         $(document).on('click', '.sell-archive-product', function() {
             let productID = $(this).closest('tr').attr('id')
             const mode = $(this).hasClass('sell-product')
-            console.log(mode ? 1 : 0)
             Swal.fire({
                 title: mode ? 'Start selling the product?' : 'Are you sure to archive this product?',
                 text: 'Enter your password',
@@ -926,7 +933,6 @@
                     return sellArchiveProduct(password, productID, mode ? 1 : 0);
                 }
             }).then((result) => {
-                console.log(result.isConfirmed)
                 if (result.isConfirmed) {
 
                 }
@@ -941,7 +947,6 @@
                         mode: mode
                     })
                     .then(function(response) {
-                        console.log(response)
                         if (response == 'wrong password') {
                             showToast('you entered the wrong password', "linear-gradient(to right, #ac1414, #f12b00)")
                             resolve(false)

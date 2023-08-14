@@ -1014,7 +1014,7 @@ class admin_api extends Controller
 			} else
 				echo 'error';
 		} catch (Exception $e) {
-			echo $e->getMessage();
+			echo json_encode($e->getMessage());
 		}
 	}
 
