@@ -209,44 +209,6 @@
         </div>
     </div>
 
-    <!-- Off Canvas for quantity update -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="edit-quantity-offcanvas" aria-labelledby="offcanvasRightLabel">
-        <div class="offcanvas-header">
-            <h5 class="fs-3 ms-2" id="edit-quantity-offcanvasLabel">Update product quantity</h5>
-            <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <input type="hidden" id="update_id" name="id">
-
-            <!-- inventory type -->
-            <div class="mb-3">
-                <label for="inventory-type" class="form-label">Inventory type<span class="text-danger"> *</span></label>
-                <select class="form-select form-select-md" name="update_inventory_type" id="update_inventory_type">
-                    <option value="perishable" selected>Perishable</option>
-                    <option value="durable">Durable goods</option>
-                </select>
-            </div>
-
-            <!-- quantity -->
-            <div class="mb-3">
-                <label for="quantity" class="form-label">Quantity
-                    <span class="text-danger"> *</span>
-                </label>
-                <input data-toggle="tooltip" data-placement="top" title="Tooltip Content" type="number" class="form-control" required name="update_quantity" id="update_quantity" step="0.01" placeholder="product price">
-            </div>
-
-            <!-- price -->
-            <div class="mb-3">
-                <label for="price" class="form-label">price<span class="text-danger"> *</span></label>
-                <input type="number" class="form-control" name="update_price" id="update_price" step="0.01" placeholder="product price">
-            </div>
-
-            <div class="text-end mt-3">
-                <button id="updateSubmitForm" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
-            </div>
-        </div>
-    </div>
-
     <!-- crop image modal -->
     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -614,12 +576,6 @@
             handleFetchProducts(q)
         })
 
-        // add form error
-        function displayErrors() {
-            for (let key in formErrors)
-                $('<div class="ms-1 text-danger form-error-message">' + formErrors[key] + '</div>').insertAfter($(`#${key}`))
-        }
-
         // show restore confirmation
         $(document).on('click', '.mdi-delete-restore', function() {
             id = $(this).closest('tr').attr('id')
@@ -763,13 +719,23 @@
 
 
         $('#add-product').on('click', function() {
-            $('#productFormLabel').html('ADD NEW PRODUCT')
+            $('#productFormLabel').addClass('add').removeClass('edit').html('ADD NEW PRODUCT')
+            $('#imageInput').attr('required', true)
+            $('#inventory_type').attr('disabled', false).parent().attr('hidden', false)
             resetForm()
         })
 
         $(document).on('click', '.edit-product', function() {
-            $('#productFormLabel').html('EDIT PRODUCT')
             resetForm()
+            let productRow = $(this).closest('tr')
+            $('#category').val($("#category option:contains('" + productRow.find('td:eq(3)').html().trim() + "')").attr('value'))
+            $('#price').val(parseFloat(productRow.find('td:eq(2)').html().trim().substring(1)))
+            $('#name').val(productRow.find('td:eq(1)').html().trim())
+            $('#description').val(productRow.next().find('.accordion-body:eq(0)').html().trim())
+            $('#productFormLabel').addClass('edit').removeClass('add').html('EDIT PRODUCT')
+            $('#imageInput').prop('required', false)
+            $('#inventory_type').attr('disabled', true).parent().attr('hidden', true)
+            $('#id').val($(this).closest('tr').attr('id'))
         });
 
         $('#inventory_type').on('change', function() {
@@ -778,7 +744,10 @@
 
 
         $('#submit-form').on('click', function() {
-            addNewProduct()
+            if ($('#productFormLabel').hasClass('add'))
+                addNewProduct()
+            else
+                updateProduct()
         })
 
         function toggleQuantityExpirationDate(inventoryTypeElement) {
@@ -789,6 +758,26 @@
                 $('#quantity').attr('required', false).parent().attr('hidden', true)
                 $('#expiration_date').attr('required', false).parent().attr('hidden', true)
             }
+        }
+
+        function updateProduct() {
+            $.post('<?= site_url('admin_api/product-update') ?>', {
+                    id: $('#id').val(),
+                    category: $('#category').val(),
+                    price: $('#price').val(),
+                    name: $('#name').val(),
+                    description: $('#description').val()
+                })
+                .then(function(response) {
+                    if (typeof response == 'object') {
+                        console.log(response)
+                        setValidationErrors(response)
+                    } else {
+                        showToast('Product updated.', "linear-gradient(to right,  #3ab902, #14ac34)")
+                        handleFetchProducts(q)
+                        $('#productForm').offcanvas('hide')
+                    }
+                })
         }
 
         function addNewProduct() {

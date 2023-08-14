@@ -938,6 +938,86 @@ class admin_api extends Controller
 			echo $e->getMessage();
 		}
 	}
+
+	function product_update()
+	{
+		try {
+			if ($this->form_validation->submitted()) {
+				$id = $this->m_encrypt->decrypt($_POST['id']);
+				$category = $this->m_encrypt->decrypt($this->io->post('category'));
+				$errors = array();
+				// name
+				$this->form_validation
+					->name('name')
+					->required('required.')
+					->min_length(1, 'required..')
+					->max_length(100, 'must be less than 100 characters only.');
+				$result = $this->check_input('name');
+				$result != null ? $errors['name'] = $result : '';
+				// category
+				$this->form_validation
+					->name('category')
+					->required('required.');
+				$result = $this->check_input('category');
+				$result != null ? $errors['category'] = $result : '';
+				// price
+				$this->form_validation
+					->name('price')
+					->required('required.')
+					->numeric('invalid value');
+				$result = $this->check_input('price');
+				$result != null ? $errors['price'] = $result : '';
+
+				// description
+				$this->form_validation
+					->name('description')
+					->required('required.')
+					->min_length(0, 'required')
+					->max_length(800, 'must be less than 800 characters, current length is ' . strlen($this->io->post('description')) . '.');
+				$result = $this->check_input('description');
+				$result != null ? $errors['description'] = $result : '';
+				$currentProductInfo = $this->db->table('products')->where('id', $id)->get();
+
+				// check if there are errors
+				if (count($errors) > 0) {
+					echo json_encode($errors);
+				} else {
+					// check if name exists
+					$exists = $this->db->raw('SELECT * FROM products WHERE LOWER(name) = ? AND id != ? LIMIT 1', array(strtolower($_POST['name']), $id));
+					if ($exists) {
+						echo json_encode(array('name' => 'already exists'));
+					}
+					// perform queries
+					else {
+						// insert to price history if new price is set
+						if ($currentProductInfo['price'] != $this->io->post('price'))
+							$this->db->table('product_price_history')->insert(array('product_id' => $id, 'price' => $currentProductInfo['price'], 'added_at' => $currentProductInfo['updated_at']));
+						// perform file handling if new image is added
+						$filename = $currentProductInfo['image'];
+						if (isset($_FILES['imageInput']['name']) > 0) {
+							unlink('././public/images/products/cropped/' . $currentProductInfo['image']);
+							unlink('././public/images/products/original/' . $currentProductInfo['image']);
+							$filename = $this->upload_cropped_image($this->uploadOriginalImage('product'), 'product');
+						}
+
+						$this->db->table('products')->where('id', $id)->update(array(
+							'name' => $this->io->post('name'),
+							'price' => $this->io->post('price'),
+							'category' => $category,
+							'description' => $this->io->post('description'),
+							'updated_at' => date('Y-m-d H:i:s'),
+							'image' => $filename
+						));
+						echo json_encode('success');
+					}
+				}
+			} else
+				echo 'error';
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	// template
 	// function user_index()
 	// {
