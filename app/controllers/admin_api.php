@@ -467,7 +467,6 @@ class admin_api extends Controller
 
 				// perform insert
 				if (count($errors) == 0) {
-					// echo json_encode($this->db->table('products')->where('name', $this->io->post('name'))->get() == false);
 					if ($this->db->table('products')->where('name', $this->io->post('name'))->get() == true) {
 						echo json_encode('product name already exists');
 					} else {
@@ -532,7 +531,6 @@ class admin_api extends Controller
 			$this->is_authorized();
 			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
 			$productID = $this->m_encrypt->decrypt($_POST['productID']);
-
 			if ($this->db->table('products')->where('id', $productID)->get() == false) {
 				echo json_encode('invalid ID');
 			} else if (password_verify($_POST['password'], $user['password'])) {
@@ -540,6 +538,7 @@ class admin_api extends Controller
 				$this->db->table('products')->where('id', $productID)->delete();
 				unlink('public/images/products/cropped/' . $productImage);
 				unlink('public/images/products/original/' . $productImage);
+				$this->db->table('products')->where('id', $productID)->update(array('removed' => 1));
 				echo json_encode('success');
 			} else {
 				echo json_encode('wrong password');
@@ -880,8 +879,26 @@ class admin_api extends Controller
 			echo $e->getMessage();
 		}
 	}
-}
 
+	function delete_ingredient_inventory()
+	{
+		try {
+			// $this->is_authorized();
+			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
+
+			$ingredient_id = $this->m_encrypt->decrypt($_POST['ingredient_id']);
+			if ($this->db->table('ingredient_inventory')->where('id', $ingredient_id)->get() == false) {
+				echo json_encode('invalid ID');
+			} else if (password_verify($_POST['password'], $user['password'])) {
+				$this->db->table('ingredient_inventory')->where('id', $ingredient_id)->delete();
+				echo json_encode('success');
+			} else {
+				echo json_encode('wrong password');
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 	// template
 	// function user_index()
 	// {
@@ -892,3 +909,4 @@ class admin_api extends Controller
 	// 		echo $e->getMessage();
 	// 	}
 	// }
+}

@@ -82,8 +82,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                 <div class="fs-3 fw-bold">Inventory</div>
                                 <div id="ingredient_name_header" class="text-muted fs-4"></div>
                             </div>
-                            <div id="ingredient_inventory" class="p-2">
-                                asd
+                            <div id="ingredient-inventory" class="p-2">
                             </div>
                         </div>
                     </div>
@@ -268,6 +267,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 case 'info':
                     backgroundColor = 'linear-gradient(to right,  #007d85, #008e97)'
                     break;
+                case 'danger':
+                    backgroundColor = "linear-gradient(to right, #ac1414, #f12b00)"
+                    break;
             }
 
             Toastify({
@@ -305,6 +307,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             $.post('<?= site_url('admin_api/get-product-ingredients') ?>', {
                 productID: productID
             }).then(function(response) {
+                console.log(response)
                 populateIngredientList(response)
             })
         }
@@ -316,8 +319,8 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 ingredientList += `
                 <tr class="align-middle bg-light col-12 mb-2 ${ingredients[i]['can_make'] == 0 ? 'text-danger': ''}" data-id="${ingredients[i]['id']}">
                         <td scope="row">${ingredients[i]['name']}</td>
-                        <td>${parseFloat(ingredients[i]['can_make'])}</td>
-                        <td>${parseFloat(ingredients[i]['available_quantity']).toFixed(2)}</td>
+                        <td>${ingredients[i]['can_make'] == null ? '0.00' : parseFloat(ingredients[i]['can_make'])}</td>
+                        <td>${ingredients[i]['available_quantity'] == null ? '0.00' : parseFloat(ingredients[i]['available_quantity']).toFixed(2)}</td>
                         <td>${parseFloat(ingredients[i]['need_quantity']).toFixed(2)}</td>
                         <td>${ingredients[i]['unit_of_measurement']}</td>
                         <td class="text-center">
@@ -412,13 +415,13 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         }
 
         $(document).on('click', '.view_ingredient_inventory_list', function() {
-            console.log(123)
             const ingredient_id = $(this).closest('tr').attr('data-id')
             $.post('<?= site_url(('admin_api/get_ingredient_inventory')) ?>', {
                 ingredient_id: ingredient_id,
                 product_id: product.id
             }).then(function(response) {
                 console.log(response)
+                populateIngredientInventory(response.list)
                 $('#ingredient_name_header').html(response['name'])
                 scrollTo($("#ingredient_name_header"))
             })
@@ -428,6 +431,94 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             $("html, body").animate({
                 scrollTop: element.prev().offset().top
             }, 50);
+        }
+
+        function populateIngredientInventory(ingredientInventoryList) {
+            $('#ingredient-inventory').html('')
+            let inventoryList = ''
+            for (let i = 0; i < ingredientInventoryList.length; i++) {
+                inventoryList += `
+                <tr class="align-middle bg-light col-12 mb-2 " data-id="${ingredientInventoryList[i]['id']}">
+                    <td scope="row">${ingredientInventoryList[i]['name']}</td>
+                    <td>${parseFloat(ingredientInventoryList[i]['quantity']).toFixed(2)}</td>
+                    <td>${parseFloat(ingredientInventoryList[i]['remaining_quantity']).toFixed(2)}</td>
+                    <td>${ingredientInventoryList[i]['added_at']}</td>
+                    <td>${ingredientInventoryList[i]['expiration_date']}</td>
+                    <td class="text-center">
+                        <span data-tippy-content="delete" class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded delete-inventory">
+                            <i class="mdi mdi-delete fs-3 text-danger"></i>
+                        </span>
+                    </td>
+                </tr>`
+            }
+            $('#ingredient-inventory').append(`
+            <div class="table-responsive">
+                <table class="table table-transparent table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col" style="width: 100px;">QTY</th>
+                            <th scope="col" style="width: 50px;">Rem QTY</th>
+                            <th scope="col" style="width: 150px;">Added at</th>
+                            <th scope="col" style="width: 150px;">Expiration date</th>
+                            <th scope="col" class="text-center" style="width: 150px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${inventoryList}
+                    </tbody>
+                </table>
+            </div>
+            `)
+            tippy('[data-tippy-content]');
+        }
+
+        $(document).on('click', '.delete-inventory', function() {
+            let ingredientID = $(this).closest('tr').attr('data-id')
+            Swal.fire({
+                title: 'Are you sure you want to delete this Product?',
+                text: 'Enter your password',
+                icon: 'error',
+                input: 'password',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                allowOutsideClick: false,
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                preConfirm: function(password) {
+                    return deleteIngredientInventory(password, ingredientID);
+                }
+            }).then((result) => {
+                console.log(result.isConfirmed)
+                if (result.isConfirmed) {
+
+                }
+            });
+        })
+
+        function deleteIngredientInventory(password, ingredientID) {
+            return new Promise(function(resolve, reject) {
+                $.post('<?= site_url('admin_api/delete-ingredient-inventory') ?>', {
+                        password: password,
+                        ingredient_id: ingredientID
+                    })
+                    .then(function(response) {
+                        console.log(response)
+                        if (response == 'wrong password') {
+                            showToast('you entered the wrong password', 'danger')
+                            resolve(false)
+                        } else if (response == 'invalid ID') {
+                            showToast('ID does not exists', 'danger')
+                            resolve(false)
+                        } else {
+                            showToast('Ingredient inventory deletion success.', "success")
+                            getProductAvailableQuantity()
+                            resolve(true)
+                        }
+                    })
+            })
         }
     </script>
 </body>
