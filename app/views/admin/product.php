@@ -442,7 +442,7 @@
                             <a href="${viewProductLink + products[i]['id']}" data-tippy-content="View product" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1">
                                 <i class="mdi mdi-eye fs-3 text-info"></i>
                             </a>
-                            <span data-tippy-content="${products[i]['selling'] == 1 ? 'archive product' : 'sell product'}" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 ${products[i]['selling'] == 1 ? 'archive-product' : 'sell-product'}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                            <span data-tippy-content="${products[i]['selling'] == 1 ? 'archive product' : 'sell product'}" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 sell-archive-product ${products[i]['selling'] ? 'archive-product' : 'sell-product'}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
                                 ${products[i]['selling'] == 1 ? 
                                     '<i class="mdi mdi-tag-off fs-3 text-danger"></i>' :
                                     '<i class="mdi mdi-tag fs-3 text-info"></i>'
@@ -909,6 +909,58 @@
                             resolve(false)
                         } else {
                             showToast('Product deletion success.', "linear-gradient(to right,  #3ab902, #14ac34)")
+                            handleFetchProducts(q)
+                            resolve(true)
+                        }
+                    })
+            })
+        }
+
+
+        $(document).on('click', '.sell-archive-product', function() {
+            let productID = $(this).closest('tr').attr('id')
+            const mode = $(this).hasClass('sell-product')
+            console.log(mode ? 1 : 0)
+            Swal.fire({
+                title: mode ? 'Start selling the product?' : 'Are you sure to archive this product?',
+                text: 'Enter your password',
+                icon: 'error',
+                input: 'password',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                allowOutsideClick: false,
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                preConfirm: function(password) {
+                    return sellArchiveProduct(password, productID, mode ? 1 : 0);
+                }
+            }).then((result) => {
+                console.log(result.isConfirmed)
+                if (result.isConfirmed) {
+
+                }
+            });
+        })
+
+        function sellArchiveProduct(password, productID, mode) {
+            return new Promise(function(resolve, reject) {
+                $.post('<?= site_url('admin_api/sell-archive-product') ?>', {
+                        password: password,
+                        product_id: productID,
+                        mode: mode
+                    })
+                    .then(function(response) {
+                        console.log(response)
+                        if (response == 'wrong password') {
+                            showToast('you entered the wrong password', "linear-gradient(to right, #ac1414, #f12b00)")
+                            resolve(false)
+                        } else if (response == 'invalid ID') {
+                            showToast('ID does not exists', "linear-gradient(to right, #ac1414, #f12b00)")
+                            resolve(false)
+                        } else {
+                            showToast(mode ? 'Started selling the product!.' : 'Product archived', "linear-gradient(to right,  #3ab902, #14ac34)")
                             handleFetchProducts(q)
                             resolve(true)
                         }
