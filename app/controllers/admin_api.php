@@ -883,7 +883,7 @@ class admin_api extends Controller
 	function delete_ingredient_inventory()
 	{
 		try {
-			// $this->is_authorized();
+			$this->is_authorized();
 			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
 
 			$ingredient_id = $this->m_encrypt->decrypt($_POST['ingredient_id']);
@@ -891,6 +891,27 @@ class admin_api extends Controller
 				echo json_encode('invalid ID');
 			} else if (password_verify($_POST['password'], $user['password'])) {
 				$this->db->table('ingredient_inventory')->where('id', $ingredient_id)->delete();
+				echo json_encode('success');
+			} else {
+				echo json_encode('wrong password');
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function delete_ingredient()
+	{
+		try {
+			// $this->is_authorized();
+			// $user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
+			$user = $this->db->table('users')->where('id', 141)->get();
+
+			$ingredient_id = $this->m_encrypt->decrypt($_POST['ingredient_id']);
+			if ($this->db->table('product_ingredients')->where('id', $ingredient_id)->get() == false) {
+				echo json_encode('invalid ID');
+			} else if (password_verify($_POST['password'], $user['password'])) {
+				$this->db->table('product_ingredients')->where('id', $ingredient_id)->delete();
 				echo json_encode('success');
 			} else {
 				echo json_encode('wrong password');

@@ -330,6 +330,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                             <span data-tippy-content="view inventory list" class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded view_ingredient_inventory_list">
                                 <i class="mdi mdi-eye fs-3 text-info"></i>
                             </span>
+                            <span data-tippy-content="remove" class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded remove-ingredient">
+                                <i class="mdi mdi-delete fs-3 text-danger"></i>
+                            </span>
                         </td>
                     </tr>`
             }
@@ -351,7 +354,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                             <th scope="col" style="width: 150px;">Available Quantity</th>
                             <th scope="col" style="width: 100px;">Need QTY</th>
                             <th scope="col" style="width: 50px;">Unit</th>
-                            <th scope="col" class="text-center" style="width: 150px;">Action</th>
+                            <th scope="col" class="text-center" style="width: 180px;">Action</th>
                         </tr>
                     </thead>
                     <tbody>` + ingredientList + `</tbody>
@@ -476,7 +479,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         $(document).on('click', '.delete-inventory', function() {
             let ingredientID = $(this).closest('tr').attr('data-id')
             Swal.fire({
-                title: 'Are you sure you want to delete this Product?',
+                title: 'Are you sure you want to delete this ingredient inventory?',
                 text: 'Enter your password',
                 icon: 'error',
                 input: 'password',
@@ -515,6 +518,57 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                         } else {
                             showToast('Ingredient inventory deletion success.', "success")
                             getProductAvailableQuantity()
+                            getProductIngredients()
+                            resolve(true)
+                        }
+                    })
+            })
+        }
+
+        $(document).on('click', '.remove-ingredient', function() {
+            let ingredientID = $(this).closest('tr').attr('data-id')
+            Swal.fire({
+                title: 'Are you sure you want to remove this ingredient?',
+                text: 'Enter your password',
+                icon: 'error',
+                input: 'password',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                allowOutsideClick: false,
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                preConfirm: function(password) {
+                    console.log(password, ingredientID)
+                    return deleteIngredient(password, ingredientID);
+                }
+            }).then((result) => {
+                console.log(result.isConfirmed)
+                if (result.isConfirmed) {
+
+                }
+            });
+        })
+
+        function deleteIngredient(password, ingredientID) {
+            return new Promise(function(resolve, reject) {
+                $.post('<?= site_url('admin_api/delete-ingredient') ?>', {
+                        password: password,
+                        ingredient_id: ingredientID
+                    })
+                    .then(function(response) {
+                        console.log(response)
+                        if (response == 'wrong password') {
+                            showToast('you entered the wrong password', 'danger')
+                            resolve(false)
+                        } else if (response == 'invalid ID') {
+                            showToast('ID does not exists', 'danger')
+                            resolve(false)
+                        } else {
+                            showToast('Product ingredient deletion success.', "success")
+                            getProductAvailableQuantity()
+                            getProductIngredients()
                             resolve(true)
                         }
                     })
