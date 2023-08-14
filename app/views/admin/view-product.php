@@ -388,6 +388,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                     getProductIngredients()
                     resetForm(['product_ingredient_id', 'quantity', 'expiration_date', 'product_ingredient_name'])
                     getProductAvailableQuantity()
+                    fetchIngredientInventory(ingredientInventoryParams)
                 }
 
                 $('#submit-add-ingredient-quantity').attr('disabled', false)
@@ -417,18 +418,25 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             })
         }
 
+        ingredientInventoryParams = {
+            ingredient_id: '',
+            product_id: product.id
+        }
         $(document).on('click', '.view_ingredient_inventory_list', function() {
-            const ingredient_id = $(this).closest('tr').attr('data-id')
-            $.post('<?= site_url(('admin_api/get_ingredient_inventory')) ?>', {
-                ingredient_id: ingredient_id,
-                product_id: product.id
-            }).then(function(response) {
-                console.log(response)
-                populateIngredientInventory(response.list)
-                $('#ingredient_name_header').html(response['name'])
-                scrollTo($("#ingredient_name_header"))
-            })
+            ingredientInventoryParams.ingredient_id = $(this).closest('tr').attr('data-id')
+            scrollTo($("#ingredient_name_header"))
+            fetchIngredientInventory(ingredientInventoryParams)
         });
+
+        function fetchIngredientInventory(ingredientInventoryParams) {
+            if (ingredientInventoryParams.ingredient_id != '')
+                $.post('<?= site_url(('admin_api/get_ingredient_inventory')) ?>',
+                    ingredientInventoryParams
+                ).then(function(response) {
+                    populateIngredientInventory(response.list)
+                    $('#ingredient_name_header').html(response['name'])
+                })
+        }
 
         function scrollTo(element) {
             $("html, body").animate({
@@ -519,6 +527,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                             showToast('Ingredient inventory deletion success.', "success")
                             getProductAvailableQuantity()
                             getProductIngredients()
+                            fetchIngredientInventory(ingredientInventoryParams)
                             resolve(true)
                         }
                     })
