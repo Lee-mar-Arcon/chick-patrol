@@ -669,7 +669,8 @@
                 <div class="col-lg-3 col-md-4 col-sm-6 mix ${product['category_name'].replace(' ', '')}">
                     <div class="featured__item">
                         <div class="featured__item__pic set-bg" data-setbg="${productLink + product['image']}">
-                            <ul class="featured__item__pic__hover">
+                        ${!(product['available_quantity'] == 0 || product['available_quantity'] == null) ?
+                            `<ul class="featured__item__pic__hover">
                                 <li>
                                     <a onclick="return false">
                                         <div style="cursor: pointer;" data-id="${product['id']}" class="add-to-cart">
@@ -684,12 +685,13 @@
                                         </div>
                                     </a>
                                 </li>
-                            </ul>
+                            </ul>` : ''
+                        }
                         </div>
                         <div class="featured__item__text">
-                        ${((product['quantity'] != '' && product['quantity'] == 0) || !product['available']) ? '<h1 class="badge badge-danger">Unavailable</h1>' : ''}
+                        ${product['available_quantity'] == 0 || product['available_quantity'] == null  ? '<h1 class="badge badge-danger">Unavailable</h1>' : ''}
 
-                            <h6><a href="#">${product['product_name']}</a></h6>
+                            <h6><a href="#">${product['name']}</a></h6>
                             <h5>₱ ${parseFloat(product['price']).toFixed(2)}</h5>
                         </div>
                     </div>

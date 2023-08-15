@@ -102,13 +102,51 @@ class customer_api extends Controller
 		}
 	}
 
-	function get_max_quantity()
+	// function get_max_quantity()
+	// {
+	// 	try {
+	// 		$this->is_authorized();
+	// 		$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
+	// 		$product = $this->db->table('products as p')->where('id', $productId)->get();
+	// 		echo json_encode($product['quantity']);
+	// 	} catch (Exception $e) {
+	// 		echo $e->getMessage();
+	// 	}
+	// }
+
+	function get_product_available_quantity()
 	{
 		try {
-			$this->is_authorized();
-			$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
-			$product = $this->db->table('products as p')->where('id', $productId)->get();
-			echo json_encode($product['quantity']);
+			// $this->is_authorized();
+			if (isset($_POST['product_id']))
+				echo json_encode($this->db->raw("
+					SELECT 
+						IF(p.inventory_type = 'durable', 
+						(SELECT SUM(inner_p_inventory.remaining_quantity) FROM product_inventory AS inner_p_inventory WHERE inner_p_inventory.product_id = p.id AND inner_p_inventory.expiration_date > NOW()), 
+							(
+									SELECT MIN(can_make) 
+									FROM (
+										SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
+										FROM products AS inner_p
+										INNER JOIN product_ingredients AS pi ON inner_p.id = pi.product_id
+										INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+										LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
+										WHERE inner_p.id = p.id AND (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+										GROUP BY pi.id
+									) AS available_quantity
+							)
+						)
+						AS available_quantity
+					FROM products AS p 
+					INNER JOIN categories AS c ON p.category=c.id
+					INNER JOIN product_inventory AS p_inventory ON p.id=p_inventory.product_id
+					LEFT JOIN product_ingredients AS p_ingredients ON p_ingredients.product_id = p.id
+					LEFT JOIN ingredient_inventory AS ii ON p_ingredients.id = ii.product_ingredient_id
+					WHERE (p_inventory.expiration_date > CURRENT_DATE OR p.inventory_type = 'perishable') AND p.id = ?
+					GROUP BY p.id, p_inventory.remaining_quantity
+					ORDER BY p.name LIMIT 1", array($this->m_encrypt->decrypt($_POST['product_id'])))[0]['available_quantity']);
+			else
+				echo json_encode('hahaha');
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -371,10 +409,32 @@ class customer_api extends Controller
 	function get_products()
 	{
 		try {
-			$this->is_authorized();
+			// $this->is_authorized();
 			// $q = '%' . '%';
 			$q = (isset($_POST['q']) ? $_POST['q'] : '') . '%';
-			$products = $this->m_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.selling, p.quantity')->inner_join('categories as c', 'p.category=c.id')->like('LOWER(p.name)', strtolower($q))->get_all());
+			$products = $this->m_encrypt->encrypt($this->db->raw("SELECT 
+			p.*,
+			c.name AS category_name,
+			IF(p.inventory_type = 'durable',
+				(SELECT SUM(inner_pi.remaining_quantity) FROM product_inventory AS inner_pi WHERE inner_pi.product_id = p.id AND inner_pi.expiration_date > NOW()),
+				(
+					SELECT MIN(can_make)
+					FROM (
+							SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
+							FROM product_ingredients AS pi
+							INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+							LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
+							WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+								AND pi.product_id = p.id
+							GROUP BY pi.id
+					) AS available_quantity
+				)
+			) AS available_quantity
+		FROM products AS p
+		INNER JOIN categories AS c ON p.category = c.id		  
+		WHERE p.name LIKE ?
+		ORDER BY p.name", array('%%')));
+			// $products = $this->m_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.selling, p.quantity')->inner_join('categories as c', 'p.category=c.id')->like('LOWER(p.name)', strtolower($q))->get_all());
 			// echo json_encode(123);
 			echo json_encode($products);
 		} catch (Exception $e) {

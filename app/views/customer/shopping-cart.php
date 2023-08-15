@@ -295,10 +295,12 @@ $LAVA = lava_instance();
         proQty.append('<span class="inc qtybtn">+</span>');
         $('.qtybtn').on('click', function() {
             let element = $(this)
-            $.post('<?= site_url('customer_api/get_max_quantity') ?>', {
-                    id: $(element).closest('tr').attr('id')
+            console.log($(element).closest('tr').attr('id'))
+            $.post('<?= site_url('customer_api/get_product_available_quantity') ?>', {
+                    product_id: $(element).closest('tr').attr('id')
                 })
                 .then(function(response) {
+                    console.log(response)
                     updateProductTotal($(element), calcNewQuantity($(element), response))
                     updateCartTotal()
                     updateCartProductQuantity($(element))
