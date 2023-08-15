@@ -644,13 +644,13 @@ class admin_api extends Controller
 				if (count($productExists)) {
 					$productIngredients = $this->m_encrypt->encrypt($this->db->raw(
 						'SELECT 
-						pi.*, 
-						i.name,
-						(SELECT SUM(i_ii.remaining_quantity) FROM ingredient_inventory i_ii WHERE i_ii.product_ingredient_id = pi.id) AS available_quantity,
-						FLOOR(((SELECT SUM(i_ii.remaining_quantity) FROM ingredient_inventory i_ii WHERE i_ii.product_ingredient_id = pi.id)/pi.need_quantity)) AS can_make
-				  FROM product_ingredients AS pi 
-				  INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
-				  WHERE pi.product_id = ?;
+								pi.*, 
+								i.name,
+								(SELECT SUM(i_ii.remaining_quantity) FROM ingredient_inventory i_ii WHERE i_ii.product_ingredient_id = pi.id) AS available_quantity,
+								FLOOR(((SELECT SUM(i_ii.remaining_quantity) FROM ingredient_inventory i_ii WHERE i_ii.product_ingredient_id = pi.id)/pi.need_quantity)) AS can_make
+						FROM product_ingredients AS pi 
+						INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+						WHERE pi.product_id = ?;
 						',
 						array($productID)
 					));

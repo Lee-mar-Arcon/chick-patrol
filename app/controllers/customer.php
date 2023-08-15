@@ -92,7 +92,6 @@ class customer extends Controller
 			$result = $this->check_input('note');
 			$result != null ? $errors['note'] = $result : '';
 			$this->session->set_flashdata(array('errors' => $errors));
-
 			// location
 			$this->form_validation
 				->name('location')
@@ -103,34 +102,65 @@ class customer extends Controller
 
 			if (count($errors) == 0) {
 				$cart = $this->db->table('cart')->where(['user_id' => $this->session->userdata('user')['id'], 'status' => 'pending'])->get();
-				$cartProducts =  $this->db->table('products')->in('id', $this->get_all_product_id($cart['products']))->get_all();
-				$cartProductWithPrice = array();
-				$delivery_fee = $this->db->table('barangays')->select('delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()['delivery_fee'];
-				$total = 0 + $delivery_fee;
-				foreach (json_decode($cart['products']) as $product) {
-					for ($i = 0; $i < count($cartProducts); $i++) {
-						if ($cartProducts[$i]['id'] == $product->id) {
-							$product->price = $cartProducts[$i]['price'];
-							$total += ($cartProducts[$i]['price'] * $product->quantity);
-							// update subtract cart product quantity to product quantity
-							if ($cartProducts[$i]['quantity']) {
-								$this->db->table('products')->where('id', $cartProducts[$i]['id'])->update(['quantity' => $cartProducts[$i]['quantity'] - $product->quantity]);
+				$cartProducts = json_decode($cart['products'], true);
+
+				$perishableIngredientInventory = array_map(function ($product) {
+					$boughtQuantity = $product['quantity'];
+					$product = $this->db->table('products')->select('id, name, inventory_type')->where('id', $product['id'])->get();
+					$product['bought_quantity'] = $boughtQuantity;
+					if ($product['inventory_type'] == 'perishable') {
+						// product ingredient
+						$product_ingredient = $this->db->table('product_ingredients as pi')->select('i.name, pi.need_quantity, pi.id as product_ingredient_id')->inner_join('ingredients as i', 'pi.ingredient_id=i.id')->where('pi.product_id', $product['id'])->get_all();
+						$product_ingredient = array_map(
+							function ($ingredient) use ($boughtQuantity) {
+								$ingredient['total_need_quantity'] = $boughtQuantity * $ingredient['need_quantity'];
+								$ingredient['ingredient_inventory'] =
+									$this->db->table('ingredient_inventory as ii')
+									->where('ii.product_ingredient_id', $ingredient['product_ingredient_id'])
+									->where('ii.expiration_date', '>', date('Y-m-d H:i:s'))->order_by('ii.expiration_date', 'ACS')
+									->where('ii.remaining_quantity', '!=', 0)->get_all();
+								return $ingredient;
+							},
+							$product_ingredient
+						);
+						$product['product_ingredient'] = $product_ingredient;
+					} else {
+						$bought_quantity = $product['bought_quantity'];
+						$product_inventory = $this->db->table('product_inventory')->where('product_id', $product['id'])->order_by('expiration_date', 'ACS')->get_all();
+						for ($z = 0; $z < count($product_inventory); $z++) {
+							$bought_quantity = $bought_quantity - $product_inventory[$z]['remaining_quantity'];
+							if ($bought_quantity > 0) {
+								$this->db->table('product_inventory')->where('id', $product_inventory[$z]['id'])->update(array('remaining_quantity' => 0));
+							} else {
+								$this->db->table('product_inventory')->where('id', $product_inventory[$z]['id'])->update(array('remaining_quantity' => abs($bought_quantity)));
+								break;
 							}
-							array_push($cartProductWithPrice, $product);
+						}
+					}
+					return $product;
+				}, $cartProducts);
+
+				for ($i = 0; $i < count($perishableIngredientInventory); $i++) {
+					if ($perishableIngredientInventory[$i]['inventory_type'] == 'perishable') {
+						$product_ingredients = $perishableIngredientInventory[$i]['product_ingredient'];
+						for ($x = 0; $x < count($product_ingredients); $x++) {
+							$total_need_qty =  $product_ingredients[$x]['total_need_quantity'];
+							$ingredient_inventory = $product_ingredients[$x]['ingredient_inventory'];
+
+							for ($z = 0; $z < count($ingredient_inventory); $z++) {
+								$total_need_qty = $total_need_qty - $ingredient_inventory[$z]['remaining_quantity'];
+								if ($total_need_qty > 0) {
+									$this->db->table('ingredient_inventory')->where('id', $ingredient_inventory[$z]['id'])->update(array('remaining_quantity' => 0));
+								} else {
+									$this->db->table('ingredient_inventory')->where('id', $ingredient_inventory[$z]['id'])->update(array('remaining_quantity' => abs($total_need_qty)));
+									break;
+								}
+							}
 						}
 					}
 				}
-
-				$this->db->table('cart')->where('id', $cart['id'])->update([
-					'delivery_fee' => $delivery_fee,
-					'products' => json_encode($cartProductWithPrice),
-					'total' => $total,
-					'note' => $this->io->post('note'),
-					'status' => 'for approval',
-					'for_approval_at' => date('Y-m-d H:i:s'),
-					'location' => $this->io->post('location')
-				]);
-			}
+			} else
+				echo 'error';
 		} else
 			echo 'error';
 		redirect('customer/checkout');
