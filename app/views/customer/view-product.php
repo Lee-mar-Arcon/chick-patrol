@@ -48,18 +48,11 @@ $LAVA = lava_instance();
                <div class="product__details__text">
                   <div class="product__details__price">₱ <?= number_format($product['price'], 2) ?></div>
                   <p><?= $product['description'] ?></p>
-                  <div class="product__details__quantity">
-                     <div class="quantity">
-                        <div style="user-select: none;" class="pro-qty" id="<?= $product['id'] ?>">
-                           <span class="dec qtybtn">-</span>
-                           <input readonly type="text" value="1">
-                           <span class="inc qtybtn">+</span>
-                        </div>
-                     </div>
+                  <div class="d-flex justify-content-end">
+                     <a href="" onclick="return false" class="primary-btn add-to-cart" data-id="<?= $product['id'] ?>">ADD TO CART</a>
                   </div>
-                  <a href="" onclick="return false" class="primary-btn add-to-cart" data-id="<?= $product['id'] ?>">ADD TO CART</a>
                   <ul>
-                     <li><b>Availability</b> <span>In Stock</span></li>
+                     <li><b>Availability</b> <span class="available-quantity">In Stock</span></li>
                      <li><b>Category</b> <span><?= $product['category_name'] ?></span></li>
                   </ul>
                </div>
@@ -86,14 +79,14 @@ $LAVA = lava_instance();
                         <ul class="product__item__pic__hover">
                            <li>
                               <a onclick="return false">
-                                 <div style="cursor: pointer;" data-id="<?= $product['id'] ?>" class="add-to-cart">
+                                 <div style="cursor: pointer;" data-id="<?= $relatedProduct['id'] ?>" class="add-to-cart">
                                     <i class="fa fa-shopping-cart cursor-pointer"></i>
                                  </div>
                               </a>
                            </li>
                            <li>
-                              <a href="<?= site_url('customer/view-product/' . $product['id']) ?>">
-                                 <div v style="cursor: pointer;" data-id="<?= $product['id'] ?>">
+                              <a href="<?= site_url('customer/view-product/' . $relatedProduct['id']) ?>">
+                                 <div v style="cursor: pointer;" data-id="<?= $relatedProduct['id'] ?>">
                                     <i class="fa fa-eye cursor-pointer"></i>
                                  </div>
                               </a>
@@ -132,6 +125,7 @@ $LAVA = lava_instance();
    <script>
       $(document).ready(function() {
          updateCartBadge()
+         getProductAvailableQuantity()
       })
 
       function updateCartBadge() {
@@ -141,59 +135,6 @@ $LAVA = lava_instance();
                if (parseInt(response))
                   $('.fa-shopping-bag').next().html(response)
             })
-      }
-
-      $('.qtybtn').on('click', function() {
-         let element = $(this)
-         $.post('<?= site_url('customer_api/get_max_quantity') ?>', {
-               id: $(element).parent().attr('id')
-            })
-            .then(function(response) {
-               calcNewQuantity($(element), response)
-               updateCartProductQuantity(element)
-            }).fail(function(response) {
-               console.log(response)
-            })
-      })
-
-      function updateCartProductQuantity(element) {
-         let newQuantity = $(element).parent().find('input:eq(0)').val()
-         $.post('<?= site_url('customer_api/update_cart_product_quantity') ?>', {
-               id: $(element).parent().attr('id'),
-               newQuantity: newQuantity
-            })
-            .then(function(response) {
-               console.log(response)
-            }).fail(function(response) {
-               console.log(response)
-            })
-      }
-
-      function calcNewQuantity(element, maxQuantity) {
-         let oldVal = parseFloat($(element).parent().find('input:eq(0)').val())
-         let newVal = oldVal;
-         if ($(element).hasClass('inc')) {
-            if (oldVal < maxQuantity && maxQuantity != null) {
-               newVal = parseFloat($(element).prev().val()) + 1;
-            } else {
-               if (maxQuantity == null)
-                  newVal = parseFloat($(element).prev().val()) + 1;
-               else {
-                  showToast("Reached the maximum quantity available", "linear-gradient(to right, #0d6982, #02768e)")
-                  newVal = oldVal
-               }
-            }
-         } else {
-            newVal = parseFloat($(element).next().val())
-            if (parseFloat($(element).next().val()) != 1)
-               newVal = parseFloat($(element).next().val()) - 1;
-         }
-
-         if ($(element).hasClass('inc')) {
-            $(element).prev().val(newVal)
-         } else {
-            $(element).next().val(newVal)
-         }
       }
 
       const isLoggedIn = <?= $user == null ? 0 : 1 ?>;
@@ -240,6 +181,19 @@ $LAVA = lava_instance();
                background: color,
             },
          }).showToast();
+      }
+
+      function getProductAvailableQuantity() {
+         $.post('<?= site_url('customer_api/get_product_available_quantity') ?>', {
+               product_id: '<?= $product['id'] ?>'
+            })
+            .then(function(response) {
+               console.log(response)
+               $('.available-quantity').html(parseFloat(response).toFixed(2))
+
+            }).fail(function(response) {
+               console.log(response)
+            })
       }
    </script>
 </body>
