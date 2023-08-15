@@ -140,6 +140,96 @@
     </section>
     <!-- Featured Section End -->
 
+
+    <!-- newest products Begin -->
+    <section class="categories">
+        <div class="container">
+            <div class="row">
+                <div class="section-title pt-0 mt-0 col-12">
+                    <h2>Our Newest Products</h2>
+                </div>
+                <div class="categories__slider owl-carousel">
+                    <?php foreach ($categories as $category) : ?>
+                        <div class="col-lg-3 p-0">
+                            <div class="featured__item">
+                                <div class="featured__item__pic set-bg" data-setbg="https://chick-patrol.test/public/images/products/cropped/070bebce29008b258f654e771b3d0a942c7eebad.png" style="background-image: url(&quot;https://chick-patrol.test/public/images/products/cropped/070bebce29008b258f654e771b3d0a942c7eebad.png&quot;);">
+                                    <ul class="featured__item__pic__hover">
+                                        <li>
+                                            <a onclick="return false">
+                                                <div style="cursor: pointer;" data-id="dnVUSXlSanJxTFdZUkxZSEsyeWw1TWoyWDREdE1URFNBcjVGbHc9PQ" class="add-to-cart">
+                                                    <i class="fa fa-shopping-cart cursor-pointer"></i>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://chick-patrol.test/index.php/customer/view-product/dnVUSXlSanJxTFdZUkxZSEsyeWw1TWoyWDREdE1URFNBcjVGbHc9PQ">
+                                                <div v="" style="cursor: pointer;" data-id="dnVUSXlSanJxTFdZUkxZSEsyeWw1TWoyWDREdE1URFNBcjVGbHc9PQ">
+                                                    <i class="fa fa-eye cursor-pointer"></i>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="featured__item__text">
+
+
+                                    <h6><a href="#">Sprite</a></h6>
+                                    <h5>₱ 18.00</h5>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- newest products End -->
+
+    <!-- top selling products Begin -->
+    <section class="categories">
+        <div class="container">
+            <div class="row">
+                <div class="section-title pt-0 mt-0 col-12">
+                    <h2>Our Top Selling Products</h2>
+                </div>
+                <div class="categories__slider owl-carousel">
+                    <?php foreach ($categories as $category) : ?>
+                        <div class="col-lg-3 p-0">
+                            <div class="featured__item">
+                                <div class="featured__item__pic set-bg" data-setbg="https://chick-patrol.test/public/images/products/cropped/070bebce29008b258f654e771b3d0a942c7eebad.png" style="background-image: url(&quot;https://chick-patrol.test/public/images/products/cropped/070bebce29008b258f654e771b3d0a942c7eebad.png&quot;);">
+                                    <ul class="featured__item__pic__hover">
+                                        <li>
+                                            <a onclick="return false">
+                                                <div style="cursor: pointer;" data-id="dnVUSXlSanJxTFdZUkxZSEsyeWw1TWoyWDREdE1URFNBcjVGbHc9PQ" class="add-to-cart">
+                                                    <i class="fa fa-shopping-cart cursor-pointer"></i>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="https://chick-patrol.test/index.php/customer/view-product/dnVUSXlSanJxTFdZUkxZSEsyeWw1TWoyWDREdE1URFNBcjVGbHc9PQ">
+                                                <div v="" style="cursor: pointer;" data-id="dnVUSXlSanJxTFdZUkxZSEsyeWw1TWoyWDREdE1URFNBcjVGbHc9PQ">
+                                                    <i class="fa fa-eye cursor-pointer"></i>
+                                                </div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="featured__item__text">
+
+
+                                    <h6><a href="#">Sprite</a></h6>
+                                    <h5>₱ 18.00</h5>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- top selling products End -->
+
+
     <!-- Banner Begin -->
     <div class="banner">
         <div class="container">
@@ -229,69 +319,6 @@
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
-                    <div class="latest-product__text">
-                        <h4>Top Rated Products</h4>
-                        <div class="latest-product__slider owl-carousel">
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-2.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="latest-prdouct__slider__item">
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-1.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-2.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                                <a href="#" class="latest-product__item">
-                                    <div class="latest-product__item__pic">
-                                        <img src="img/latest-product/lp-3.jpg" alt="">
-                                    </div>
-                                    <div class="latest-product__item__text">
-                                        <h6>Crab Pool Security</h6>
-                                        <span>$30.00</span>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <div class="col-lg-4 col-md-6">
                     <div class="latest-product__text">
