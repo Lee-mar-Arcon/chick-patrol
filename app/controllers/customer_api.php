@@ -381,12 +381,68 @@ class customer_api extends Controller
 	function cancel_order()
 	{
 		try {
-			$this->is_authorized();
+			// $this->is_authorized();
 			$responseResult = 0;
 			$cartID = $_POST['cartID'];
 			$cart = $this->db->table('cart')->where('id', $cartID)->get();
 			if ($cart['status'] == 'for approval') {
-				$this->db->table('cart')->where('id', $cartID)->update(array('status' => 'canceled'));
+				// $this->db->table('cart')->where('id', $cartID)->update(array('status' => 'canceled'));
+				$cart_products = json_decode($this->db->table('cart')->where('id', $cartID)->get()['products'], true);
+				$perishableIngredientInventory = array_map(function ($product) {
+					$boughtQuantity = $product['quantity'];
+					$product = $this->db->table('products')->select('id, name, inventory_type')->where('id', $product['id'])->get();
+					$product['bought_quantity'] = $boughtQuantity;
+					if ($product['inventory_type'] == 'perishable') {
+						// product ingredient
+						$product_ingredient = $this->db->table('product_ingredients as pi')->select('i.name, pi.need_quantity, pi.id as product_ingredient_id')->inner_join('ingredients as i', 'pi.ingredient_id=i.id')->where('pi.product_id', $product['id'])->get_all();
+						$product_ingredient = array_map(
+							function ($ingredient) use ($boughtQuantity) {
+								$ingredient['total_need_quantity'] = $boughtQuantity * $ingredient['need_quantity'];
+								$ingredient['ingredient_inventory'] =
+									$this->db->table('ingredient_inventory as ii')
+									->where('ii.product_ingredient_id', $ingredient['product_ingredient_id'])
+									->where('ii.expiration_date', '>', date('Y-m-d H:i:s'))->order_by('ii.expiration_date', 'DESC')->get_all();
+								return $ingredient;
+							},
+							$product_ingredient
+						);
+						$product['product_ingredient'] = $product_ingredient;
+					} else {
+						$bought_quantity = $product['bought_quantity'];
+						$product_inventory = $this->db->table('product_inventory')->where('product_id', $product['id'])->order_by('expiration_date', 'DESC')->get_all();
+						for ($z = 0; $z < count($product_inventory); $z++) {
+							$bought_quantity = $bought_quantity - ($product_inventory[$z]['quantity'] - $product_inventory[$z]['remaining_quantity']);
+							if ($bought_quantity >= 0) {
+								$this->db->table('product_inventory')->where('id', $product_inventory[$z]['id'])->update(array('remaining_quantity' => $product_inventory[$z]['quantity']));
+							} else {
+								$this->db->table('product_inventory')->where('id', $product_inventory[$z]['id'])->update(array('remaining_quantity' => abs($bought_quantity)));
+								break;
+							}
+						}
+					}
+					return $product;
+				}, $cart_products);
+
+				for ($i = 0; $i < count($perishableIngredientInventory); $i++) {
+					if ($perishableIngredientInventory[$i]['inventory_type'] == 'perishable') {
+						$product_ingredients = $perishableIngredientInventory[$i]['product_ingredient'];
+						for ($x = 0; $x < count($product_ingredients); $x++) {
+							$total_need_qty =  $product_ingredients[$x]['total_need_quantity'];
+							$ingredient_inventory = $product_ingredients[$x]['ingredient_inventory'];
+
+							for ($z = 0; $z < count($ingredient_inventory); $z++) {
+								$total_need_qty = $total_need_qty - ($ingredient_inventory[$z]['quantity'] - $ingredient_inventory[$z]['remaining_quantity']);
+								if ($total_need_qty >= 0) {
+									$this->db->table('ingredient_inventory')->where('id', $ingredient_inventory[$z]['id'])->update(array('remaining_quantity' => $ingredient_inventory[$z]['quantity']));
+								} else {
+									$this->db->table('ingredient_inventory')->where('id', $ingredient_inventory[$z]['id'])->update(array('remaining_quantity' => abs($total_need_qty)));
+									break;
+								}
+							}
+						}
+					}
+				}
+				$this->db->table('cart')->where('id', $cartID)->update(array('status' => 'canceled', 'canceled_at' => date('Y-m-d H:i:s')));
 				$responseResult = 1;
 			} else
 				$responseResult = 0;

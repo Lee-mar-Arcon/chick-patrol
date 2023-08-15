@@ -159,11 +159,52 @@ class customer extends Controller
 						}
 					}
 				}
+
+
+
+
+
+
+
+
+
+
+
+
+				$cart = $this->db->table('cart')->where(['user_id' => $this->session->userdata('user')['id'], 'status' => 'pending'])->get();
+				$cartProducts =  $this->db->table('products')->in('id', $this->get_all_product_id($cart['products']))->get_all();
+				$cartProductWithPrice = array();
+				$delivery_fee = $this->db->table('barangays')->select('delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()['delivery_fee'];
+				$total = 0 + $delivery_fee;
+				foreach (json_decode($cart['products']) as $product) {
+					for ($i = 0; $i < count($cartProducts); $i++) {
+						if ($cartProducts[$i]['id'] == $product->id) {
+							$product->price = $cartProducts[$i]['price'];
+							$total += ($cartProducts[$i]['price'] * $product->quantity);
+							// update subtract cart product quantity to product quantity
+							// if ($cartProducts[$i]['quantity']) {
+							// 	$this->db->table('products')->where('id', $cartProducts[$i]['id'])->update(['quantity' => $cartProducts[$i]['quantity'] - $product->quantity]);
+							// }
+							array_push($cartProductWithPrice, $product);
+						}
+					}
+				}
+				$this->db->table('cart')->where('id', $cart['id'])->update([
+					'delivery_fee' => $delivery_fee,
+					'products' => json_encode($cartProductWithPrice),
+					'total' => $total,
+					'note' => $this->io->post('note'),
+					'status' => 'for approval',
+					'for_approval_at' => date('Y-m-d H:i:s'),
+					'location' => $this->io->post('location')
+				]);
+				redirect('customer/shopping-cart');
 			} else
 				echo 'error';
-		} else
+		} else {
 			echo 'error';
-		redirect('customer/checkout');
+			redirect('customer/checkout');
+		}
 	}
 
 	public function orders()

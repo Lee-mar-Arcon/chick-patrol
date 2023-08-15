@@ -5,7 +5,7 @@ var map = L.map('map', {
 
 let userLocation = L.marker([0, 0]).addTo(map).bindPopup('Your exact location.')
    .openPopup();
-   
+
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
@@ -16,7 +16,6 @@ map.locate({
 });
 
 map.on('locationfound', function (e) {
-   console.log(123)
    map.setView([e.latlng.lat, e.latlng.lng], 14);
 });
 
