@@ -538,7 +538,6 @@ class admin_api extends Controller
 				$this->db->table('products')->where('id', $productID)->delete();
 				unlink('public/images/products/cropped/' . $productImage);
 				unlink('public/images/products/original/' . $productImage);
-				$this->db->table('products')->where('id', $productID)->update(array('removed' => 1));
 				echo json_encode('success');
 			} else {
 				echo json_encode('wrong password');
@@ -847,7 +846,7 @@ class admin_api extends Controller
 					INNER JOIN product_inventory AS p_inventory ON p.id=p_inventory.product_id
 					LEFT JOIN product_ingredients AS p_ingredients ON p_ingredients.product_id = p.id
 					LEFT JOIN ingredient_inventory AS ii ON p_ingredients.id = ii.product_ingredient_id
-					WHERE p.removed = 0 AND (p_inventory.expiration_date > CURRENT_DATE OR p.inventory_type = 'perishable') AND p.id = ?
+					WHERE (p_inventory.expiration_date > CURRENT_DATE OR p.inventory_type = 'perishable') AND p.id = ?
 					GROUP BY p.id, p_inventory.remaining_quantity
 					ORDER BY p.name", array($this->m_encrypt->decrypt($_POST['product_id'])))[0]['available_quantity']);
 			else

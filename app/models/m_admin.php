@@ -158,7 +158,7 @@ class m_admin extends Model
 					) AS available_quantity
 				FROM products AS p
 				INNER JOIN categories AS c ON p.category = c.id		  
-				WHERE p.removed = 0 AND p.name LIKE ? AND p.category LIKE ? AND p.selling LIKE ?
+				WHERE p.name LIKE ? AND p.category LIKE ? AND p.selling LIKE ?
 				ORDER BY p.name
 				LIMIT 10 OFFSET ?",
 				[$q, $category, $availability, ($page - 1)  * 10]
