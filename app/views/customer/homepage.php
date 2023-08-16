@@ -188,49 +188,52 @@
         <!-- newest products End -->
     <?php endif; ?>
 
-    <!-- top selling products Begin -->
-    <section class="categories">
-        <div class="container">
-            <div class="row">
-                <div class="section-title pt-0 mt-0 col-12">
-                    <h2>Our Top Selling Products</h2>
-                </div>
-                <div class="categories__slider owl-carousel">
-                    <?php foreach ($categories as $category) : ?>
-                        <div class="col-lg-3 p-0">
-                            <div class="featured__item">
-                                <div class="featured__item__pic set-bg" data-setbg="https://chick-patrol.test/public/images/products/cropped/070bebce29008b258f654e771b3d0a942c7eebad.png" style="background-image: url(&quot;https://chick-patrol.test/public/images/products/cropped/070bebce29008b258f654e771b3d0a942c7eebad.png&quot;);">
-                                    <ul class="featured__item__pic__hover">
-                                        <li>
-                                            <a onclick="return false">
-                                                <div style="cursor: pointer;" data-id="dnVUSXlSanJxTFdZUkxZSEsyeWw1TWoyWDREdE1URFNBcjVGbHc9PQ" class="add-to-cart">
-                                                    <i class="fa fa-shopping-cart cursor-pointer"></i>
-                                                </div>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="https://chick-patrol.test/index.php/customer/view-product/dnVUSXlSanJxTFdZUkxZSEsyeWw1TWoyWDREdE1URFNBcjVGbHc9PQ">
-                                                <div v="" style="cursor: pointer;" data-id="dnVUSXlSanJxTFdZUkxZSEsyeWw1TWoyWDREdE1URFNBcjVGbHc9PQ">
-                                                    <i class="fa fa-eye cursor-pointer"></i>
-                                                </div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="featured__item__text">
-
-
-                                    <h6><a href="#">Sprite</a></h6>
-                                    <h5>₱ 18.00</h5>
+    <?php if (count($topSelling) > 0) : ?>
+        <!-- top selling Begin -->
+        <section class="categories">
+            <div class="container">
+                <div class="row">
+                    <div class="section-title pt-0 mt-0 col-12">
+                        <h2>Our Newest Products</h2>
+                    </div>
+                    <div class="categories__slider owl-carousel">
+                        <?php foreach ($topSelling as $topSellingProduct) : ?>
+                            <div class="col-lg-3 p-0">
+                                <div class="featured__item">
+                                    <div class="featured__item__pic set-bg" data-setbg="<?= BASE_URL ?>public/images/products/cropped/<?= $topSellingProduct['image'] ?>">
+                                        <?php if (($topSellingProduct['available_quantity'] > 0)) : ?>
+                                            <ul class="featured__item__pic__hover">
+                                                <li>
+                                                    <a onclick="return false">
+                                                        <div style="cursor: pointer;" data-id="<?= $topSellingProduct['id'] ?>" class="add-to-cart">
+                                                            <i class="fa fa-shopping-cart cursor-pointer"></i>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="<?= site_url('customer/view-product/') . $topSellingProduct['id'] ?>">
+                                                        <div v="" style="cursor: pointer;" data-id="<?= $topSellingProduct['id'] ?>">
+                                                            <i class="fa fa-eye cursor-pointer"></i>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="featured__item__text">
+                                        <?= !($topSellingProduct['available_quantity'] > 0) ? '<h1 class="badge badge-danger">Unavailable</h1>' : '' ?>'
+                                        <h6><a href="#"><?= $topSellingProduct['name'] ?></a></h6>
+                                        <h5>₱ <?= number_format($topSellingProduct['price'], 2) ?></h5>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
-    <!-- top selling products End -->
+        </section>
+        <!-- top selling End -->
+    <?php endif; ?>
 
 
     <!-- Banner Begin -->

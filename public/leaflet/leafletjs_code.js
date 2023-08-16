@@ -35,4 +35,3 @@ function setLocation(event) {
       .openPopup();
    $("#location").val(JSON.stringify({ latitude: event.latlng.lat, longitude: event.latlng.lng }));
 }
-

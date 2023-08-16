@@ -34,7 +34,8 @@ class customer extends Controller
 			'pageTitle' => 'Home',
 			'categories' => $this->db->table('categories as c')->select('distinct c.*')->inner_join('products as p', 'c.id = p.category')->get_all(),
 			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null,
-			'newestProducts' => $this->get_newest_products()
+			'newestProducts' => $this->get_newest_products(),
+			'topSelling' => $this->get_top_selling(),
 		]);
 	}
 
@@ -189,10 +190,12 @@ class customer extends Controller
 					'location' => $this->io->post('location')
 				]);
 				redirect('customer/shopping-cart');
-			} else
-				echo 'error';
+			} else {
+				$this->session->set_flashdata($errors);
+				redirect('customer/place-order');
+			}
 		} else {
-			echo 'error';
+			$this->session->set_flashdata(['errors' => array('location' => 'required', 'note' => 'required')]);
 			redirect('customer/checkout');
 		}
 	}
@@ -283,6 +286,52 @@ class customer extends Controller
 			INNER JOIN categories AS c ON p.category = c.id		  
 			WHERE p.date_added > ? 
 			ORDER BY p.date_added DESC LIMIT 8", array($currentDate));
+			return $this->m_encrypt->encrypt($newestProducts);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+	function get_top_selling()
+	{
+		try {
+			// $this->is_authorized();
+			$currentDate = new DateTime();
+			$currentDate->modify('-1 month');
+			$currentDate = $currentDate->format('Y-m-d H:i:s');
+			$newestProducts = $this->db->raw(
+				"SELECT 
+				 cart_product.id,
+				 SUM(cart_product.quantity) AS total_quantity,
+				 IF(p.inventory_type = 'durable',
+					(SELECT SUM(pi.remaining_quantity) AS available_quantity FROM product_inventory AS pi WHERE pi.product_id=p.id AND pi.expiration_date > NOW()),
+					 ((
+						 SELECT MIN(can_make)
+						 FROM (
+							  SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
+							  FROM product_ingredients AS pi
+							  INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+							  LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
+							  WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+							  AND pi.product_id = p.id
+							  GROUP BY pi.id
+						 ) AS available_quantity
+					))
+				) AS available_quantity,
+				p.*
+			FROM cart AS c
+			CROSS JOIN JSON_TABLE(
+				 c.products,
+				 '$[*]'
+				 COLUMNS (
+					  id INT PATH '$.id',
+					  price INT PATH '$.price',
+					  quantity INT PATH '$.quantity'
+				 )
+			) AS cart_product
+			INNER JOIN products AS p ON p.id = cart_product.id
+			GROUP BY p.id
+			ORDER BY SUM(cart_product.quantity) DESC LIMIT 8;"
+			);
 			return $this->m_encrypt->encrypt($newestProducts);
 		} catch (Exception $e) {
 			echo $e->getMessage();
