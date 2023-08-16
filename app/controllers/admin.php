@@ -11,10 +11,10 @@ class Admin extends Controller
 
 		// session handler
 		if (!$this->session->has_userdata('user'))
-			redirect('account/login');
+			redirect('Account/login');
 		else
 			if (!$this->session->userdata('user')['is_admin'])
-			redirect('account/login');
+			redirect('Account/login');
 	}
 
 	// OTHERS

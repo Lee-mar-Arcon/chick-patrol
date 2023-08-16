@@ -22,10 +22,10 @@ class Customer extends Controller
 	public function loggedIn()
 	{
 		if (!$this->session->has_userdata('user'))
-			redirect('account/login');
+			redirect('Account/login');
 		else
 			if ($this->session->userdata('user')['is_admin'])
-			redirect('account/login');
+			redirect('Account/login');
 	}
 
 	public function homepage()
