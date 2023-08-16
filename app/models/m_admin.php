@@ -1,5 +1,5 @@
 <?php
-class m_admin extends Model
+class M_admin extends Model
 {
 	public function __construct()
 	{
