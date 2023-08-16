@@ -3,7 +3,7 @@ defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
 header("Access-Control-Allow-Origin: *");
 header("Content-type: application/json;");
 
-class customer_api extends Controller
+class Customer_api extends Controller
 {
 
 	public function __construct()

@@ -1,7 +1,7 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
 
-class customer extends Controller
+class Customer extends Controller
 {
 	public function __construct()
 	{
@@ -30,7 +30,7 @@ class customer extends Controller
 
 	public function homepage()
 	{
-		$this->call->view('customer/homepage', [
+		$this->call->view('Customer/homepage', [
 			'pageTitle' => 'Home',
 			'categories' => $this->db->table('categories as c')->select('distinct c.*')->inner_join('products as p', 'c.id = p.category')->get_all(),
 			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null,
@@ -48,7 +48,7 @@ class customer extends Controller
 			$products = $this->db->table('products as p')->in('id', $this->get_all_product_id($pendingCart['products']))->get_all();
 		else
 			$products = array();
-		$this->call->view('customer/shopping-cart', [
+		$this->call->view('Customer/shopping-cart', [
 			'pageTitle' => 'Shopping Cart',
 			'categories' => $this->db->table('categories')->get_all(),
 			'products' => $products,
@@ -71,7 +71,7 @@ class customer extends Controller
 	{
 		$this->loggedIn();
 		$cart = $this->db->table('cart')->where(['user_id' => $this->session->userdata('user')['id'], 'status' => 'pending'])->get();
-		$this->call->view('customer/checkout', [
+		$this->call->view('Customer/checkout', [
 			'pageTitle' => 'Checkout',
 			'cart' => $cart,
 			'cartProducts' => $cart ? $this->db->table('products')->in('id', $this->get_all_product_id($cart['products']))->get_all() : null,
@@ -189,21 +189,21 @@ class customer extends Controller
 					'for_approval_at' => date('Y-m-d H:i:s'),
 					'location' => $this->io->post('location')
 				]);
-				redirect('customer/shopping-cart');
+				redirect('Customer/shopping-cart');
 			} else {
 				$this->session->set_flashdata($errors);
-				redirect('customer/place-order');
+				redirect('Customer/place-order');
 			}
 		} else {
 			$this->session->set_flashdata(['errors' => array('location' => 'required', 'note' => 'required')]);
-			redirect('customer/checkout');
+			redirect('Customer/checkout');
 		}
 	}
 
 	public function orders()
 	{
 		$this->loggedIn();
-		$this->call->view('customer/orders', [
+		$this->call->view('Customer/orders', [
 			'pageTitle' => 'Orders',
 			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null
 		]);
@@ -213,7 +213,7 @@ class customer extends Controller
 	{
 		$this->loggedIn();
 		$this->call->model('M_admin');
-		$this->call->view('customer/profile', [
+		$this->call->view('Customer/profile', [
 			'pageTitle' => 'Profile',
 			'user' => array_merge($this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get(), $this->db->table('barangays')->select('name as barangay_name, delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()),
 			'barangays' => $this->M_admin->barangay_index()
@@ -226,7 +226,7 @@ class customer extends Controller
 		$productID = $this->M_encrypt->decrypt($productID);
 		$product = $this->db->table('products as p')->select('p.*, c.name as category_name')->inner_join('categories as c', 'p.category=c.id')->where('p.id', $productID)->get();
 		$product['id'] = $this->M_encrypt->encrypt($product['id']);
-		$this->call->view('customer/view-product', [
+		$this->call->view('Customer/view-product', [
 			'pageTitle' => $product['name'],
 			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null,
 			'product' => $product,

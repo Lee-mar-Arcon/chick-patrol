@@ -141,7 +141,7 @@
     <!-- Featured Section End -->
 
 
-    <?php if (count($newestProducts) > 0) : ?>
+    <?php if (count($newestProducts == null ? 0 : $newestProducts) > 0) : ?>
         <!-- newest products Begin -->
         <section class="categories">
             <div class="container">

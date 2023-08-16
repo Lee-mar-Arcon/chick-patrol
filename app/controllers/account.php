@@ -1,7 +1,7 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
 
-class account extends Controller
+class Account extends Controller
 {
 
 	public function __construct()
@@ -18,7 +18,7 @@ class account extends Controller
 	public function login()
 	{
 		$this->session->unset_userdata('user');
-		$this->call->view('account/login', [
+		$this->call->view('Account/login', [
 			'pageTitle' => 'login'
 		]);
 	}
@@ -26,14 +26,14 @@ class account extends Controller
 	public function register()
 	{
 		$this->call->database();
-		$this->call->view('account/register', [
+		$this->call->view('Account/register', [
 			'pageTitle' => 'register',
 			'barangays' => $this->db->table('barangays')->where_null('deleted_at')->get_all()
 		]);
 	}
 	public function forgot_password()
 	{
-		$this->call->view('account/forgot-password', [
+		$this->call->view('Account/forgot-password', [
 			'pageTitle' => 'forgot-password'
 		]);
 	}
@@ -46,7 +46,7 @@ class account extends Controller
 		$email = $this->M_encrypt->decrypt($email);
 
 		// $this->send_email_code($email);
-		$this->call->view('account/verify-email', [
+		$this->call->view('Account/verify-email', [
 			'pageTitle' => 'verify email address',
 			'email' => $encryptedEmail
 		]);
@@ -86,7 +86,7 @@ class account extends Controller
 				$formData = array('formData' => $_POST);
 				$this->session->set_flashdata(['errorMessage' => 'Email is not a valid gmail address.']);
 				$this->session->set_flashdata($formData);
-				redirect('account/register');
+				redirect('Account/register');
 			} else 
 					if ($this->form_validation->run()) {
 				$result = $this->M_account->register_user(
@@ -105,16 +105,16 @@ class account extends Controller
 					$formData = array('formData' => $_POST);
 					$this->session->set_flashdata(['errorMessage' => 'Email already exists, please log in instead to check your account.']);
 					$this->session->set_flashdata($formData);
-					redirect('account/register');
+					redirect('Account/register');
 				} else {
 					$this->call->model('M_encrypt');
-					redirect('account/verify_email/' . $this->M_encrypt->encrypt($this->io->post('email')));
+					redirect('Account/verify_email/' . $this->M_encrypt->encrypt($this->io->post('email')));
 				}
 			} else {
 				$formData = array('formData' => $_POST);
 				$this->session->set_flashdata(['errorMessage' => $this->form_validation->get_errors()[0]]);
 				$this->session->set_flashdata($formData);
-				redirect('account/register');
+				redirect('Account/register');
 			}
 		} else {
 			$this->call->view('errors/error_404', ['heading' => '404 Not Found', 'message' => 'Page not Found']);
@@ -155,9 +155,9 @@ class account extends Controller
 						if (password_verify($this->io->post('password'), $user[0]['password'])) {
 							$this->session->set_userdata('user', $user[0]);
 							if ($user[0]['is_admin'])
-								redirect('admin/dashboard');
+								redirect('Admin/dashboard');
 							else
-								redirect('customer/homepage');
+								redirect('Customer/homepage');
 						} else {
 							$this->session->set_flashdata(['error' => 'Wrong credentials']);
 						}
@@ -170,7 +170,7 @@ class account extends Controller
 			}
 			$formData = array('formData' => $_POST);
 			$this->session->set_flashdata($formData);
-			redirect('account/login');
+			redirect('Account/login');
 		}
 	}
 
@@ -179,7 +179,7 @@ class account extends Controller
 		$this->call->database();
 		$exists = $this->db->table('reset_password_code')->where('code', $email)->get();
 		if ($exists)
-			$this->call->view('account/reset-password', [
+			$this->call->view('Account/reset-password', [
 				'pageTitle' => 'Reset Password',
 				'encryptedEmail' => $email
 			]);
@@ -207,10 +207,10 @@ class account extends Controller
 				$email,
 				$this->io->post('password'),
 			);
-			redirect('account/login');
+			redirect('Account/login');
 		} else {
 			$this->session->set_flashdata(['error' => $this->form_validation->get_errors()[0]]);
-			redirect('account/reset-password/' . $encryptedEmail);
+			redirect('Account/reset-password/' . $encryptedEmail);
 		}
 	}
 
@@ -222,6 +222,6 @@ class account extends Controller
 		$newEmail = $this->db->table('change_email_code')->where('user_id', $userID)->get()['email'];
 		echo $this->db->table('users')->where('id', $userID)->update(['email' => $newEmail]);
 		$this->db->table('change_email_code')->where('user_id', $userID)->delete();
-		redirect('account/login');
+		redirect('Account/login');
 	}
 }

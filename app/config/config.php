@@ -81,6 +81,7 @@ $config['ENVIRONMENT']             = 'development';
 |
 */
 $config['base_url'] 				= 'https://chick-patrol.test/';
+// $config['base_url'] 				= 'https://chixpatrol.shop/';
 
 /*
 |--------------------------------------------------------------------------

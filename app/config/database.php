@@ -62,11 +62,12 @@ $database['main'] = array(
     'driver'	=> 'mysql',
     'hostname'	=> 'localhost',
     'port'		=> '3306',
+    // 'username'	=> 'u513776490_root',
+    // 'password'	=> 'Chixpatrol_123',
+    // 'database'	=> 'u513776490_chix_patrol',
     'username'	=> 'root',
     'password'	=> '',
     'database'	=> 'chick_patrol',
     'charset'	=> 'utf8',
     'dbprefix'	=> '',
 );
-
-?>

@@ -1,7 +1,7 @@
 <?php
 defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
 
-class admin extends Controller
+class Admin extends Controller
 {
 	public function __construct()
 	{
@@ -20,7 +20,7 @@ class admin extends Controller
 	// OTHERS
 	public function dashboard()
 	{
-		$this->call->view('admin/dashboard', [
+		$this->call->view('Admin/dashboard', [
 			'pageTitle' => 'Admin | Dashboard',
 			'breadCrumb' => 'Dashboard'
 		]);
@@ -67,7 +67,7 @@ class admin extends Controller
 	{
 		$barangays = $this->M_admin->barangay_index();
 
-		$this->call->view('admin/barangay', [
+		$this->call->view('Admin/barangay', [
 			'pageTitle' => 'Admin | Barangay',
 			'breadCrumb' => 'Barangay',
 			'barangays' => $barangays
@@ -105,7 +105,7 @@ class admin extends Controller
 			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
 			$this->session->set_flashdata(['formData' => $_POST]);
 		}
-		redirect('admin/barangay');
+		redirect('Admin/barangay');
 	}
 
 	function barangay_update()
@@ -149,7 +149,7 @@ class admin extends Controller
 			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
 			$this->session->set_flashdata(['formData' => $_POST]);
 		}
-		redirect('admin/barangay');
+		redirect('Admin/barangay');
 	}
 
 	function barangay_restore()
@@ -161,7 +161,7 @@ class admin extends Controller
 			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('barangays')->where('id', $id)->update(['deleted_at' => null]);
 			$this->session->set_flashdata(['formMessage' => 'restored']);
-			redirect('admin/barangay');
+			redirect('Admin/barangay');
 		} else {
 			echo 'ID is required';
 		}
@@ -177,7 +177,7 @@ class admin extends Controller
 			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('barangays')->where('id', $id)->update(['deleted_at' => date("Y-m-d H:i:s")]);
 			$this->session->set_flashdata(['formMessage' => 'deleted']);
-			redirect('admin/barangay');
+			redirect('Admin/barangay');
 		} else {
 			echo 'ID is required';
 		}
@@ -189,7 +189,7 @@ class admin extends Controller
 	function category()
 	{
 		$categories = $this->M_admin->category_index();
-		$this->call->view('admin/category', [
+		$this->call->view('Admin/category', [
 			'pageTitle' => 'Admin | Category',
 			'breadCrumb' => 'Category',
 			'categories' => $categories,
@@ -224,7 +224,7 @@ class admin extends Controller
 				}
 			else
 				$this->session->set_flashdata(['formMessage' => 'upload error']);
-			redirect('admin/category');
+			redirect('Admin/category');
 		}
 	}
 
@@ -253,7 +253,7 @@ class admin extends Controller
 			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
 			$this->session->set_flashdata(['formData' => $_POST]);
 		}
-		redirect('admin/category');
+		redirect('Admin/category');
 	}
 
 	function category_destroy()
@@ -263,7 +263,7 @@ class admin extends Controller
 
 		if ($this->form_validation->run()) {
 			$this->M_admin->category_destroy($this->io->post('id'));
-			redirect('admin/category');
+			redirect('Admin/category');
 		} else {
 			echo 'ID is required';
 		}
@@ -275,7 +275,7 @@ class admin extends Controller
 			->name('id')->required('ID is required.');
 		if ($this->form_validation->run()) {
 			$this->M_admin->category_restore($this->io->post('id'));
-			redirect('admin/category');
+			redirect('Admin/category');
 		} else {
 			echo 'ID is required';
 		}
@@ -283,7 +283,7 @@ class admin extends Controller
 
 	function user()
 	{
-		$this->call->view('admin/user', [
+		$this->call->view('Admin/user', [
 			'pageTitle' => 'Admin | Users',
 			'breadCrumb' => 'Users',
 		]);
@@ -294,7 +294,7 @@ class admin extends Controller
 	{
 		$this->call->model('M_encrypt');
 		$categoriesForForm = $this->M_encrypt->encrypt($this->db->table('categories')->where_null('deleted_at')->get_all());
-		$this->call->view('admin/product', [
+		$this->call->view('Admin/product', [
 			'pageTitle' => 'Admin | Products',
 			'breadCrumb' => 'Products',
 			'categories' => $this->M_admin->category_index(),
@@ -314,7 +314,7 @@ class admin extends Controller
 			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('products')->where('id', $id)->update(['selling' => 1]);
 			$this->session->set_flashdata(['formMessage' => 'selling']);
-			redirect('admin/product');
+			redirect('Admin/product');
 		} else {
 			echo 'ID is required';
 		}
@@ -329,7 +329,7 @@ class admin extends Controller
 			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('products')->where('id', $id)->update(['selling' => 0]);
 			$this->session->set_flashdata(['formMessage' => 'unavailable']);
-			redirect('admin/product');
+			redirect('Admin/product');
 		} else {
 			echo 'ID is required';
 		}
@@ -346,7 +346,7 @@ class admin extends Controller
 			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('users')->where('id', $id)->update(['is_banned' => 1]);
 			$this->session->set_flashdata(['formMessage' => 'deleted']);
-			redirect('admin/user');
+			redirect('Admin/user');
 		} else {
 			echo 'ID is required';
 		}
@@ -362,7 +362,7 @@ class admin extends Controller
 			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('users')->where('id', $id)->update(['is_banned' => 0]);
 			$this->session->set_flashdata(['formMessage' => 'deleted']);
-			redirect('admin/user');
+			redirect('Admin/user');
 		} else {
 			echo 'ID is required';
 		}
@@ -370,7 +370,7 @@ class admin extends Controller
 
 	function approval()
 	{
-		$this->call->view('admin/for-approval', [
+		$this->call->view('Admin/for-approval', [
 			'pageTitle' => 'Admin | For Approval',
 			'breadCrumb' => 'For Approval'
 		]);
@@ -378,7 +378,7 @@ class admin extends Controller
 
 	function rejected_order()
 	{
-		$this->call->view('admin/rejected-order', [
+		$this->call->view('Admin/rejected-order', [
 			'pageTitle' => 'Admin | Rejected Orders',
 			'breadCrumb' => 'Rejected Orders'
 		]);
@@ -386,7 +386,7 @@ class admin extends Controller
 
 	function preparing()
 	{
-		$this->call->view('admin/preparing', [
+		$this->call->view('Admin/preparing', [
 			'pageTitle' => 'Admin | On Preparation',
 			'breadCrumb' => 'On Preparation'
 		]);
@@ -394,7 +394,7 @@ class admin extends Controller
 
 	function on_delivery()
 	{
-		$this->call->view('admin/on-delivery', [
+		$this->call->view('Admin/on-delivery', [
 			'pageTitle' => 'Admin | On Delivery',
 			'breadCrumb' => 'On Delivery'
 		]);
@@ -402,7 +402,7 @@ class admin extends Controller
 
 	function profile()
 	{
-		$this->call->view('admin/profile', [
+		$this->call->view('Admin/profile', [
 			'pageTitle' => 'Admin | Profile',
 			'breadCrumb' => 'User Profile',
 			'barangays' => $this->M_admin->barangay_index(),
@@ -422,7 +422,7 @@ class admin extends Controller
 			GROUP BY p.id",
 			array($id)
 		))[0];
-		$this->call->view('admin/view-product', [
+		$this->call->view('Admin/view-product', [
 			'pageTitle' => 'Admin | View Product',
 			'breadCrumb' => 'View Product',
 			'product' => $product
@@ -431,7 +431,7 @@ class admin extends Controller
 
 	function ingredients()
 	{
-		$this->call->view('admin/ingredients', [
+		$this->call->view('Admin/ingredients', [
 			'pageTitle' => 'Admin | Ingredients',
 			'breadCrumb' => 'Ingredients'
 		]);
