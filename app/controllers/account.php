@@ -7,7 +7,7 @@ class account extends Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->call->model('m_account');
+		$this->call->model('M_account');
 		date_default_timezone_set("Asia/Singapore");
 	}
 	public function index()
@@ -41,9 +41,9 @@ class account extends Controller
 	public function verify_email($email)
 	{
 		$this->call->database();
-		$this->call->model('m_encrypt');
+		$this->call->model('M_encrypt');
 		$encryptedEmail = $email;
-		$email = $this->m_encrypt->decrypt($email);
+		$email = $this->M_encrypt->decrypt($email);
 
 		// $this->send_email_code($email);
 		$this->call->view('account/verify-email', [
@@ -89,7 +89,7 @@ class account extends Controller
 				redirect('account/register');
 			} else 
 					if ($this->form_validation->run()) {
-				$result = $this->m_account->register_user(
+				$result = $this->M_account->register_user(
 					$this->io->post('first_name'),
 					$this->io->post('last_name'),
 					$this->io->post('contact'),
@@ -107,8 +107,8 @@ class account extends Controller
 					$this->session->set_flashdata($formData);
 					redirect('account/register');
 				} else {
-					$this->call->model('m_encrypt');
-					redirect('account/verify_email/' . $this->m_encrypt->encrypt($this->io->post('email')));
+					$this->call->model('M_encrypt');
+					redirect('account/verify_email/' . $this->M_encrypt->encrypt($this->io->post('email')));
 				}
 			} else {
 				$formData = array('formData' => $_POST);
@@ -124,14 +124,14 @@ class account extends Controller
 	public function send_email_code($email = '')
 	{
 		if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			$this->call->model('m_mailer');
-			$this->call->model('m_encrypt');
+			$this->call->model('M_mailer');
+			$this->call->model('M_encrypt');
 			$this->call->database();
 
 			$code = $this->db->raw('select code from email_codes where user_email = ? limit 1', array($email))[0]['code'];
 
-			// $this->m_mailer->send_mail($email, 'Account Verification', $code, $this->m_encrypt->encrypt($email));
-			$this->m_mailer->send_mail($email, 'Account Verification', $code);
+			// $this->M_mailer->send_mail($email, 'Account Verification', $code, $this->M_encrypt->encrypt($email));
+			$this->M_mailer->send_mail($email, 'Account Verification', $code);
 			return 'email sent';
 		} else {
 			return 'not sent';
@@ -198,12 +198,12 @@ class account extends Controller
 			->min_length(8, 'Password length must be 8-16 characters!')
 			->max_length(16, 'Password length must be 8-16 characters!');
 
-		$this->call->model('m_encrypt');
+		$this->call->model('M_encrypt');
 		$encryptedEmail = $email;
-		$email = $this->m_encrypt->decrypt($email);
+		$email = $this->M_encrypt->decrypt($email);
 
 		if ($this->form_validation->run()) {
-			$result = $this->m_account->update_password(
+			$result = $this->M_account->update_password(
 				$email,
 				$this->io->post('password'),
 			);
@@ -216,8 +216,8 @@ class account extends Controller
 
 	function change_email($userID)
 	{
-		$this->call->model('m_encrypt');
-		$userID = $this->m_encrypt->decrypt($userID);
+		$this->call->model('M_encrypt');
+		$userID = $this->M_encrypt->decrypt($userID);
 		$this->call->database();
 		$newEmail = $this->db->table('change_email_code')->where('user_id', $userID)->get()['email'];
 		echo $this->db->table('users')->where('id', $userID)->update(['email' => $newEmail]);

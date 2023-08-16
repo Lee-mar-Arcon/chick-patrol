@@ -10,8 +10,8 @@ class admin_api extends Controller
 	{
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
-		$this->call->model('m_admin');
-		$this->call->model('m_encrypt');
+		$this->call->model('M_admin');
+		$this->call->model('M_encrypt');
 		$this->call->database();
 	}
 
@@ -37,7 +37,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_admin->user_index($page, $status, $q));
+			echo json_encode($this->M_admin->user_index($page, $status, $q));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -69,7 +69,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_admin->product_index($page, $q, $category, $availability));
+			echo json_encode($this->M_admin->product_index($page, $q, $category, $availability));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -103,7 +103,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_admin->product_search($q));
+			echo json_encode($this->M_admin->product_search($q));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -113,7 +113,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_admin->barangay_search($q));
+			echo json_encode($this->M_admin->barangay_search($q));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -123,7 +123,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_admin->delivery_fee_history($id, $date));
+			echo json_encode($this->M_admin->delivery_fee_history($id, $date));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -133,7 +133,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_admin->product_price_history($id, $date));
+			echo json_encode($this->M_admin->product_price_history($id, $date));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -174,12 +174,12 @@ class admin_api extends Controller
 				$result != null ? $errors['update_quantity'] = $result : '';
 			}
 
-			$currentProduct = $this->db->table('products')->where('id', $this->m_encrypt->decrypt($this->io->post('update_id')))->get();
+			$currentProduct = $this->db->table('products')->where('id', $this->M_encrypt->decrypt($this->io->post('update_id')))->get();
 			if (count($errors) == 0) {
 				$updateInventoryType = $this->io->post('update_inventory_type');
 				$newQuantity = (float)$this->io->post('update_quantity');
 				$newPrice = (float)$this->io->post('update_price');
-				$id = (int)$this->m_encrypt->decrypt($this->io->post('update_id'));
+				$id = (int)$this->M_encrypt->decrypt($this->io->post('update_id'));
 
 				$unchanged = true;
 				if ($updateInventoryType == 'perishable')
@@ -217,7 +217,7 @@ class admin_api extends Controller
 		try {
 			$this->is_authorized();
 
-			$forApprovalList = $this->m_admin->for_approval_index($page, $q);
+			$forApprovalList = $this->M_admin->for_approval_index($page, $q);
 			echo json_encode($forApprovalList);
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -229,13 +229,13 @@ class admin_api extends Controller
 		try {
 			$this->is_authorized();
 			$cartDetails = array();
-			$cartID = $this->m_encrypt->decrypt($_POST['id']);
+			$cartID = $this->M_encrypt->decrypt($_POST['id']);
 			$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, location, for_approval_at, id, note, products, total, user_id, rejection_note')->where(['id' => $cartID])->get();
 
 			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
 			$cartDetails['products'] = $this->db->table('products as p')->select('name, id')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
 			// para lang saf yung id sa front end
-			$cartDetails['cart']['user_id'] = $this->m_encrypt->encrypt($cartDetails['cart']['user_id']);
+			$cartDetails['cart']['user_id'] = $this->M_encrypt->encrypt($cartDetails['cart']['user_id']);
 			echo json_encode($cartDetails);
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -256,14 +256,14 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			$this->call->model('m_mailer');
-			$cartID = $this->m_encrypt->decrypt($_POST['id']);
+			$this->call->model('M_mailer');
+			$cartID = $this->M_encrypt->decrypt($_POST['id']);
 			$email = $this->db->table('cart as c')->select('u.email')->inner_join('users as u', 'c.user_id=u.id')->where('c.id', $cartID)->get()['email'];
 			$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, for_approval_at, id, note, products, total, user_id')->where(['id' => $cartID])->get();
 			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
 			$cartDetails['products'] = $this->db->table('products as p')->select('name, id, price')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
 
-			if ($this->m_mailer->approve_cart_mail($email, 'Your order has been approved! Our Shop is now preparing your order.', $cartDetails)) {
+			if ($this->M_mailer->approve_cart_mail($email, 'Your order has been approved! Our Shop is now preparing your order.', $cartDetails)) {
 				echo json_encode($this->db->table('cart')->where('id', $cartID)->update(['status' => 'preparing', 'approved_at' => date('Y-m-d H:i:s')]));
 			} else {
 				echo json_encode(0);
@@ -278,7 +278,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			$onPreparationList = $this->m_admin->on_preparation_index($page, $q);
+			$onPreparationList = $this->M_admin->on_preparation_index($page, $q);
 			echo json_encode($onPreparationList);
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -289,14 +289,14 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			$this->call->model('m_mailer');
-			$cartID = $this->m_encrypt->decrypt($_POST['id']);
+			$this->call->model('M_mailer');
+			$cartID = $this->M_encrypt->decrypt($_POST['id']);
 			$email = $this->db->table('cart as c')->select('u.email')->inner_join('users as u', 'c.user_id=u.id')->where('c.id', $cartID)->get()['email'];
 			$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, for_approval_at, id, note, products, total, user_id')->where(['id' => $cartID])->get();
 			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
 			$cartDetails['products'] = $this->db->table('products as p')->select('name, id, price')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
 
-			if ($this->m_mailer->deliver_order_mail($email, 'Order Preparation Finished! Please prepare ' . number_format($cartDetails['cart']['total'], 2) . ' Php for your payment.', $cartDetails)) {
+			if ($this->M_mailer->deliver_order_mail($email, 'Order Preparation Finished! Please prepare ' . number_format($cartDetails['cart']['total'], 2) . ' Php for your payment.', $cartDetails)) {
 				echo json_encode($this->db->table('cart')->where('id', $cartID)->update(['status' => 'on delivery', 'on_delivery_at' => date('Y-m-d H:i:s')]));
 			} else {
 				echo json_encode(0);
@@ -317,12 +317,12 @@ class admin_api extends Controller
 			else if (strlen($rejection_note) == 0)
 				echo json_encode('note is required');
 			else {
-				$this->call->model('m_mailer');
-				$cart = $this->db->table('cart')->where('id', $this->m_encrypt->decrypt($id))->get();
-				$email = $this->db->table('cart as c')->select('u.email')->inner_join('users as u', 'c.user_id=u.id')->where('c.id', $this->m_encrypt->decrypt($id))->get()['email'];
+				$this->call->model('M_mailer');
+				$cart = $this->db->table('cart')->where('id', $this->M_encrypt->decrypt($id))->get();
+				$email = $this->db->table('cart as c')->select('u.email')->inner_join('users as u', 'c.user_id=u.id')->where('c.id', $this->M_encrypt->decrypt($id))->get()['email'];
 
-				if ($this->m_mailer->reject_order_mail($email, 'Order Rejected.', $rejection_note)) {
-					$this->db->table('cart')->where('id', $this->m_encrypt->decrypt($id))->update(array('status' => 'rejected', 'rejection_note' => $rejection_note, 'rejected_at' => date('Y-m-d H:i:s')));
+				if ($this->M_mailer->reject_order_mail($email, 'Order Rejected.', $rejection_note)) {
+					$this->db->table('cart')->where('id', $this->M_encrypt->decrypt($id))->update(array('status' => 'rejected', 'rejection_note' => $rejection_note, 'rejected_at' => date('Y-m-d H:i:s')));
 					$products = $this->db->table('products as p')->select('quantity, id')->in('id', $this->get_all_product_id($cart['products']))->get_all();
 					foreach ($products as $product) {
 						foreach (json_decode($cart['products']) as $cartProduct) {
@@ -346,7 +346,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			$onPreparationList = $this->m_admin->rejected_orders_index($page, $q);
+			$onPreparationList = $this->M_admin->rejected_orders_index($page, $q);
 			echo json_encode($onPreparationList);
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -358,7 +358,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			$onDeliveryList = $this->m_admin->on_delivery_index($page, $q);
+			$onDeliveryList = $this->M_admin->on_delivery_index($page, $q);
 			echo json_encode($onDeliveryList);
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -373,14 +373,14 @@ class admin_api extends Controller
 			if (strlen($cartID) == 0) {
 				echo json_encode('id required');
 			} else {
-				$this->call->model('m_mailer');
-				$cartID = $this->m_encrypt->decrypt($_POST['id']);
+				$this->call->model('M_mailer');
+				$cartID = $this->M_encrypt->decrypt($_POST['id']);
 				$email = $this->db->table('cart as c')->select('u.email')->inner_join('users as u', 'c.user_id=u.id')->where('c.id', $cartID)->get()['email'];
 				$cartDetails['cart'] = $this->db->table('cart')->select('delivery_fee, for_approval_at, id, note, products, total, user_id')->where(['id' => $cartID])->get();
 				$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
 				$cartDetails['products'] = $this->db->table('products as p')->select('name, id, price')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
 
-				if ($this->m_mailer->deliver_order_mail($email, 'Order Marked Received! Kindly Check your email for more information.', $cartDetails)) {
+				if ($this->M_mailer->deliver_order_mail($email, 'Order Marked Received! Kindly Check your email for more information.', $cartDetails)) {
 					$this->db->table('cart')->where('id', $cartID)->update(array('status' => 'finished', 'received_at' => date('Y-m-d H:i:s')));
 					echo json_encode(1);
 				} else {
@@ -416,7 +416,7 @@ class admin_api extends Controller
 				if ($result != null) {
 					$errors['category'] = $result;
 				} else 
-					if ($this->db->table('categories')->where('id', $this->m_encrypt->decrypt($this->io->post('category')))->get() == false) $errors['category'] = 'invalid ID';
+					if ($this->db->table('categories')->where('id', $this->M_encrypt->decrypt($this->io->post('category')))->get() == false) $errors['category'] = 'invalid ID';
 				// inventory type
 				$this->form_validation
 					->name('inventory_type')
@@ -473,7 +473,7 @@ class admin_api extends Controller
 						$filename = $this->upload_cropped_image($this->uploadOriginalImage('product'), 'product');
 						// set selling to false if product is perishable
 						$selling = $this->io->post('inventory_type') == 'durable' ? 1 : 0;
-						$this->m_admin->product_store(
+						$this->M_admin->product_store(
 							$this->io->post('name'),
 							$this->io->post('category'),
 							$this->io->post('price'),
@@ -530,7 +530,7 @@ class admin_api extends Controller
 		try {
 			$this->is_authorized();
 			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
-			$productID = $this->m_encrypt->decrypt($_POST['productID']);
+			$productID = $this->M_encrypt->decrypt($_POST['productID']);
 			if ($this->db->table('products')->where('id', $productID)->get() == false) {
 				echo json_encode('invalid ID');
 			} else if (password_verify($_POST['password'], $user['password'])) {
@@ -551,7 +551,7 @@ class admin_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_admin->ingredients_index($page, $q));
+			echo json_encode($this->M_admin->ingredients_index($page, $q));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -639,10 +639,10 @@ class admin_api extends Controller
 			if (!isset($_POST['productID']))
 				echo json_encode('does not exists');
 			else {
-				$productID = $this->m_encrypt->decrypt($_POST['productID']);
+				$productID = $this->M_encrypt->decrypt($_POST['productID']);
 				$productExists = $this->db->table('products')->where('id', $productID)->limit(1)->get_all();
 				if (count($productExists)) {
-					$productIngredients = $this->m_encrypt->encrypt($this->db->raw(
+					$productIngredients = $this->M_encrypt->encrypt($this->db->raw(
 						'SELECT 
 								pi.*, 
 								i.name,
@@ -681,7 +681,7 @@ class admin_api extends Controller
 			$result = $this->check_input();
 			$result != null ? $errors['product_ingredient_id'] = $result : '';
 			// check if id exists
-			$productIngredientID = $this->m_encrypt->decrypt($productIngredientID);
+			$productIngredientID = $this->M_encrypt->decrypt($productIngredientID);
 			$productIngredientExists = $this->db->table('product_ingredients')->where('id', $productIngredientID)->limit(1)->get_all();
 			if (!count($productIngredientExists)) {
 				$errors['product_ingredient_id'] = 'invalid id';
@@ -736,20 +736,20 @@ class admin_api extends Controller
 				echo json_encode(array());
 			// check product id if valid
 			else if (isset($_POST['productID'])) {
-				$exists = $this->db->table('products')->where('id', $this->m_encrypt->decrypt($_POST['productID']))->limit(1)->get_all();
+				$exists = $this->db->table('products')->where('id', $this->M_encrypt->decrypt($_POST['productID']))->limit(1)->get_all();
 				if (!count($exists))
 					echo json_encode(array());
 				else {
-					$productID = $this->m_encrypt->decrypt($_POST['productID']);
+					$productID = $this->M_encrypt->decrypt($_POST['productID']);
 					$currentProductIngredient = $this->db->table('product_ingredients')->select('ingredient_id')->where('product_id', $productID)->get_all();
 					$currentProductIngredient =
 						array_map(function ($item) {
 							return $item['ingredient_id'];
 						}, $currentProductIngredient);
 					if (count($currentProductIngredient) > 0)
-						$ingredients = $this->m_encrypt->encrypt($this->db->table('ingredients')->select('name as text, id')->where_null('deleted_at')->not_in('id', $currentProductIngredient)->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
+						$ingredients = $this->M_encrypt->encrypt($this->db->table('ingredients')->select('name as text, id')->where_null('deleted_at')->not_in('id', $currentProductIngredient)->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
 					else
-						$ingredients = $this->m_encrypt->encrypt($this->db->table('ingredients')->select('name as text, id')->where_null('deleted_at')->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
+						$ingredients = $this->M_encrypt->encrypt($this->db->table('ingredients')->select('name as text, id')->where_null('deleted_at')->like('LOWER(name)', '%' . $_POST['q'] . '%')->limit(8)->get_all());
 					echo json_encode($ingredients);
 				}
 			} else {
@@ -773,7 +773,7 @@ class admin_api extends Controller
 			$result != null ? $errors['product_id'] = $result : '';
 			// if product is exists
 			if (!isset($errors['product_id']))
-				if (count($this->db->table('products')->where('id', $this->m_encrypt->decrypt($_POST['product_id']))->limit(1)->get_all()) == 0)
+				if (count($this->db->table('products')->where('id', $this->M_encrypt->decrypt($_POST['product_id']))->limit(1)->get_all()) == 0)
 					$errors['product_id'] = 'invalid id';
 
 			// ingredient_id
@@ -784,7 +784,7 @@ class admin_api extends Controller
 			$result != null ? $errors['ingredient_id'] = $result : '';
 			// if ingredient is exists
 			if (!isset($errors['ingredient_id']))
-				if (count($this->db->table('ingredients')->where('id', $this->m_encrypt->decrypt($_POST['ingredient_id']))->limit(1)->get_all()) == 0)
+				if (count($this->db->table('ingredients')->where('id', $this->M_encrypt->decrypt($_POST['ingredient_id']))->limit(1)->get_all()) == 0)
 					$errors['ingredient_id'] = 'invalid id';
 
 			// need_quantity
@@ -807,8 +807,8 @@ class admin_api extends Controller
 			if (count($errors) > 0)
 				echo json_encode($errors);
 			else {
-				$_POST['ingredient_id'] = $this->m_encrypt->decrypt($_POST['ingredient_id']);
-				$_POST['product_id'] = $this->m_encrypt->decrypt($_POST['product_id']);
+				$_POST['ingredient_id'] = $this->M_encrypt->decrypt($_POST['ingredient_id']);
+				$_POST['product_id'] = $this->M_encrypt->decrypt($_POST['product_id']);
 				$this->db->table('product_ingredients')->insert($_POST);
 				echo json_encode('success');
 			}
@@ -848,7 +848,7 @@ class admin_api extends Controller
 					LEFT JOIN ingredient_inventory AS ii ON p_ingredients.id = ii.product_ingredient_id
 					WHERE (p_inventory.expiration_date > CURRENT_DATE OR p.inventory_type = 'perishable') AND p.id = ?
 					GROUP BY p.id, p_inventory.remaining_quantity
-					ORDER BY p.name", array($this->m_encrypt->decrypt($_POST['product_id'])))[0]['available_quantity']);
+					ORDER BY p.name", array($this->M_encrypt->decrypt($_POST['product_id'])))[0]['available_quantity']);
 			else
 				echo json_encode(null);
 		} catch (Exception $e) {
@@ -861,15 +861,15 @@ class admin_api extends Controller
 		try {
 			// $this->is_authorized();
 			if (isset($_POST['ingredient_id']) && isset($_POST['product_id'])) {
-				$data['list'] = $this->m_encrypt->encrypt($this->db->raw(
+				$data['list'] = $this->M_encrypt->encrypt($this->db->raw(
 					'
 					SELECT ii.*,i.name FROM product_ingredients AS pi 
 					INNER JOIN ingredient_inventory AS ii ON ii.product_ingredient_id=pi.id
 					INNER JOIN ingredients AS i ON pi.ingredient_id=i.id
 					WHERE pi.product_id = ? AND pi.id = ? AND ii.expiration_date > NOW()',
-					array($this->m_encrypt->decrypt($_POST['product_id']), $this->m_encrypt->decrypt($_POST['ingredient_id']))
+					array($this->M_encrypt->decrypt($_POST['product_id']), $this->M_encrypt->decrypt($_POST['ingredient_id']))
 				));
-				$data['name'] = $this->db->table('ingredients as i')->inner_join('product_ingredients as pi', 'pi.ingredient_id=i.id')->where('pi.id', $this->m_encrypt->decrypt($_POST['ingredient_id']))->get()['name'];
+				$data['name'] = $this->db->table('ingredients as i')->inner_join('product_ingredients as pi', 'pi.ingredient_id=i.id')->where('pi.id', $this->M_encrypt->decrypt($_POST['ingredient_id']))->get()['name'];
 				echo json_encode($data);
 			} else {
 				echo json_encode(array());
@@ -885,7 +885,7 @@ class admin_api extends Controller
 			$this->is_authorized();
 			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
 
-			$ingredient_id = $this->m_encrypt->decrypt($_POST['ingredient_id']);
+			$ingredient_id = $this->M_encrypt->decrypt($_POST['ingredient_id']);
 			if ($this->db->table('ingredient_inventory')->where('id', $ingredient_id)->get() == false) {
 				echo json_encode('invalid ID');
 			} else if (password_verify($_POST['password'], $user['password'])) {
@@ -904,7 +904,7 @@ class admin_api extends Controller
 		try {
 			// $this->is_authorized();
 			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
-			$ingredient_id = $this->m_encrypt->decrypt($_POST['ingredient_id']);
+			$ingredient_id = $this->M_encrypt->decrypt($_POST['ingredient_id']);
 			if ($this->db->table('product_ingredients')->where('id', $ingredient_id)->get() == false) {
 				echo json_encode('invalid ID');
 			} else if (password_verify($_POST['password'], $user['password'])) {
@@ -924,7 +924,7 @@ class admin_api extends Controller
 			// $this->is_authorized();
 			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
 			// $user = $this->db->table('users')->where('id', 141)->get();
-			$product_id = $this->m_encrypt->decrypt($_POST['product_id']);
+			$product_id = $this->M_encrypt->decrypt($_POST['product_id']);
 			if ($this->db->table('products')->where('id', $product_id)->get() == false) {
 				echo json_encode('invalid ID');
 			} else if (password_verify($_POST['password'], $user['password'])) {
@@ -942,8 +942,8 @@ class admin_api extends Controller
 	{
 		try {
 			if ($this->form_validation->submitted()) {
-				$id = $this->m_encrypt->decrypt($_POST['id']);
-				$category = $this->m_encrypt->decrypt($this->io->post('category'));
+				$id = $this->M_encrypt->decrypt($_POST['id']);
+				$category = $this->M_encrypt->decrypt($this->io->post('category'));
 				$errors = array();
 				// name
 				$this->form_validation
@@ -1022,7 +1022,7 @@ class admin_api extends Controller
 	// {
 	// 	try {
 	// 		$this->is_authorized();
-	// 		echo json_encode($this->m_admin->user_index());
+	// 		echo json_encode($this->M_admin->user_index());
 	// 	} catch (Exception $e) {
 	// 		echo $e->getMessage();
 	// 	}

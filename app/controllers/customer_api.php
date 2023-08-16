@@ -10,7 +10,7 @@ class customer_api extends Controller
 	{
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
-		$this->call->model('m_encrypt');
+		$this->call->model('M_encrypt');
 		$this->call->database();
 	}
 
@@ -27,7 +27,7 @@ class customer_api extends Controller
 			$this->is_authorized();
 			$user = $this->session->userdata('user');
 			$hasPendingCart = $this->db->table('cart')->where(['user_id' => $user['id'], 'status' => 'pending'])->get();
-			$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
+			$productId = (int)$this->M_encrypt->decrypt($_POST['id']);
 			// if there is no current pending cart for the user
 			if ($hasPendingCart == false) {
 				$data[] = array('id' => $productId, 'quantity' => isset($_POST['quantity']) ? $_POST['quantity'] : 1);
@@ -87,7 +87,7 @@ class customer_api extends Controller
 		try {
 			$this->is_authorized();
 			$pendingCart = $this->db->table('cart')->where(['user_id' =>  $this->session->userdata('user')['id'], 'status' => 'pending'])->get();
-			$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
+			$productId = (int)$this->M_encrypt->decrypt($_POST['id']);
 
 			$newProductList = array();
 			$productList = json_decode($pendingCart['products']);
@@ -106,7 +106,7 @@ class customer_api extends Controller
 	// {
 	// 	try {
 	// 		$this->is_authorized();
-	// 		$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
+	// 		$productId = (int)$this->M_encrypt->decrypt($_POST['id']);
 	// 		$product = $this->db->table('products as p')->where('id', $productId)->get();
 	// 		echo json_encode($product['quantity']);
 	// 	} catch (Exception $e) {
@@ -144,7 +144,7 @@ class customer_api extends Controller
 					LEFT JOIN ingredient_inventory AS ii ON p_ingredients.id = ii.product_ingredient_id
 					WHERE (p_inventory.expiration_date > CURRENT_DATE OR p.inventory_type = 'perishable') AND p.id = ?
 					GROUP BY p.id, p_inventory.remaining_quantity
-					ORDER BY p.name LIMIT 1", array($this->m_encrypt->decrypt($_POST['product_id'])))[0]['available_quantity']);
+					ORDER BY p.name LIMIT 1", array($this->M_encrypt->decrypt($_POST['product_id'])))[0]['available_quantity']);
 			else
 				echo json_encode('hahaha');
 		} catch (Exception $e) {
@@ -157,7 +157,7 @@ class customer_api extends Controller
 		try {
 			$this->is_authorized();
 			$cart = $this->db->table('cart')->where(array('user_id' => $this->session->userdata('user')['id'], 'status' => 'pending'))->get();
-			$productId = (int)$this->m_encrypt->decrypt($_POST['id']);
+			$productId = (int)$this->M_encrypt->decrypt($_POST['id']);
 			$productList = json_decode($cart['products']);
 			$updatedProductList = array();
 			$newQuantity = json_decode($_POST['newQuantity']);
@@ -211,7 +211,7 @@ class customer_api extends Controller
 			$cartDetails['user'] = $this->db->table('users as u')->select('u.first_name, u.middle_name, u.street, u.last_name, u.contact, b.name as barangay_name, u.email')->inner_join('barangays as b', 'u.barangay=b.id')->where('u.id', $cartDetails['cart']['user_id'])->get();
 			$cartDetails['products'] = $this->db->table('products as p')->select('name, id')->in('id', $this->get_all_product_id($cartDetails['cart']['products']))->get_all();
 			// para lang saf yung id sa front end
-			$cartDetails['cart']['user_id'] = $this->m_encrypt->encrypt($cartDetails['cart']['user_id']);
+			$cartDetails['cart']['user_id'] = $this->M_encrypt->encrypt($cartDetails['cart']['user_id']);
 			echo json_encode($cartDetails);
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -263,10 +263,10 @@ class customer_api extends Controller
 
 			// update user email
 			if ($updateEmail && $responseSuccess == true) {
-				$this->call->model('m_mailer');
+				$this->call->model('M_mailer');
 				$userID = $this->session->userdata('user')['id'];
-				$encryptedID = $this->m_encrypt->encrypt($this->session->userdata('user')['id']);
-				$emailSent = $this->m_mailer->send_change_email_mail($_POST['email'], $encryptedID);
+				$encryptedID = $this->M_encrypt->encrypt($this->session->userdata('user')['id']);
+				$emailSent = $this->M_mailer->send_change_email_mail($_POST['email'], $encryptedID);
 				if ($emailSent == false) {
 					$responseSuccess = 'sending email failed';
 				} else {
@@ -285,7 +285,7 @@ class customer_api extends Controller
 			// update user basic information
 			if (!is_array($responseSuccess)) {
 				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update([
-					'barangay' => $this->m_encrypt->decrypt($_POST['barangay']),
+					'barangay' => $this->M_encrypt->decrypt($_POST['barangay']),
 					'birth_date' => $_POST['birth_date'],
 					'contact' => $_POST['contact'],
 					'first_name' => $_POST['first_name'],
@@ -346,7 +346,7 @@ class customer_api extends Controller
 		$result = $this->check_input('street');
 		$result != null ? $errors['street'] = $result : '';
 		// barangay
-		$barangayExists = $this->db->table('barangays')->where('id', $this->m_encrypt->decrypt($_POST['barangay']))->get();
+		$barangayExists = $this->db->table('barangays')->where('id', $this->M_encrypt->decrypt($_POST['barangay']))->get();
 		if (!is_array($barangayExists))
 			$errors['barangay'] = 'invalid data';
 
@@ -456,7 +456,7 @@ class customer_api extends Controller
 	{
 		try {
 			$this->is_authorized();
-			echo json_encode($this->m_encrypt->encrypt($this->db->table('categories as c')->select('distinct c.*')->inner_join('products as p', 'c.id = p.category')->get_all()));
+			echo json_encode($this->M_encrypt->encrypt($this->db->table('categories as c')->select('distinct c.*')->inner_join('products as p', 'c.id = p.category')->get_all()));
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -468,7 +468,7 @@ class customer_api extends Controller
 			// $this->is_authorized();
 			// $q = '%' . '%';
 			$q = (isset($_POST['q']) ? $_POST['q'] : '') . '%';
-			$products = $this->m_encrypt->encrypt($this->db->raw("SELECT 
+			$products = $this->M_encrypt->encrypt($this->db->raw("SELECT 
 			p.*,
 			c.name AS category_name,
 			IF(p.inventory_type = 'durable',
@@ -490,7 +490,7 @@ class customer_api extends Controller
 		INNER JOIN categories AS c ON p.category = c.id		  
 		WHERE p.name LIKE ?
 		ORDER BY p.name", array($q)));
-			// $products = $this->m_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.selling, p.quantity')->inner_join('categories as c', 'p.category=c.id')->like('LOWER(p.name)', strtolower($q))->get_all());
+			// $products = $this->M_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.selling, p.quantity')->inner_join('categories as c', 'p.category=c.id')->like('LOWER(p.name)', strtolower($q))->get_all());
 			// echo json_encode(123);
 			echo json_encode($products);
 		} catch (Exception $e) {

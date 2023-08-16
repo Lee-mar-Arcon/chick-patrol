@@ -1,7 +1,7 @@
 <?php
 // $encrypted = openssl_encrypt('Secret message to be encrypted', $this->cipher, $this->key, 0, $iv);
 // echo '<br>' . openssl_decrypt($encrypted, $this->cipher, $this->key, 0, $iv);
-class m_encrypt extends Model
+class M_encrypt extends Model
 {
   private  $key = 'fwl40t39jeogih2';
    var $cipher = 'aes-256-cbc';

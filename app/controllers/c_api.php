@@ -15,8 +15,8 @@ class c_api extends Controller
 
 	function resend_code($email)
 	{
-		$this->call->model('m_encrypt');
-		$email = $this->m_encrypt->decrypt($email);
+		$this->call->model('M_encrypt');
+		$email = $this->M_encrypt->decrypt($email);
 		$this->send_email_code($email);
 		echo json_encode($email);
 	}
@@ -24,8 +24,8 @@ class c_api extends Controller
 	public function send_email_code($email = '')
 	{
 		if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			$this->call->model('m_mailer');
-			$this->call->model('m_encrypt');
+			$this->call->model('M_mailer');
+			$this->call->model('M_encrypt');
 			if (count($this->db->table('email_codes')->where('user_email', $email)->limit(1)->get_all()))
 				$this->db->table('email_codes')->update([
 					'code' => mt_rand(100000, 999999),
@@ -37,7 +37,7 @@ class c_api extends Controller
 					'user_email' => $email
 				]);
 			$code = $this->db->raw('select code from email_codes where user_email = ? limit 1', array($email))[0]['code'];
-			$this->m_mailer->send_mail($email, 'Account Verification', $code, $this->m_encrypt->encrypt($email));
+			$this->M_mailer->send_mail($email, 'Account Verification', $code, $this->M_encrypt->encrypt($email));
 			return 'email sent';
 		} else {
 			return 'not sent';
@@ -46,8 +46,8 @@ class c_api extends Controller
 
 	function verify_code($email, $code = null)
 	{
-		$this->call->model('m_encrypt');
-		$email = $this->m_encrypt->decrypt($email);
+		$this->call->model('M_encrypt');
+		$email = $this->M_encrypt->decrypt($email);
 		$databaseCode = $this->db->table('email_codes')->where('user_email', $email)->limit(1)->get_all()[0]['code'];
 		if ($databaseCode == $code) {
 			$this->db->table('email_codes')->where('user_email', $email)->delete();
@@ -62,7 +62,7 @@ class c_api extends Controller
 		$user = $this->db->table('users')->where_not_null('verified_at')->where('email', $email)->limit(1)->get_all();
 		if (count($user) > 0) {
 			$this->call->model('m_mailer');
-			echo $this->m_mailer->send_forgot_password_link($email, 'Account password reset link');
+			echo $this->M_mailer->send_forgot_password_link($email, 'Account password reset link');
 		} else
 			echo 'User does not exists.';
 	}

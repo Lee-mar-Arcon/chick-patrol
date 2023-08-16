@@ -5,19 +5,19 @@ class m_admin extends Model
 	{
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
-		$this->call->model('m_encrypt');
+		$this->call->model('M_encrypt');
 	}
 
 	// BARANGAY FUNCTIONS
 	function barangay_index()
 	{
-		return $this->m_encrypt->encrypt($this->db->table('barangays')->order_by('name', 'asc')->get_all());
+		return $this->M_encrypt->encrypt($this->db->table('barangays')->order_by('name', 'asc')->get_all());
 	}
 
 	// CATEGORY FUNCTIONS
 	function category_index()
 	{
-		return $this->m_encrypt->encrypt($this->db->table('categories')->order_by('name', 'asc')->get_all());
+		return $this->M_encrypt->encrypt($this->db->table('categories')->order_by('name', 'asc')->get_all());
 	}
 
 	function category_store($name, $image)
@@ -39,7 +39,7 @@ class m_admin extends Model
 
 	function category_update($id, $name, $filename)
 	{
-		$id = $this->m_encrypt->decrypt($id);
+		$id = $this->M_encrypt->decrypt($id);
 		$name = $name;
 		$exists = $this->db->table('categories')->where('LOWER(name)', strtolower($name))->not_where('id', $id)->get();
 
@@ -54,14 +54,14 @@ class m_admin extends Model
 
 	function category_destroy($id)
 	{
-		$id = $this->m_encrypt->decrypt($id);
+		$id = $this->M_encrypt->decrypt($id);
 		$this->db->table('categories')->where('id', $id)->update(['deleted_at' => date("Y-m-d H:i:s")]);
 		$this->session->set_flashdata(['formMessage' => 'deleted']);
 	}
 
 	function category_restore($id)
 	{
-		$id = $this->m_encrypt->decrypt($this->io->post('id'));
+		$id = $this->M_encrypt->decrypt($this->io->post('id'));
 		$this->db->table('categories')->where('id', $id)->update(['deleted_at' => null]);
 		$this->session->set_flashdata(['formMessage' => 'restored']);
 	}
@@ -80,7 +80,7 @@ class m_admin extends Model
 		)[0]['total'];
 
 		return [
-			'users' => $this->m_encrypt->encrypt($this->db->raw(
+			'users' => $this->M_encrypt->encrypt($this->db->raw(
 				" SELECT u.id AS id, u.first_name AS first_name, u.middle_name AS middle_name, u.last_name AS last_name, u.email AS email, b.name AS barangay_name, u.street, u.contact, u.birth_date, u.sex, u.verified_at, u.is_banned FROM users AS u INNER JOIN barangays AS b ON u.barangay = b.id WHERE u.is_admin = 0 AND u.is_banned NOT LIKE ? AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ?) order by u.first_name LIMIT 10 OFFSET ?",
 				[$status, $q, $q, $q, $q, ($page - 1)  * 10]
 			)),
@@ -97,7 +97,7 @@ class m_admin extends Model
 	{
 		$bind = array(
 			'name' => $name,
-			'category' => $this->m_encrypt->decrypt($category),
+			'category' => $this->M_encrypt->decrypt($category),
 			'price' => $price,
 			'description' => $description,
 			'image' => $filename,
@@ -118,7 +118,7 @@ class m_admin extends Model
 		if (ctype_space($category) || $category == 'all')
 			$category = '%%';
 		else {
-			$category = $this->m_encrypt->decrypt($category);
+			$category = $this->M_encrypt->decrypt($category);
 			$category = '%' . $category . '%';
 		}
 
@@ -137,7 +137,7 @@ class m_admin extends Model
 		);
 		$totalRows = count($totalRows) > 0 ? $totalRows[0]['total'] : 0;
 		return [
-			'products' => $this->m_encrypt->encrypt($this->db->raw(
+			'products' => $this->M_encrypt->encrypt($this->db->raw(
 				"SELECT 
 					p.*,
 					c.name AS category_name,
@@ -178,29 +178,29 @@ class m_admin extends Model
 	{
 		if (strlen($q) == 0) $q = '%%';
 		else $q = '%' . $q . '%';
-		return $this->m_encrypt->encrypt($this->db->table('products')->select('name, id')->like('name', $q)->order_by('name', 'ASC')->limit(10)->get_all());
+		return $this->M_encrypt->encrypt($this->db->table('products')->select('name, id')->like('name', $q)->order_by('name', 'ASC')->limit(10)->get_all());
 	}
 
 	function barangay_search($q)
 	{
 		if (strlen($q) == 0) $q = '%%';
 		else $q = '%' . $q . '%';
-		return $this->m_encrypt->encrypt($this->db->table('barangays')->select('name, id')->like('name', $q)->order_by('name', 'ASC')->limit(10)->get_all());
+		return $this->M_encrypt->encrypt($this->db->table('barangays')->select('name, id')->like('name', $q)->order_by('name', 'ASC')->limit(10)->get_all());
 	}
 
 	function delivery_fee_history($id, $date)
 	{
 		$date .= '%';
-		$result['history'] = $this->db->table('delivery_fee_history as d')->select("DATE_FORMAT(d.added_at, '%b %d') as added_at, d.delivery_fee")->where('barangay_id', $this->m_encrypt->decrypt($id))->like('added_at', $date)->order_by('added_at', 'ASC')->get_all();
-		$result['barangay'] = $this->db->table('barangays')->where('id', $this->m_encrypt->decrypt($id))->get();
+		$result['history'] = $this->db->table('delivery_fee_history as d')->select("DATE_FORMAT(d.added_at, '%b %d') as added_at, d.delivery_fee")->where('barangay_id', $this->M_encrypt->decrypt($id))->like('added_at', $date)->order_by('added_at', 'ASC')->get_all();
+		$result['barangay'] = $this->db->table('barangays')->where('id', $this->M_encrypt->decrypt($id))->get();
 		return $result;
 	}
 
 	function product_price_history($id, $date)
 	{
 		$date .= '%';
-		$result['history'] = $this->db->table('product_price_history as p')->select("DATE_FORMAT(p.added_at, '%b %d') as added_at, p.price")->where('product_id', $this->m_encrypt->decrypt($id))->like('added_at', $date)->order_by('added_at', 'ASC')->get_all();
-		$result['product'] = $this->db->table('products as p')->select('p.name, p.price, categories.name as category')->inner_join('categories', 'p.category=categories.id')->where('p.id', $this->m_encrypt->decrypt($id))->get();
+		$result['history'] = $this->db->table('product_price_history as p')->select("DATE_FORMAT(p.added_at, '%b %d') as added_at, p.price")->where('product_id', $this->M_encrypt->decrypt($id))->like('added_at', $date)->order_by('added_at', 'ASC')->get_all();
+		$result['product'] = $this->db->table('products as p')->select('p.name, p.price, categories.name as category')->inner_join('categories', 'p.category=categories.id')->where('p.id', $this->M_encrypt->decrypt($id))->get();
 		return $result;
 	}
 
@@ -214,7 +214,7 @@ class m_admin extends Model
 		$totalRows = $this->db->raw('select count(u.id) as total from users as u inner join cart as c on u.id=c.user_id where c.status = "for approval" and (u.first_name like ? or u.middle_name like ? or u.last_name like ?)', array($q, $q, $q))[0]['total'];
 
 		return [
-			'forApprovalList' => $this->m_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.for_approval_at, "%b %d, %Y %h:%i %p") as for_approval_at, c.id as id FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "for approval" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.for_approval_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
+			'forApprovalList' => $this->M_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.for_approval_at, "%b %d, %Y %h:%i %p") as for_approval_at, c.id as id FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "for approval" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.for_approval_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
 			'pagination' => [
 				'totalRows' => $totalRows,
 				'totalPage' => ceil($totalRows / 10),
@@ -236,7 +236,7 @@ class m_admin extends Model
 		$totalRows = $this->db->raw('select count(u.id) as total from users as u inner join cart as c on u.id=c.user_id where c.status = "on delivery" and (u.first_name like ? or u.middle_name like ? or u.last_name like ?)', array($q, $q, $q))[0]['total'];
 
 		return [
-			'onDeliveryList' => $this->m_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.on_delivery_at, "%b %d, %Y %h:%i %p") as on_delivery_at, c.id as id FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "on delivery" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.on_delivery_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
+			'onDeliveryList' => $this->M_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.on_delivery_at, "%b %d, %Y %h:%i %p") as on_delivery_at, c.id as id FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "on delivery" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.on_delivery_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
 			'pagination' => [
 				'totalRows' => $totalRows,
 				'totalPage' => ceil($totalRows / 10),
@@ -258,7 +258,7 @@ class m_admin extends Model
 		$totalRows = $this->db->raw('select count(u.id) as total from users as u inner join cart as c on u.id=c.user_id where c.status = "preparing" and (u.first_name like ? or u.middle_name like ? or u.last_name like ?)', array($q, $q, $q))[0]['total'];
 
 		return [
-			'onPreparationList' => $this->m_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.for_approval_at, "%b %d, %Y %h:%i %p") as approved_at, c.id as id FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "preparing" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.approved_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
+			'onPreparationList' => $this->M_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.for_approval_at, "%b %d, %Y %h:%i %p") as approved_at, c.id as id FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "preparing" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.approved_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
 			'pagination' => [
 				'totalRows' => $totalRows,
 				'totalPage' => ceil($totalRows / 10),
@@ -280,7 +280,7 @@ class m_admin extends Model
 		$totalRows = $this->db->raw('select count(u.id) as total from users as u inner join cart as c on u.id=c.user_id where c.status = "rejected" and (u.first_name like ? or u.middle_name like ? or u.last_name like ?)', array($q, $q, $q))[0]['total'];
 
 		return [
-			'rejectedOrdersList' => $this->m_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.rejected_at, "%b %d, %Y %h:%i %p") as rejected_at, c.id as id FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "rejected" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.rejected_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
+			'rejectedOrdersList' => $this->M_encrypt->encrypt($this->db->raw('SELECT u.*, DATE_FORMAT(c.rejected_at, "%b %d, %Y %h:%i %p") as rejected_at, c.id as id FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status = "rejected" AND (u.first_name LIKE ? OR u.middle_name LIKE ? OR u.last_name LIKE ?) ORDER BY c.rejected_at DESC LIMIT 10 OFFSET ?', array($q, $q, $q, ($page - 1) * 10))),
 			'pagination' => [
 				'totalRows' => $totalRows,
 				'totalPage' => ceil($totalRows / 10),
@@ -301,7 +301,7 @@ class m_admin extends Model
 		$totalRows = $this->db->table('ingredients')->select_count('id', 'total')->like('name', $q)->get()['total'];
 
 		return [
-			'ingredients' => $this->m_encrypt->encrypt($this->db->table('ingredients as i')->select('i.*, DATE_FORMAT(i.deleted_at, "%M %e, %Y %l:%i %p") as deleted_at')->like('i.name', $q)->get_all()),
+			'ingredients' => $this->M_encrypt->encrypt($this->db->table('ingredients as i')->select('i.*, DATE_FORMAT(i.deleted_at, "%M %e, %Y %l:%i %p") as deleted_at')->like('i.name', $q)->get_all()),
 			'pagination' => [
 				'totalRows' => $totalRows,
 				'totalPage' => ceil($totalRows / 10),

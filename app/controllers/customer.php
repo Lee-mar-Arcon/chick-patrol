@@ -7,7 +7,7 @@ class customer extends Controller
 	{
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
-		$this->call->model('m_encrypt');
+		$this->call->model('M_encrypt');
 		$this->call->database();
 	}
 
@@ -212,25 +212,25 @@ class customer extends Controller
 	public function profile()
 	{
 		$this->loggedIn();
-		$this->call->model('m_admin');
+		$this->call->model('M_admin');
 		$this->call->view('customer/profile', [
 			'pageTitle' => 'Profile',
 			'user' => array_merge($this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get(), $this->db->table('barangays')->select('name as barangay_name, delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()),
-			'barangays' => $this->m_admin->barangay_index()
+			'barangays' => $this->M_admin->barangay_index()
 		]);
 	}
 
 	public function view_product($productID)
 	{
 		$this->loggedIn();
-		$productID = $this->m_encrypt->decrypt($productID);
+		$productID = $this->M_encrypt->decrypt($productID);
 		$product = $this->db->table('products as p')->select('p.*, c.name as category_name')->inner_join('categories as c', 'p.category=c.id')->where('p.id', $productID)->get();
-		$product['id'] = $this->m_encrypt->encrypt($product['id']);
+		$product['id'] = $this->M_encrypt->encrypt($product['id']);
 		$this->call->view('customer/view-product', [
 			'pageTitle' => $product['name'],
 			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null,
 			'product' => $product,
-			'relatedProducts' => $this->m_encrypt->encrypt($this->db->raw(
+			'relatedProducts' => $this->M_encrypt->encrypt($this->db->raw(
 				"SELECT 
 				p.*,
 				c.name AS category_name,
@@ -286,7 +286,7 @@ class customer extends Controller
 			INNER JOIN categories AS c ON p.category = c.id		  
 			WHERE p.date_added > ? 
 			ORDER BY p.date_added DESC LIMIT 8", array($currentDate));
-			return $this->m_encrypt->encrypt($newestProducts);
+			return $this->M_encrypt->encrypt($newestProducts);
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -332,7 +332,7 @@ class customer extends Controller
 			GROUP BY p.id
 			ORDER BY SUM(cart_product.quantity) DESC LIMIT 8;"
 			);
-			return $this->m_encrypt->encrypt($newestProducts);
+			return $this->M_encrypt->encrypt($newestProducts);
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}

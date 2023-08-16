@@ -1,4 +1,4 @@
 <?php
-class m_customer extends Model
+class M_customer extends Model
 {
 }

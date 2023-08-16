@@ -1,5 +1,5 @@
 <?php
-class m_account extends Model
+class M_account extends Model
 {
 
 	public function register_user($firstName, $lastName, $contact, $barangay, $street, $birthDate, $sex, $email, $password, $middleName = '')

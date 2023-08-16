@@ -7,7 +7,7 @@ class admin extends Controller
 	{
 		parent::__construct();
 		date_default_timezone_set("Asia/Singapore");
-		$this->call->model('m_admin');
+		$this->call->model('M_admin');
 
 		// session handler
 		if (!$this->session->has_userdata('user'))
@@ -65,7 +65,7 @@ class admin extends Controller
 	// BARANGAY
 	public function barangay()
 	{
-		$barangays = $this->m_admin->barangay_index();
+		$barangays = $this->M_admin->barangay_index();
 
 		$this->call->view('admin/barangay', [
 			'pageTitle' => 'Admin | Barangay',
@@ -120,8 +120,8 @@ class admin extends Controller
 			->numeric('Delivery fee is required');
 
 		if ($this->form_validation->run()) {
-			$this->call->model('m_encrypt');
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->call->model('M_encrypt');
+			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$name = $this->io->post('name');
 			$delivery_fee = $this->io->post('delivery_fee');
 
@@ -157,8 +157,8 @@ class admin extends Controller
 		$this->form_validation
 			->name('id')->required('ID is required.');
 		if ($this->form_validation->run()) {
-			$this->call->model('m_encrypt');
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->call->model('M_encrypt');
+			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('barangays')->where('id', $id)->update(['deleted_at' => null]);
 			$this->session->set_flashdata(['formMessage' => 'restored']);
 			redirect('admin/barangay');
@@ -173,8 +173,8 @@ class admin extends Controller
 			->name('id')->required('ID is required.');
 
 		if ($this->form_validation->run()) {
-			$this->call->model('m_encrypt');
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->call->model('M_encrypt');
+			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('barangays')->where('id', $id)->update(['deleted_at' => date("Y-m-d H:i:s")]);
 			$this->session->set_flashdata(['formMessage' => 'deleted']);
 			redirect('admin/barangay');
@@ -188,7 +188,7 @@ class admin extends Controller
 	// CATEGORY
 	function category()
 	{
-		$categories = $this->m_admin->category_index();
+		$categories = $this->M_admin->category_index();
 		$this->call->view('admin/category', [
 			'pageTitle' => 'Admin | Category',
 			'breadCrumb' => 'Category',
@@ -217,7 +217,7 @@ class admin extends Controller
 			if ($imageUploaded)
 				if ($this->form_validation->run()) {
 					$filename = $this->upload_cropped_image($this->uploadOriginalImage('category'), 'category');
-					$this->m_admin->category_store($this->io->post('name'), $filename);
+					$this->M_admin->category_store($this->io->post('name'), $filename);
 				} else {
 					$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
 					$this->session->set_flashdata(['formData' => $_POST]);
@@ -239,7 +239,7 @@ class admin extends Controller
 
 		if ($this->form_validation->run()) {
 			// perform file handling if new image is added
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$currentCategory = $this->db->table('categories')->where('id', $id)->get();
 			$filename = $currentCategory['image'];
 			if (strlen($_FILES['imageInput']['name']) > 0) {
@@ -248,7 +248,7 @@ class admin extends Controller
 				$filename = $this->upload_cropped_image($this->uploadOriginalImage('category'), 'category');
 			}
 
-			$this->m_admin->category_update($this->io->post('id'), $this->io->post('name'), $filename);
+			$this->M_admin->category_update($this->io->post('id'), $this->io->post('name'), $filename);
 		} else {
 			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
 			$this->session->set_flashdata(['formData' => $_POST]);
@@ -262,7 +262,7 @@ class admin extends Controller
 			->name('id')->required('ID is required.');
 
 		if ($this->form_validation->run()) {
-			$this->m_admin->category_destroy($this->io->post('id'));
+			$this->M_admin->category_destroy($this->io->post('id'));
 			redirect('admin/category');
 		} else {
 			echo 'ID is required';
@@ -274,7 +274,7 @@ class admin extends Controller
 		$this->form_validation
 			->name('id')->required('ID is required.');
 		if ($this->form_validation->run()) {
-			$this->m_admin->category_restore($this->io->post('id'));
+			$this->M_admin->category_restore($this->io->post('id'));
 			redirect('admin/category');
 		} else {
 			echo 'ID is required';
@@ -292,12 +292,12 @@ class admin extends Controller
 	// PRODUCT
 	function product()
 	{
-		$this->call->model('m_encrypt');
-		$categoriesForForm = $this->m_encrypt->encrypt($this->db->table('categories')->where_null('deleted_at')->get_all());
+		$this->call->model('M_encrypt');
+		$categoriesForForm = $this->M_encrypt->encrypt($this->db->table('categories')->where_null('deleted_at')->get_all());
 		$this->call->view('admin/product', [
 			'pageTitle' => 'Admin | Products',
 			'breadCrumb' => 'Products',
-			'categories' => $this->m_admin->category_index(),
+			'categories' => $this->M_admin->category_index(),
 			'categoriesForForm' => $categoriesForForm,
 			'formMessage' => $this->session->flashdata('formMessage') !== null ? $this->session->flashdata('formMessage') : null,
 			'formData' => $this->session->flashdata('formData') !== null ? $this->session->flashdata('formData') : null,
@@ -310,8 +310,8 @@ class admin extends Controller
 		$this->form_validation
 			->name('id')->required('ID is required.');
 		if ($this->form_validation->run()) {
-			$this->call->model('m_encrypt');
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->call->model('M_encrypt');
+			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('products')->where('id', $id)->update(['selling' => 1]);
 			$this->session->set_flashdata(['formMessage' => 'selling']);
 			redirect('admin/product');
@@ -325,8 +325,8 @@ class admin extends Controller
 		$this->form_validation
 			->name('id')->required('ID is required.');
 		if ($this->form_validation->run()) {
-			$this->call->model('m_encrypt');
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->call->model('M_encrypt');
+			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('products')->where('id', $id)->update(['selling' => 0]);
 			$this->session->set_flashdata(['formMessage' => 'unavailable']);
 			redirect('admin/product');
@@ -342,8 +342,8 @@ class admin extends Controller
 			->name('id')->required('ID is required.');
 
 		if ($this->form_validation->run()) {
-			$this->call->model('m_encrypt');
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->call->model('M_encrypt');
+			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('users')->where('id', $id)->update(['is_banned' => 1]);
 			$this->session->set_flashdata(['formMessage' => 'deleted']);
 			redirect('admin/user');
@@ -358,8 +358,8 @@ class admin extends Controller
 			->name('id')->required('ID is required.');
 
 		if ($this->form_validation->run()) {
-			$this->call->model('m_encrypt');
-			$id = $this->m_encrypt->decrypt($this->io->post('id'));
+			$this->call->model('M_encrypt');
+			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$this->db->table('users')->where('id', $id)->update(['is_banned' => 0]);
 			$this->session->set_flashdata(['formMessage' => 'deleted']);
 			redirect('admin/user');
@@ -405,15 +405,15 @@ class admin extends Controller
 		$this->call->view('admin/profile', [
 			'pageTitle' => 'Admin | Profile',
 			'breadCrumb' => 'User Profile',
-			'barangays' => $this->m_admin->barangay_index(),
+			'barangays' => $this->M_admin->barangay_index(),
 			'user' => array_merge($this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get(), $this->db->table('barangays')->select('name as barangay_name, delivery_fee')->where('id', $this->session->userdata('user')['barangay'])->get()),
 		]);
 	}
 
 	function view_product($id)
 	{
-		$id = $this->m_encrypt->decrypt($id);
-		$product = $this->m_encrypt->encrypt($this->db->raw(
+		$id = $this->M_encrypt->decrypt($id);
+		$product = $this->M_encrypt->encrypt($this->db->raw(
 			"SELECT p.*, c.name AS category_name, SUM(pi.quantity) AS quantity
 			FROM products AS p
 			INNER JOIN categories AS c ON p.category = c.id
