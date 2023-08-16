@@ -194,7 +194,7 @@
             <div class="container">
                 <div class="row">
                     <div class="section-title pt-0 mt-0 col-12">
-                        <h2>Our Newest Products</h2>
+                        <h2>Top Selling Products</h2>
                     </div>
                     <div class="categories__slider owl-carousel">
                         <?php foreach ($topSelling as $topSellingProduct) : ?>

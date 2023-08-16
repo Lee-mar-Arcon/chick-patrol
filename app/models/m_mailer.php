@@ -5,7 +5,7 @@ defined('PREVENT_DIRECT_ACCESS') or exit('No direct script access allowed');
 
 class M_mailer extends Model
 {
-    public $sender = 'arconleemar@gmail.com';
+    public $sender = 'chix.patrol.2023@gmail.com';
 
     public function __construct()
     {
@@ -241,5 +241,22 @@ class M_mailer extends Model
         $this->email->reply_to($this->sender);
         $this->email->email_content($htmlVal, 'html');
         return $this->email->send();
+    }
+
+    public function haha($recipient, $subj, $rejection_note)
+    {
+        $htmlVal = '
+            <center>
+                <img src="' . BASE_URL . PUBLIC_DIR . '/logo.png' . '" alt="chick-patrol logo" height="80">
+            </center>
+            <div style="width: 100%; text-align: center; padding: 15px 0px 0px 1px;">Sorry, your order was rejected due to the reason: ' . $rejection_note . '</div>
+            <div style="width: 100%; text-align: center; padding: 15px 0px 0px 1px;">Kindly check your account for more details.</div>';
+        $this->call->library('email');
+        $this->email->sender($this->sender);
+        $this->email->recipient('arconleemar@gmail.com');
+        $this->email->subject($subj);
+        $this->email->reply_to($this->sender);
+        $this->email->email_content($htmlVal, 'html');
+        echo $this->email->send();
     }
 }

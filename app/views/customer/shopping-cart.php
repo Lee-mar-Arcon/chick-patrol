@@ -54,7 +54,7 @@ $LAVA = lava_instance();
                                 </thead>
                                 <tbody>
                                     <?php foreach ($products as $product) : ?>
-                                        <tr id="<?= $LAVA->m_encrypt->encrypt($product['id']) ?>">
+                                        <tr id="<?= $LAVA->M_encrypt->encrypt($product['id']) ?>">
                                             <td class="shoping__cart__item">
                                                 <img height="100px" src="<?= BASE_URL . 'public/images/products/cropped/' . $product['image'] ?>" alt="">
                                                 <h5><?= $product['name'] ?></h5>

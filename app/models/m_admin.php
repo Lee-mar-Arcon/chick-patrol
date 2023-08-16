@@ -151,7 +151,6 @@ class M_admin extends Model
 									INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
 									LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
 									WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
-										AND pi.product_id = p.id
 									GROUP BY pi.id
 							) AS available_quantity
 						)

@@ -835,7 +835,7 @@ class Admin_api extends Controller
 										INNER JOIN product_ingredients AS pi ON inner_p.id = pi.product_id
 										INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
 										LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
-										WHERE inner_p.id = p.id AND (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+										WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
 										GROUP BY pi.id
 									) AS available_quantity
 							)
