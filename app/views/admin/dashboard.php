@@ -179,10 +179,28 @@
 																?>
 															</td>
 															<td class="text-center">
-															<?= $newlyAddedProduct['available_quantity'] ?>
+																<?= $newlyAddedProduct['available_quantity'] ?>
 															</td>
 															<td> <?= $newlyAddedProduct['date_added'] ?> </td>
 															<td> <?= $newlyAddedProduct['updated_at'] ?> </td>
+														</tr>
+														<tr>
+															<td class="p-0" colspan="100">
+																<div class="accordion accordion-flush" id="accordion-<?= $newlyAddedProduct['id'] ?>">
+																	<div class="accordion-item bg-light rounded">
+																		<h2 class="accordion-header m-0" id="flush-headingOne">
+																			<button class="accordion-button fw-bold bg-transparent collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-accordion-<?= $newlyAddedProduct['id'] ?>" aria-expanded="false" aria-controls="flush-accordion-<?= $newlyAddedProduct['id'] ?>">
+																				Description
+																			</button>
+																		</h2>
+																		<div id="flush-accordion-<?= $newlyAddedProduct['id'] ?>" class="accordion-collapse bg-light collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordion-<?= $newlyAddedProduct['id'] ?>" style="">
+																			<div class="accordion-body">
+																			<?= $newlyAddedProduct['description'] ?>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															</td>
 														</tr>
 													<?php }
 												} else { ?>
