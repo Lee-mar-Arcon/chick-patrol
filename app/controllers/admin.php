@@ -23,16 +23,38 @@ class Admin extends Controller
 		$currentDate = new DateTime();
 		$currentDate->modify('-1 month');
 		$currentDate = $currentDate->format('Y-m-d');
-		echo $currentDate;
 		$newlyRegisteredUsers = $this->M_encrypt->encrypt($this->db->raw(
 			"SELECT u.id AS id, u.first_name AS first_name, u.middle_name AS middle_name, u.last_name AS last_name, u.email AS email, b.name AS barangay_name, u.street, u.contact, u.birth_date, u.sex, u.verified_at, u.is_banned FROM users AS u INNER JOIN barangays AS b ON u.barangay = b.id WHERE u.is_admin = 0 AND verified_at > ? LIMIT 10",
 			array($currentDate)
 		));
 
+		$newlyAddedProducts = $this->db->raw("SELECT 
+			p.*,
+			c.name AS category_name,
+			IF(p.inventory_type = 'durable',
+				(SELECT SUM(inner_pi.remaining_quantity) FROM product_inventory AS inner_pi WHERE inner_pi.product_id = p.id AND inner_pi.expiration_date > NOW()),
+				(
+					SELECT MIN(can_make)
+					FROM (
+							SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
+							FROM product_ingredients AS pi
+							INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+							LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
+							WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+							GROUP BY pi.id
+					) AS available_quantity
+				)
+			) AS available_quantity
+		FROM products AS p
+		INNER JOIN categories AS c ON p.category = c.id		  
+		WHERE p.removed = 0 AND p.selling = 1 AND p.date_added > ?
+		ORDER BY p.date_added DESC", array($currentDate));
+
 		$this->call->view('Admin/dashboard', [
 			'pageTitle' => 'Admin | Dashboard',
 			'breadCrumb' => 'Dashboard',
 			'newlyRegisteredUsers' => $newlyRegisteredUsers,
+			'newlyAddedProducts' => $newlyAddedProducts
 		]);
 	}
 

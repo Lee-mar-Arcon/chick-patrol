@@ -99,51 +99,125 @@
 						</div>
 
 						<div class="container col-12">
-
 							<div class="px-md-2 mx-sm-2 mx-md-3 mx-sm-3">
-								<div class="table-responsive card card-body">
-									<h4 class="h2 mt-0 mb-3">Newly registered users</h4>
-									<table class="table table-borderless mb-0">
-										<thead>
-											<tr>
-												<th>First Name</th>
-												<th>Middle Name</th>
-												<th>Last Name</th>
-												<th>Email</th>
-												<th>Address</th>
-												<th>Contact</th>
-												<th>Birth date</th>
-												<th>Sex</th>
-												<th>Date Verified</th>
-											</tr>
-										</thead>
-										<tbody class="align-middle">
-											<?php if (count($newlyRegisteredUsers) > 0) {
-												foreach ($newlyRegisteredUsers as $newlyRegisteredUser) { ?>
-													<tr>
-														<td>&nbsp;<?= $newlyRegisteredUser['first_name'] ?></td>
-														<td><?= $newlyRegisteredUser['middle_name'] ?></td>
-														<td><?= $newlyRegisteredUser['last_name'] ?></td>
-														<td><?= $newlyRegisteredUser['email'] ?></td>
-														<td class="p-2"><?= $newlyRegisteredUser['barangay_name'] ?>, <?= $newlyRegisteredUser['street'] ?></td>
-														<td><?= $newlyRegisteredUser['contact'] ?></td>
-														<td><?= $newlyRegisteredUser['birth_date'] ?></td>
-														<td><?= $newlyRegisteredUser['sex'] ?></td>
-														<td><?= $newlyRegisteredUser['verified_at'] ?></td>
-													</tr>
-												<?php }
-											} else { ?>
+								<div class="card card-body">
+									<h4 class="mt-0 mb-3">Newly registered users</h4>
+									<div class="table-responsive">
+										<table class="table table-borderless mb-0">
+											<thead>
 												<tr>
-													<td colspan="100" class="bg-light text-center py-4"> No new users right now</td>
+													<th>First Name</th>
+													<th>Middle Name</th>
+													<th>Last Name</th>
+													<th>Email</th>
+													<th>Address</th>
+													<th>Contact</th>
+													<th>Birth date</th>
+													<th>Sex</th>
+													<th>Date Verified</th>
 												</tr>
-											<?php } ?>
-										</tbody>
-									</table>
+											</thead>
+											<tbody class="align-middle">
+												<?php if (count($newlyRegisteredUsers) > 0) {
+													foreach ($newlyRegisteredUsers as $newlyRegisteredUser) { ?>
+														<tr>
+															<td>&nbsp;<?= $newlyRegisteredUser['first_name'] ?></td>
+															<td><?= $newlyRegisteredUser['middle_name'] ?></td>
+															<td><?= $newlyRegisteredUser['last_name'] ?></td>
+															<td><?= $newlyRegisteredUser['email'] ?></td>
+															<td class="p-2"><?= $newlyRegisteredUser['barangay_name'] ?>, <?= $newlyRegisteredUser['street'] ?></td>
+															<td><?= $newlyRegisteredUser['contact'] ?></td>
+															<td><?= $newlyRegisteredUser['birth_date'] ?></td>
+															<td><?= $newlyRegisteredUser['sex'] ?></td>
+															<td><?= $newlyRegisteredUser['verified_at'] ?></td>
+														</tr>
+													<?php }
+												} else { ?>
+													<tr>
+														<td colspan="100" class="bg-light text-center py-4"> No new users right now</td>
+													</tr>
+												<?php } ?>
+											</tbody>
+										</table>
+									</div>
 								</div>
 							</div>
 						</div>
 
+						<div class="container col-12">
+							<div class="px-md-2 mx-sm-2 mx-md-3 mx-sm-3">
+								<div class="card card-body">
+									<h4 class="mt-0 mb-3">Newly added foods</h4>
+									<div class="table-responsive">
+										<table class="table table-borderless mb-0">
+											<thead>
+												<tr>
+													<th style="width: 100px;"></th>
+													<th>Name</th>
+													<th>Price</th>
+													<th>Category</th>
+													<th class="text-center">Inventory type</th>
+													<th class="text-center">Quantity</th>
+													<th style="width: 130px;">Date added</th>
+													<th style="width: 130px;">Updated at</th>
+												</tr>
+											</thead>
+											<tbody class="align-middle">
+												<?php if (count($newlyAddedProducts) > 0) {
+													foreach ($newlyAddedProducts as $newlyAddedProduct) { ?>
+														<tr>
+															<td>
+																<img src="<?= BASE_URL ?>public/images/products/cropped/<?= $newlyAddedProduct['image'] ?>" alt="" height="150" width="150" class="img-fluid rounded product-image" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#preview-image-modal">
+															</td>
+															<td> <?= $newlyAddedProduct['name'] ?> </td>
+															<td>₱ <?= number_format($newlyAddedProduct['price'], 2) ?> </td>
+															<td> <?= $newlyAddedProduct['category_name'] ?> </td>
+															<td class="text-center">
+																<?= $newlyAddedProduct['inventory_type'] == 'durable' ?
+																	'<span class="text-start badge badge-soft-success rounded-pill px-1 py-1 ms-2">durable</span>' :
+																	'<span class="text-start badge badge-soft-warning rounded-pill px-1 py-1 ms-2">perishable</span>'
+																?>
+															</td>
+															<td class="text-center">
+															<?= $newlyAddedProduct['available_quantity'] ?>
+															</td>
+															<td> <?= $newlyAddedProduct['date_added'] ?> </td>
+															<td> <?= $newlyAddedProduct['updated_at'] ?> </td>
+														</tr>
+													<?php }
+												} else { ?>
+													<tr>
+														<td colspan="100" class="bg-light text-center py-4"> No new users right now</td>
+													</tr>
+												<?php } ?>
+											</tbody>
+										</table>
 
+
+
+
+
+
+
+
+
+										<nav class="justify-content-end d-flex pt-4 mx-4 p-2">
+											<ul class="pagination pagination-rounded">
+												<li class="page-item">
+													<div class="page-link" data-page="1" style="cursor: pointer;">«&nbsp;&nbsp;first</div>
+												</li>
+												<li class="page-item active">
+													<div class="page-link" data-page="1" style="cursor: pointer;">1</div>
+												</li>
+												<li class="page-item">
+													<div class="page-link" data-page="1" style="cursor: pointer;">last&nbsp;&nbsp;»</div>
+												</li>
+											</ul>
+										</nav>
+									</div>
+								</div>
+							</div>
+						</div>
 
 
 
