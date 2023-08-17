@@ -32,7 +32,7 @@ class Customer extends Controller
 	{
 		$this->call->view('Customer/homepage', [
 			'pageTitle' => 'Home',
-			'categories' => $this->db->table('categories as c')->select('distinct c.*')->inner_join('products as p', 'c.id = p.category')->get_all(),
+			'categories' => $this->M_encrypt->encrypt($this->db->table('categories as c')->select('distinct c.*')->inner_join('products as p', 'c.id = p.category')->get_all()),
 			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null,
 			'newestProducts' => $this->get_newest_products(),
 			'topSelling' => $this->get_top_selling(),
@@ -333,5 +333,47 @@ class Customer extends Controller
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
+	}
+
+	function category($category)
+	{
+		$category = $this->db->table('categories')->where('id', $this->M_encrypt->decrypt($category))->get_all();
+		if ($category) {
+			$category = $category[0];
+			$categoryProducts = $this->M_encrypt->encrypt($this->db->raw(
+				"SELECT 
+				p.*,
+				c.name AS category_name,
+				IF(p.inventory_type = 'durable',
+					(SELECT SUM(inner_pi.remaining_quantity) FROM product_inventory AS inner_pi WHERE inner_pi.product_id = p.id AND inner_pi.expiration_date > NOW()),
+					(
+						SELECT MIN(can_make)
+						FROM (
+								SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
+								FROM product_ingredients AS pi
+								INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+								LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
+								WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+								GROUP BY pi.id
+						) AS available_quantity
+					)
+				) AS available_quantity
+				FROM products AS p
+				INNER JOIN categories AS c ON p.category = c.id		  
+				WHERE p.category = ?
+				ORDER BY p.name",
+				array($category['id'])
+			));
+			$this->call->view('Customer/category', [
+				'pageTitle' => $category['name'],
+				'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null,
+				'categoryName' => $category,
+				'categoryProducts' => $categoryProducts,
+			]);
+		} else
+			$this->call->view('errors/error_general', [
+				'heading' => 'Not Found',
+				'message' => 'Category do not exists'
+			]);
 	}
 }
