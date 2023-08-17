@@ -243,7 +243,6 @@ class Customer extends Controller
 
 	public function view_product($productID)
 	{
-		$this->loggedIn();
 		$productID = $this->M_encrypt->decrypt($productID);
 		$product = $this->db->table('products as p')->select('p.*, c.name as category_name')->inner_join('categories as c', 'p.category=c.id')->where('p.id', $productID)->get();
 		$product['id'] = $this->M_encrypt->encrypt($product['id']);
@@ -354,6 +353,38 @@ class Customer extends Controller
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
+	}
+
+	function foods()
+	{
+		$allProducts = $this->M_encrypt->encrypt($this->db->raw(
+			"SELECT 
+				p.*,
+				c.name AS category_name,
+				IF(p.inventory_type = 'durable',
+					(SELECT SUM(inner_pi.remaining_quantity) FROM product_inventory AS inner_pi WHERE inner_pi.product_id = p.id AND inner_pi.expiration_date > NOW()),
+					(
+						SELECT MIN(can_make)
+						FROM (
+								SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
+								FROM product_ingredients AS pi
+								INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+								LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
+								WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
+								GROUP BY pi.id
+						) AS available_quantity
+					)
+				) AS available_quantity
+				FROM products AS p
+				INNER JOIN categories AS c ON p.category = c.id		  
+				WHERE p.selling = 1
+				ORDER BY p.name"
+		));
+		$this->call->view('Customer/foods', [
+			'pageTitle' => 'All Products',
+			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null,
+			'allProducts' => $allProducts,
+		]);
 	}
 
 	function category($category)

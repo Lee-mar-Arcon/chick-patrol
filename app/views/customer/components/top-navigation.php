@@ -28,8 +28,10 @@
    </div>
    <nav class="humberger__menu__nav mobile-menu">
       <ul>
-         <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="<?= site_url('customer/homepage') ?>">Home</a></li>
-         <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="./shop-grid.html">Shop</a></li>
+         <li class="<?= $pageTitle == 'Home' ? 'active' : '' ?>"><a href="<?= site_url('customer/homepage') ?>">Home</a></li>
+         <?php if ($user != null) { ?>
+            <li class="<?= $pageTitle == 'Orders' ? 'active' : '' ?>"><a href="<?= site_url('customer/orders') ?>">Orders</a></li>
+         <?php } ?>
          <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="#">Pages</a>
             <ul class="header__menu__dropdown">
                <li><a href="./shop-details.html">Shop Details</a></li>
@@ -91,17 +93,11 @@
             <nav class="header__menu pb-3">
                <ul>
                   <li class="<?= $pageTitle == 'Home' ? 'active' : '' ?>"><a href="<?= site_url('customer/homepage') ?>">Home</a></li>
-                  <li class="<?= $pageTitle == 'Orders' ? 'active' : '' ?>"><a href="<?= site_url('customer/orders') ?>">Orders</a></li>
-                  <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="#">Pages</a>
-                     <ul class="header__menu__dropdown">
-                        <li><a href="./shop-details.html">Shop Details</a></li>
-                        <li><a href="./shoping-cart.html">Shoping Cart</a></li>
-                        <li><a href="./checkout.html">Check Out</a></li>
-                        <li><a href="./blog-details.html">Blog Details</a></li>
-                     </ul>
-                  </li>
-                  <li><a href="./blog.html">Blog</a></li>
-                  <li><a href="./contact.html">Contact</a></li>
+                  <?php if ($user != null) { ?>
+                     <li class="<?= $pageTitle == 'Orders' ? 'active' : '' ?>"><a href="<?= site_url('customer/orders') ?>">Orders</a></li>
+                  <?php } ?>
+                  <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="<?= site_url('customer/foods') ?>">Foods</a>
+                  <!-- <li><a href="./blog.html">Blog</a></li> -->
                </ul>
             </nav>
          </div>

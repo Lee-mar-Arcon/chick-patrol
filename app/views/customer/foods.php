@@ -1,6 +1,3 @@
-<?php
-$LAVA = lava_instance();
-?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -34,85 +31,60 @@ $LAVA = lava_instance();
 
    <?php include 'components/top-navigation.php' ?>
    <!-- Header Section End -->
-   <section class="product-details spad">
-      <div class="container">
-         <div class="row">
-            <div class="col-lg-6 col-md-6">
-               <div class="product__details__pic">
-                  <div class="product__details__pic__item">
-                     <img class="product__details__pic__item--large" src="<?= BASE_URL . 'public/images/products/cropped/' .  $product['image'] ?>" alt="">
-                  </div>
-               </div>
-            </div>
-            <div class="col-lg-6 col-md-6">
-               <div class="product__details__text">
-                  <div class="product__details__price">₱ <?= number_format($product['price'], 2) ?></div>
-                  <p><?= $product['description'] ?></p>
-                  <div class="d-flex justify-content-end">
-                     <a href="" onclick="return false" class="primary-btn add-to-cart" data-id="<?= $product['id'] ?>">ADD TO CART</a>
-                  </div>
-                  <ul>
-                     <li><b>Availability</b> <span class="available-quantity">In Stock</span></li>
-                     <li><b>Category</b> <span><?= $product['category_name'] ?></span></li>
-                  </ul>
-               </div>
-            </div>
 
-         </div>
-      </div>
-   </section>
-
-   <section class="related-product">
+   <section class="featured spad">
       <div class="container">
          <div class="row">
             <div class="col-lg-12">
-               <div class="section-title related__product__title">
-                  <h2>Related Product</h2>
+               <div id="products-list" class="section-title pt-4">
+                  <h2>Our Products</h2>
+               </div>
+               <div class="featured__controls">
+                  <ul>
+                  </ul>
                </div>
             </div>
          </div>
-         <div class="row">
+         <div class="row featured__filter">
+            <?php foreach ($allProducts as $product) { ?>
 
-            <?php if (count($relatedProducts)) : ?>
-               <?php foreach ($relatedProducts as $relatedProduct) : ?>
-                  <div class="col-lg-3 col-md-4 col-sm-6">
-                     <div class="product__item">
-                        <div class="product__item__pic set-bg" data-setbg="<?= BASE_URL . 'public/images/products/cropped/' .  $relatedProduct['image'] ?>" style="background-image: url(&quot;<?= BASE_URL . 'public/images/products/cropped/' .  $relatedProduct['image'] ?>&quot;);">
-                           <ul class="product__item__pic__hover">
-                              <li>
-                                 <a onclick="return false">
-                                    <div style="cursor: pointer;" data-id="<?= $relatedProduct['id'] ?>" class="add-to-cart">
-                                       <i class="fa fa-shopping-cart cursor-pointer"></i>
-                                    </div>
-                                 </a>
-                              </li>
-                              <li>
-                                 <a href="<?= site_url('customer/view-product/' . $relatedProduct['id']) ?>">
-                                    <div v style="cursor: pointer;" data-id="<?= $relatedProduct['id'] ?>">
-                                       <i class="fa fa-eye cursor-pointer"></i>
-                                    </div>
-                                 </a>
-                              </li>
-                           </ul>
-                        </div>
-                        <div class="product__item__text">
-                           <h6><a href="#"><?= $relatedProduct['name'] ?></a></h6>
-                           <h5>₱ <?= number_format($relatedProduct['price'], 2) ?></h5>
-                        </div>
+               <div class="col-lg-3 col-md-4 col-sm-6 mix <?= str_replace(' ', '', $product['category_name']) ?>">
+                  <div class="featured__item">
+                     <div class="featured__item__pic set-bg" data-setbg="<?= BASE_URL . PUBLIC_DIR . '/images/products/cropped/' .  $product['image'] ?>">
+                        <?= !($product['available_quantity'] == 0 || $product['available_quantity'] == null) ?
+                           '<ul class="featured__item__pic__hover">
+                           <li>
+                              <a onclick="return false">
+                                 <div style="cursor: pointer;" data-id="' . $product['id'] . '" class="add-to-cart">
+                                    <i class="fa fa-shopping-cart cursor-pointer"></i>
+                                 </div>
+                              </a>
+                           </li>
+                           <li>
+                              <a href="' . site_url('customer/view-product/') . $product['id'] . '">
+                                 <div v style="cursor: pointer;" data-id="' . $product['id'] . '">
+                                    <i class="fa fa-eye cursor-pointer"></i>
+                                 </div>
+                              </a>
+                           </li>
+                        </ul>' : ''
+                        ?>
+                     </div>
+                     <div class="featured__item__text">
+                        <?= $product['available_quantity'] == 0 || $product['available_quantity'] == null ? '<h1 class="badge badge-danger">Unavailable</h1>' : '' ?>
+
+                        <h6><a href="#"><?= $product['name'] ?></a></h6>
+                        <h5>₱ <?= number_format($product['price'], 2) ?></h5>
                      </div>
                   </div>
-               <?php endforeach; ?>
-            <?php else : ?>
-               <div class="h3 col-12 text-muted py-5 fw-bold text-center">no related products</div>
-            <?php endif; ?>
+               </div>
+            <?php } ?>
          </div>
       </div>
    </section>
+
+
    <?php include 'components/footer.php' ?>
-
-
-
-
 
    <!-- Js Plugins -->
    <script src="<?= BASE_URL ?>public/customer/js/jquery-3.3.1.min.js"></script>
@@ -130,7 +102,10 @@ $LAVA = lava_instance();
    <script>
       $(document).ready(function() {
          updateCartBadge()
-         getProductAvailableQuantity()
+         $('.set-bg').each(function() {
+            var bg = $(this).data('setbg');
+            $(this).css('background-image', 'url(' + bg + ')');
+         });
       })
 
       function updateCartBadge() {
@@ -155,7 +130,6 @@ $LAVA = lava_instance();
             let id = element.attr('data-id')
             $.post('<?= site_url('customer_api/add_to_cart') ?>', {
                   id: id,
-                  quantity: element.prev().find('input:eq(0)').val()
                })
                .then(function(response) {
                   console.log(response)
@@ -179,26 +153,13 @@ $LAVA = lava_instance();
             duration: 1500,
             newWindow: true,
             close: true,
-            gravity: "bottom",
-            position: "center",
+            gravity: "top",
+            position: "right",
             stopOnFocus: true,
             style: {
                background: color,
             },
          }).showToast();
-      }
-
-      function getProductAvailableQuantity() {
-         $.post('<?= site_url('customer_api/get_product_available_quantity') ?>', {
-               product_id: '<?= $product['id'] ?>'
-            })
-            .then(function(response) {
-               console.log(response)
-               $('.available-quantity').html(parseFloat(response).toFixed(2))
-
-            }).fail(function(response) {
-               console.log(response)
-            })
       }
    </script>
 </body>

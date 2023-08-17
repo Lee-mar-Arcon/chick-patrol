@@ -381,7 +381,7 @@ class Customer_api extends Controller
 	function cancel_order()
 	{
 		try {
-			// $this->is_authorized();
+			$this->is_authorized();
 			$responseResult = 0;
 			$cartID = $_POST['cartID'];
 			$cart = $this->db->table('cart')->where('id', $cartID)->get();
@@ -455,7 +455,6 @@ class Customer_api extends Controller
 	function get_available_categories()
 	{
 		try {
-			$this->is_authorized();
 			echo json_encode($this->M_encrypt->encrypt($this->db->table('categories as c')->select('distinct c.*')->inner_join('products as p', 'c.id = p.category')->get_all()));
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -465,8 +464,6 @@ class Customer_api extends Controller
 	function get_products()
 	{
 		try {
-			// $this->is_authorized();
-			// $q = '%' . '%';
 			$q = (isset($_POST['q']) ? $_POST['q'] : '') . '%';
 			$products = $this->M_encrypt->encrypt($this->db->raw("SELECT 
 			p.*,
