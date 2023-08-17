@@ -938,6 +938,26 @@ class Admin_api extends Controller
 		}
 	}
 
+	function feature_remove_feature_product()
+	{
+		try {
+			// $this->is_authorized();
+			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
+			// $user = $this->db->table('users')->where('id', 141)->get();
+			$product_id = $this->M_encrypt->decrypt($_POST['product_id']);
+			if ($this->db->table('products')->where('id', $product_id)->get() == false) {
+				echo json_encode('invalid ID');
+			} else if (password_verify($_POST['password'], $user['password'])) {
+				$this->db->table('products')->where('id', $product_id)->update(array('featured' => $_POST['mode']));
+				echo json_encode('success');
+			} else {
+				echo json_encode('wrong password');
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	function product_update()
 	{
 		try {

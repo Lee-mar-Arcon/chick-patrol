@@ -39,7 +39,6 @@
 <body>
 
     <?php include 'components/top-navigation.php' ?>
-
     <section class="hero">
         <div class="container">
             <div class="row">
@@ -72,30 +71,29 @@
                 <div class="col-12 p-0 rounded">
                     <div class="swiper rounded">
                         <div class="swiper-wrapper">
-                            <?php $featuredProducts = [1, 2, 3, 4, 5];
-                            foreach ($featuredProducts as $featureProduct) { ?>
-                                <div class="swiper-slide">
+                            <?php foreach ($featuredProducts as $featuredProduct) { ?>
+                                <div class="swiper-slide" style="max-width: 780px;">
                                     <div class="row">
-                                        <h3 class="text-center text-white col-12 pt-5 pb-0 fw-bold col-12"><?= $featureProduct . ' label' ?></h3>
+                                        <h3 class="text-center text-white col-12 pt-5 pb-0 fw-bold col-12"><?= $featuredProduct['name'] ?></h3>
                                         <div class="col-12">
                                             <div class="d-flex justify-content-center">
-                                                <img width="300px" height="300px" src="https://chick-patrol.test/public/images/category/cropped/2044bf96fac1777639a48de6a75006bfa616d7be.png" class="align-self-centermt-0 pt-0" alt="...">
+                                                <img width="300px" height="300px" src="<?= BASE_URL ?>public/images/products/cropped/<?= $featuredProduct['image'] ?>" class="align-self-centermt-0 pt-0" alt="...">
                                             </div>
                                         </div>
                                         <div class="col-12 d-flex justify-content-center pb-4">
-                                            <button type="submit" class="site-btn">Add to Cart</button>
+                                            <?= $featuredProduct['available_quantity'] > 0 ?
+                                                '<button type="submit" data-id="' . $featuredProduct['id'] . '" class="site-btn add-to-cart">Add to Cart</button>' :
+                                                '<div class="h4 bg-transparent text-white shadow-none">Unavailable 😖</div>'
+                                            ?>
                                         </div>
                                         <div class="px-4 mx-4 text-justify text-white pb-5">
-                                            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ice cream is a popular frozen dessert enjoyed by people of all ages. It is made by combining ingredients such as milk, cream, sugar, and flavorings, which are then churned and frozen to create a smooth and creamy texture. Various flavors, such as vanilla, chocolate, strawberry, and many more, are added to give ice cream its distinct taste. Additional ingredients like fruits, nuts, chocolate chips, or cookie pieces can be mixed in for added texture and flavor.</p>
+                                            <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $featuredProduct['description'] ?></p>
                                         </div>
+                                        <div class="h4">adss</div>
                                     </div>
                                 </div>
                             <?php } ?>
                         </div>
-                        <div class="swiper-pagination"></div>
-                        <div class="swiper-button-prev text-white"></div>
-                        <div class="swiper-button-next text-white"></div>
-                        <div class="swiper-scrollbar"></div>
                     </div>
                 </div>
             </div>
@@ -190,7 +188,7 @@
 
     <?php if (count($topSelling) > 0) : ?>
         <!-- top selling Begin -->
-        <section class="categories">
+        <section class="categories pt-5 mt-5">
             <div class="container">
                 <div class="row">
                     <div class="section-title pt-0 mt-0 col-12">
@@ -254,67 +252,6 @@
         </div>
     </div>
     <!-- Banner End -->
-
-    <!-- Blog Section Begin -->
-    <section class="from-blog spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-title from-blog__title">
-                        <h2>From The Blog</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="img/blog/blog-1.jpg" alt="">
-                        </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                <li><i class="fa fa-comment-o"></i> 5</li>
-                            </ul>
-                            <h5><a href="#">Cooking tips make cooking simple</a></h5>
-                            <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="img/blog/blog-2.jpg" alt="">
-                        </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                <li><i class="fa fa-comment-o"></i> 5</li>
-                            </ul>
-                            <h5><a href="#">6 ways to prepare breakfast for 30</a></h5>
-                            <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-4 col-sm-6">
-                    <div class="blog__item">
-                        <div class="blog__item__pic">
-                            <img src="img/blog/blog-3.jpg" alt="">
-                        </div>
-                        <div class="blog__item__text">
-                            <ul>
-                                <li><i class="fa fa-calendar-o"></i> May 4,2019</li>
-                                <li><i class="fa fa-comment-o"></i> 5</li>
-                            </ul>
-                            <h5><a href="#">Visit the clean farm in the US</a></h5>
-                            <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Blog Section End -->
 
     <!-- Footer Section Begin -->
     <footer class="footer spad">
@@ -405,24 +342,23 @@
     <script>
         const swiper = new Swiper('.swiper', {
             direction: 'horizontal',
+            effect: "coverflow",
+            grabCursor: true,
             loop: true,
+            centeredSlides: true,
+            slidesPerView: "auto",
             autoHeight: true,
             loop: true,
-
-            // If we need pagination
-            pagination: {
-                el: '.swiper-pagination',
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
             },
-
-            // Navigation arrows
-            navigation: {
-                nextEl: '.swiper-button-next',
-                prevEl: '.swiper-button-prev',
-            },
-
-            // And if we need scrollbar
-            scrollbar: {
-                el: '.swiper-scrollbar',
+            coverflowEffect: {
+                rotate: 50,
+                stretch: 0,
+                depth: 100,
+                modifier: 1,
+                slideShadows: true,
             },
         });
 
@@ -605,6 +541,7 @@
         $('#search-product-button').on('click', function() {
             getAvailableCategories()
         })
+        console.log(<?= json_encode($featuredProducts) ?>)
     </script>
 </body>
 

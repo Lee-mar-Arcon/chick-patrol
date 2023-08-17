@@ -105,7 +105,7 @@
                                             <th style="width: 130px;">Date added</th>
                                             <th style="width: 130px;">Updated at</th>
                                             <th class="text-center" style="width: 130px;">Selling </th>
-                                            <th class="text-center" style="width: 230px;">Action</th>
+                                            <th class="text-center" style="width: 270px;">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody class="align-middle">
@@ -406,6 +406,12 @@
                                 ${products[i]['selling'] == 1 ? 
                                     '<i class="mdi mdi-tag-off fs-3 text-danger"></i>' :
                                     '<i class="mdi mdi-tag fs-3 text-info"></i>'
+                                }    
+                            </span>
+                            <span data-tippy-content="${products[i]['featured'] == 1 ? 'remove to featured' : 'add to featured'}" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 remove-feature-product ${products[i]['featured'] ? 'remove-featured' : 'add-featured'}" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                ${products[i]['featured'] == 1 ? 
+                                    '<i class="mdi mdi-star-remove-outline fs-3 text-danger"></i>' :
+                                    '<i class="mdi mdi-star-outline fs-3 text-info"></i>'
                                 }    
                             </span>
                             <span data-tippy-content="Edit product" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-product" data-bs-toggle="offcanvas" data-bs-target="#productForm" aria-controls="offcanvasRight">
@@ -955,6 +961,77 @@
                             resolve(false)
                         } else {
                             showToast(mode ? 'Started selling the product!.' : 'Product archived', "linear-gradient(to right,  #3ab902, #14ac34)")
+                            handleFetchProducts(q)
+                            resolve(true)
+                        }
+                    })
+            })
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $(document).on('click', '.remove-feature-product', function() {
+            let productID = $(this).closest('tr').attr('id')
+            const mode = $(this).hasClass('add-featured')
+            Swal.fire({
+                title: mode ? 'Add product to featured?' : 'Remove product to featured?',
+                text: 'Enter your password',
+                icon: 'error',
+                input: 'password',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                allowOutsideClick: false,
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                preConfirm: function(password) {
+                    return featureRemoveFeaturedProduct(password, productID, mode ? 1 : 0);
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                }
+            });
+        })
+
+        function featureRemoveFeaturedProduct(password, productID, mode) {
+            return new Promise(function(resolve, reject) {
+                $.post('<?= site_url('admin_api/feature-remove-feature-product') ?>', {
+                        password: password,
+                        product_id: productID,
+                        mode: mode
+                    })
+                    .then(function(response) {
+                        if (response == 'wrong password') {
+                            showToast('you entered the wrong password', "linear-gradient(to right, #ac1414, #f12b00)")
+                            resolve(false)
+                        } else if (response == 'invalid ID') {
+                            showToast('ID does not exists', "linear-gradient(to right, #ac1414, #f12b00)")
+                            resolve(false)
+                        } else {
+                            showToast(mode ? 'Product added to featured!.' : 'Product removed to featured', "linear-gradient(to right,  #3ab902, #14ac34)")
                             handleFetchProducts(q)
                             resolve(true)
                         }
