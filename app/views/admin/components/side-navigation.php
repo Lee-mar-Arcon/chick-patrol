@@ -67,21 +67,30 @@
             <li>
                <a href="<?= BASE_URL ?>admin/approval">
                   <i class="fas fa-shopping-cart"></i>
-                  <span>&nbsp;&nbsp;For Approval</span>
+                  <span class="position-relative pe-3">&nbsp;&nbsp;For Approval
+                     <span class="for-approval-notification-badge">
+                     </span>
+                  </span>
                </a>
             </li>
 
             <li>
                <a href="<?= BASE_URL ?>admin/preparing">
                   <i class="fas fa-tasks"></i>
-                  <span>&nbsp;&nbsp;On Preparation</span>
+                  <span class="position-relative pe-3">&nbsp;&nbsp;On Preparation
+                     <span class="preparing-notification-badge">
+                     </span>
+                  </span>
                </a>
             </li>
 
             <li>
                <a href="<?= BASE_URL ?>admin/on-delivery">
                   <i class="fas fa-truck"></i>
-                  <span>&nbsp;&nbsp;On Delivery</span>
+                  <span class="position-relative pe-3">&nbsp;&nbsp;On Delivery
+                     <span class="on-delivery-notification-badge">
+                     </span>
+                  </span>
                </a>
             </li>
 

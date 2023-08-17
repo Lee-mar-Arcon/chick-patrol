@@ -1037,6 +1037,15 @@ class Admin_api extends Controller
 		}
 	}
 
+	function get_all_orders_total()
+	{
+		try {
+			$this->is_authorized();
+			echo json_encode($this->db->raw('SELECT status, COUNT(id) AS total FROM cart WHERE TRIM(status) = "for approval" OR TRIM(status) = "on delivery" OR TRIM(status) = "preparing" GROUP BY status'));
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 	// template
 	// function user_index()
 	// {

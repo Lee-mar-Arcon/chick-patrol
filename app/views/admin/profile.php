@@ -104,7 +104,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                             <label for="barangay" class="form-label">Barangay <span class="text-danger"> *</span></label>
                                             <select class="form-select" id="barangay">
                                                 <?php foreach ($barangays as $barangay) :  ?>
-                                                    <option <?= $user['barangay'] == $LAVA->m_encrypt->decrypt($barangay['id']) ? 'selected' : '' ?> value="<?= $barangay['id'] ?>"><?= $barangay['name'] ?></option>
+                                                    <option <?= $user['barangay'] == $LAVA->M_encrypt->decrypt($barangay['id']) ? 'selected' : '' ?> value="<?= $barangay['id'] ?>"><?= $barangay['name'] ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                             <span class="help-block text-danger ms-1"><small></small></span>
