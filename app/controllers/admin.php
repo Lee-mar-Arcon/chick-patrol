@@ -20,9 +20,19 @@ class Admin extends Controller
 	// OTHERS
 	public function dashboard()
 	{
+		$currentDate = new DateTime();
+		$currentDate->modify('-1 month');
+		$currentDate = $currentDate->format('Y-m-d');
+		echo $currentDate;
+		$newlyRegisteredUsers = $this->M_encrypt->encrypt($this->db->raw(
+			"SELECT u.id AS id, u.first_name AS first_name, u.middle_name AS middle_name, u.last_name AS last_name, u.email AS email, b.name AS barangay_name, u.street, u.contact, u.birth_date, u.sex, u.verified_at, u.is_banned FROM users AS u INNER JOIN barangays AS b ON u.barangay = b.id WHERE u.is_admin = 0 AND verified_at > ? LIMIT 10",
+			array($currentDate)
+		));
+
 		$this->call->view('Admin/dashboard', [
 			'pageTitle' => 'Admin | Dashboard',
-			'breadCrumb' => 'Dashboard'
+			'breadCrumb' => 'Dashboard',
+			'newlyRegisteredUsers' => $newlyRegisteredUsers,
 		]);
 	}
 

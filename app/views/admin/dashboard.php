@@ -14,7 +14,32 @@
 
 	<!-- icons -->
 	<link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+	<style>
+		table {
+			border-collapse: separate;
+			border-spacing: 0;
+		}
 
+		thead {
+			background-color: #71b6f94d;
+		}
+
+		thead th:first-child {
+			border-top-left-radius: 10px;
+			border-bottom-left-radius: 10px;
+		}
+
+		thead th:last-child {
+			border-top-right-radius: 10px;
+			border-bottom-right-radius: 10px;
+		}
+
+		tbody tr:hover {
+			background-color: rgba(255, 255, 255, .6);
+			box-shadow: rgba(17, 17, 26, 0.2) 0px 0px 5px;
+			transition: all 0.2s;
+		}
+	</style>
 </head>
 
 <!-- body start -->
@@ -29,6 +54,108 @@
 			<div class="content">
 				<div class="container-fluid">
 					<div class="row">
+
+						<div class="container col-12">
+							<div class="row px-md-2 mx-sm-2 mx-md-2 mx-sm-2">
+								<div class="col-xl-4 col-md-6">
+									<div class="card">
+										<div class="card-body">
+											<h4 class="h2 mt-0 mb-0">Current orders for approval</h4>
+											<div class="widget-box-2">
+												<div class="widget-detail-2 text-end">
+													<h2 class="fw-bold h1 mb-1 for-approval-total">0</h2>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-xl-4 col-md-6">
+									<div class="card">
+										<div class="card-body">
+											<h4 class="h2 mt-0 mb-0">Current orders on preparing</h4>
+											<div class="widget-box-2">
+												<div class="widget-detail-2 text-end">
+													<h2 class="fw-bold h1 mb-1 preparing-total">0</h2>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-xl-4 col-md-6">
+									<div class="card">
+										<div class="card-body">
+											<h4 class="h2 mt-0 mb-0">Current orders on delivery</h4>
+											<div class="widget-box-2">
+												<div class="widget-detail-2 text-end">
+													<h2 class="fw-bold h1 mb-1 on-delivery-total">0</h2>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="container col-12">
+
+							<div class="px-md-2 mx-sm-2 mx-md-3 mx-sm-3">
+								<div class="table-responsive card card-body">
+									<h4 class="h2 mt-0 mb-3">Newly registered users</h4>
+									<table class="table table-borderless mb-0">
+										<thead>
+											<tr>
+												<th>First Name</th>
+												<th>Middle Name</th>
+												<th>Last Name</th>
+												<th>Email</th>
+												<th>Address</th>
+												<th>Contact</th>
+												<th>Birth date</th>
+												<th>Sex</th>
+												<th>Date Verified</th>
+											</tr>
+										</thead>
+										<tbody class="align-middle">
+											<?php if (count($newlyRegisteredUsers) > 0) {
+												foreach ($newlyRegisteredUsers as $newlyRegisteredUser) { ?>
+													<tr>
+														<td>&nbsp;<?= $newlyRegisteredUser['first_name'] ?></td>
+														<td><?= $newlyRegisteredUser['middle_name'] ?></td>
+														<td><?= $newlyRegisteredUser['last_name'] ?></td>
+														<td><?= $newlyRegisteredUser['email'] ?></td>
+														<td class="p-2"><?= $newlyRegisteredUser['barangay_name'] ?>, <?= $newlyRegisteredUser['street'] ?></td>
+														<td><?= $newlyRegisteredUser['contact'] ?></td>
+														<td><?= $newlyRegisteredUser['birth_date'] ?></td>
+														<td><?= $newlyRegisteredUser['sex'] ?></td>
+														<td><?= $newlyRegisteredUser['verified_at'] ?></td>
+													</tr>
+												<?php }
+											} else { ?>
+												<tr>
+													<td colspan="100" class="bg-light text-center py-4"> No new users right now</td>
+												</tr>
+											<?php } ?>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 						<div class="col-sm-12 col-lg-6 p-3">
 							<div class="card" style="min-height: 800px;">
 								<div class="card-header bg-primary">
@@ -451,7 +578,7 @@
 						renderDeliveryFeeHistory([])
 						handleFetchHistory('barangay', $('#barangay-search-dropdown').next().find('.dropdown-item:eq(0)').attr('data-id'), $('#barangay-search-year').val())
 					} else {
-						productPriceHistory([])	
+						productPriceHistory([])
 						handleFetchHistory('product', $('#product-search-dropdown').next().find('.dropdown-item:eq(0)').attr('data-id'), $('#product-search-month').val())
 					}
 
@@ -535,6 +662,25 @@
 		$('#product-search-month').on('change', function() {
 			handleFetchHistory('product', $('#product-search-dropdown').attr('data-id'), $('#product-search-month').val())
 		})
+
+		setInterval(
+			function() {
+				$.post("https://chick-patrol.test/index.php/Admin_api/get_all_orders_total", {}).then(function(response) {
+					$('.for-approval-total, .preparing-total, .on-delivery-total').html('0')
+					for (let i = 0; i < response.length; i++) {
+						let status = response[i]['status']
+						console.log(`.${status.replace(' ', '-')}-total`)
+						if (response[i]['total'] > 0)
+							$(`.${status.replace(' ', '-')}-total`).html(`
+                        ${response[i]['total']}
+                  `)
+						else {
+							console.log('haha')
+
+						}
+					}
+				})
+			}, 2000)
 	</script>
 </body>
 
