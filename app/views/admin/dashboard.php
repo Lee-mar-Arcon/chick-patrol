@@ -154,7 +154,7 @@
 													<?php }
 												} else { ?>
 													<tr>
-														<td colspan="100" class="bg-light text-center py-4"> No new users right now</td>
+														<td colspan="100" class="bg-light text-center py-4"> No on process orders right now 😆</td>
 													</tr>
 												<?php } ?>
 											</tbody>
