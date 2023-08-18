@@ -366,6 +366,7 @@
 
         // render product list to table
         function populateTable(products) {
+            console.log(products)
             products = products['products']
             $('tbody').html('');
             const productLink = '<?= BASE_URL ?>/public/images/products/cropped/'

@@ -143,21 +143,18 @@ class M_admin extends Model
 					c.name AS category_name,
 					IF(p.inventory_type = 'durable',
 						(SELECT SUM(inner_pi.remaining_quantity) FROM product_inventory AS inner_pi WHERE inner_pi.product_id = p.id AND inner_pi.expiration_date > NOW()),
-						(
-							SELECT MIN(can_make)
-							FROM (
-									SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
-									FROM product_ingredients AS pi
-									INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
-									LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
-									WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
-									GROUP BY pi.id
-							) AS available_quantity
+						(SELECT FLOOR(SUM(ii.remaining_quantity) / p_ing.need_quantity) AS can_make
+							FROM ingredient_inventory AS ii
+							INNER JOIN product_ingredients AS p_ing ON p_ing.id = ii.product_ingredient_id
+							WHERE p_ing.product_id = p.id AND ii.expiration_date > NOW()
+							GROUP BY ii.product_ingredient_id
+							ORDER BY can_make ASC
+							LIMIT 1
 						)
-					) AS available_quantity
+					)AS available_quantity
 				FROM products AS p
-				INNER JOIN categories AS c ON p.category = c.id		  
-				WHERE p.name LIKE ? AND p.category LIKE ? AND p.selling LIKE ?
+				INNER JOIN categories AS c ON p.category = c.id
+				WHERE p.removed = 0 AND p.name LIKE ? AND p.category LIKE ? AND p.selling LIKE ?
 				ORDER BY p.name
 				LIMIT 10 OFFSET ?",
 				[$q, $category, $availability, ($page - 1)  * 10]

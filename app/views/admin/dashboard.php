@@ -306,37 +306,58 @@
 
 
 
+						<div class="col-12 container">
+							<div class="px-md-2 mx-sm-1 mx-md-2 mx-sm-1 row">
 
-						<div class="col-sm-12 col-lg-6 p-3">
-							<div class="card" style="min-height: 800px;">
-								<div class="card-header bg-primary">
-									<div class="d-flex justify-content-between">
-										<div class="d-flex align-items-center text-white fs-4 fw-bold">
-											Barangay
+
+								<div class="col-sm-12 col-md-6 col-lg-4">
+									<div class="card">
+										<div class="card-header bg-primary">
+											<div class="d-flex justify-content-between">
+												<div class="d-flex align-items-center text-white fs-4 fw-bold">
+													Barangay
+												</div>
+											</div>
+										</div>
+										<div class="card-body p-sm-0 p-md-4">
+											<div id="barangayChart"></div>
 										</div>
 									</div>
 								</div>
-								<div class="card-body p-sm-0 p-md-4">
-									<div id="barangayChart"></div>
-								</div>
-							</div>
-						</div>
-						<div class="col-sm-12 col-lg-6 p-3">
-							<div class="card" style="min-height: 800px;">
-								<div class="card-header bg-primary">
-									<div class="d-flex justify-content-between">
-										<div class="d-flex align-items-center text-white fs-4 fw-bold">
-											Category
+								<div class="col-sm-12 col-md-6 col-lg-4">
+									<div class="card">
+										<div class="card-header bg-primary">
+											<div class="d-flex justify-content-between">
+												<div class="d-flex align-items-center text-white fs-4 fw-bold">
+													Category
+												</div>
+											</div>
+										</div>
+										<div class="card-body p-sm-0 p-md-4">
+											<div id="categoryChart"></div>
 										</div>
 									</div>
 								</div>
-								<div class="card-body p-sm-0 p-md-4">
-									<div id="categoryChart"></div>
+
+								<div class="col-sm-12 col-md-12 col-lg-4">
+									<div class="card">
+										<div class="card-header bg-primary">
+											<div class="d-flex justify-content-between">
+												<div class="d-flex align-items-center text-white fs-4 fw-bold">
+													Category
+												</div>	
+											</div>
+										</div>
+										<div class="card-body p-sm-0 p-md-4">
+											<!-- <div id="categoryChart"></div> -->
+										</div>
+									</div>
 								</div>
+
 							</div>
 						</div>
-						<div class="col-sm-12 col-lg-6 p-3">
-							<div class="card" style="min-height: 800px;">
+						<div class="col-sm-12 col-lg-6">
+							<div class="card">
 								<div class="card-header bg-primary">
 									<div class="d-flex justify-content-between">
 										<div class="d-flex align-items-center text-white fs-4 fw-bold">
@@ -360,7 +381,6 @@
 								</div>
 							</div>
 						</div>
-
 
 
 
@@ -914,7 +934,6 @@
 				<div class="fw-normal text-danger">${cart['cart']['note']}</div>
 			`)
 		}
-
 	</script>
 </body>
 

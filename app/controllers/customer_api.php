@@ -476,14 +476,16 @@ class Customer_api extends Controller
 							SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
 							FROM product_ingredients AS pi
 							INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
+									LEFT JOIN products AS inner_p ON pi.product_id= inner_p.id
 							LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
 							WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
-							GROUP BY pi.id
+									AND pi.product_id = p.id
+									GROUP BY pi.id
 					) AS available_quantity
 				)
 			) AS available_quantity
 		FROM products AS p
-		INNER JOIN categories AS c ON p.category = c.id		  
+		INNER JOIN categories AS c ON p.category = c.id  		  
 		WHERE p.name LIKE ?
 		ORDER BY p.name", array($q)));
 			// $products = $this->M_encrypt->encrypt($this->db->table('products as p')->select('p.id, p.name as product_name, c.name as category_name, p.image as image, p.price, p.selling, p.quantity')->inner_join('categories as c', 'p.category=c.id')->like('LOWER(p.name)', strtolower($q))->get_all());

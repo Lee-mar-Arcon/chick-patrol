@@ -414,7 +414,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             $.post('<?= site_url('admin_api/get_product_available_quantity') ?>', {
                 product_id: product.id
             }).then(function(response) {
-                $('#product_available_quantity').html(`${parseFloat(response).toFixed(2)}`)
+                $('#product_available_quantity').html(`${parseFloat(response == null ? 0 : response).toFixed(2)}`)
             })
         }
 
