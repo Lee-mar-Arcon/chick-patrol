@@ -63,7 +63,7 @@ $database['main'] = array(
     'hostname'	=> 'localhost',
     'port'		=> '3306',
     // 'username'	=> 'u513776490_root',
-    // 'password'	=> 'Chixpatrol_123',
+    // 'password'	=> '84s!jnE2k=S',
     // 'database'	=> 'u513776490_chix_patrol',
     'username'	=> 'root',
     'password'	=> '',

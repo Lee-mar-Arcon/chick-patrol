@@ -27,7 +27,7 @@ class Admin extends Controller
 			"SELECT u.id AS id, u.first_name AS first_name, u.middle_name AS middle_name, u.last_name AS last_name, u.email AS email, b.name AS barangay_name, u.street, u.contact, u.birth_date, u.sex, u.verified_at, u.is_banned FROM users AS u INNER JOIN barangays AS b ON u.barangay = b.id WHERE u.is_admin = 0 AND verified_at > ? LIMIT 10",
 			array($currentDate)
 		));
-
+		$latestOngoingOrders = $this->db->raw("SELECT u.*, DATE_FORMAT(c.for_approval_at, '%b %d, %Y %h:%i %p') as for_approval_at, c.id AS id, c.status FROM users as u INNER JOIN cart as c ON u.id=c.user_id WHERE c.status IN ('preparing', 'for approval', 'on delivery') ORDER BY c.for_approval_at ASC LIMIT 3");
 		$newlyAddedProducts = $this->db->raw("SELECT 
 			p.*,
 			c.name AS category_name,
@@ -54,7 +54,8 @@ class Admin extends Controller
 			'pageTitle' => 'Admin | Dashboard',
 			'breadCrumb' => 'Dashboard',
 			'newlyRegisteredUsers' => $newlyRegisteredUsers,
-			'newlyAddedProducts' => $newlyAddedProducts
+			'newlyAddedProducts' => $newlyAddedProducts,
+			'latestOngoingOrders' => $latestOngoingOrders
 		]);
 	}
 
