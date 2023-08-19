@@ -1048,6 +1048,59 @@ class Admin_api extends Controller
 		}
 	}
 
+	function sales_chart_data()
+	{
+		try {
+			$this->is_authorized();
+			if (
+				empty($_POST['timePeriod']) || !in_array($_POST['timePeriod'], ['month', 'year', 'week'])
+				|| !preg_match('/^(?:\d{4}-\d{2}-\d{2})\s+to\s+(?:\d{4}-\d{2}-\d{2})$/', $_POST['timePeriodRange'])
+			) {
+				$startDate = date('Y-01-01', strtotime(date('Y-m-d')));
+				$endDate = date('Y-12-31', strtotime(date('Y-m-d')));
+			} else {
+				$startDate = substr($_POST['timePeriodRange'], 0, strpos($_POST['timePeriodRange'], ' '));
+				$endDate = substr($_POST['timePeriodRange'], strrpos($_POST['timePeriodRange'], ' '));
+			}
+			switch ($_POST['timePeriod']) {
+				case 'month':
+					$query =
+						"SELECT 
+						DATE_FORMAT(c.received_at, '%b %Y') AS date, 
+						SUM(c.total) AS total 
+						FROM cart AS c 
+						WHERE c.received_at IS NOT NULL AND (c.received_at >= ? AND c.received_at <= ?) 
+						GROUP BY YEAR(c.received_at), MONTH(c.received_at), c.received_at
+						ORDER BY YEAR(c.received_at) ASC, MONTH(c.received_at) ASC;
+						;";
+					break;
+				case 'week':
+					$query =
+						"SELECT 
+							CONCAT(
+							DATE_FORMAT(STR_TO_DATE(CONCAT(YEARWEEK(c.received_at), ' Sunday'), '%X%V %W'), '%b'),
+							' ',
+							DATE_FORMAT(STR_TO_DATE(CONCAT(YEARWEEK(c.received_at), ' Sunday'), '%X%V %W'), '%e'),
+							'-',
+							DATE_FORMAT(STR_TO_DATE(CONCAT(YEARWEEK(c.received_at), ' Saturday'), '%X%V %W'), '%e'),
+							' ',
+							YEAR(STR_TO_DATE(CONCAT(YEARWEEK(c.received_at), ' Sunday'), '%X%V %W'))
+						) AS date, 
+						SUM(c.total) AS total FROM cart AS c  
+						WHERE c.received_at IS NOT null  AND (c.received_at >= ? AND c.received_at <= ?) 
+						GROUP BY YEAR(c.received_at), MONTH(c.received_at), YEARWEEK(c.received_at), date
+						ORDER BY YEAR(c.received_at) ASC, MONTH(c.received_at) ASC, YEARWEEK(c.received_at) ASC;";
+					break;
+				case 'year':
+					$query = "SELECT YEAR(c.received_at) AS date, SUM(c.total) AS total FROM cart AS c WHERE c.received_at IS NOT null AND (c.received_at >= ? AND c.received_at <= ?) GROUP BY YEAR(c.received_at) ORDER BY YEAR(c.received_at) ASC;";
+					break;
+			}
+			
+			echo json_encode($this->db->raw($query, array($startDate, $endDate)));
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 	// template
 	// function user_index()
 	// {

@@ -8,12 +8,12 @@
 	<meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
 	<meta content="Coderthemes" name="author" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<!-- App favicon -->
 	<!-- App css -->
 	<link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/app.min.css" rel="stylesheet" type="text/css" id="app-style" />
-
 	<!-- icons -->
 	<link href="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+	<!-- date range picker -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 	<style>
 		table {
 			border-collapse: separate;
@@ -54,7 +54,6 @@
 			<div class="content">
 				<div class="container-fluid">
 					<div class="row">
-
 						<div class="container col-12">
 							<div class="row px-md-2 mx-sm-2 mx-md-2 mx-sm-2">
 								<div class="col-xl-4 col-md-6">
@@ -97,25 +96,6 @@
 								</div>
 							</div>
 						</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 						<div class="container col-12">
 							<div class="px-md-2 mx-sm-2 mx-md-3 mx-sm-3">
@@ -163,21 +143,6 @@
 								</div>
 							</div>
 						</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 						<div class="container col-12">
 							<div class="px-md-2 mx-sm-2 mx-md-3 mx-sm-3">
@@ -296,20 +261,30 @@
 							</div>
 						</div>
 
-
-
-
-
-
-
-
-
-
-
 						<div class="col-12 container">
 							<div class="px-md-2 mx-sm-1 mx-md-2 mx-sm-1 row">
+								<!-- sales chart -->
+								<div class="col-sm-12 col-md-12 col-lg-8 h-sm-auto">
+									<div class="card">
+										<div class="card-header bg-primary">
+											<div class="d-flex justify-content-between align-items-center">
+												<span class="text-white fw-bold">Sales</span>
+												<div class="d-flex">
+													<select id="time-period" class="form-select me-1">
+														<option value="year">year</option>
+														<option value="month" selected>month</option>
+														<option value="week">week</option>
+													</select>
+													<input type="date" class="form-control p-1" placeholder="pick date range" style="min-width: 200px;" id="time-period-range">
+												</div>
+											</div>
 
-
+										</div>
+										<div class="card-body p-sm-0 p-md-4">
+											<div id="sales-chart"></div>
+										</div>
+									</div>
+								</div>
 								<div class="col-sm-12 col-md-6 col-lg-4">
 									<div class="card">
 										<div class="card-header bg-primary">
@@ -323,9 +298,7 @@
 											<div id="barangayChart"></div>
 										</div>
 									</div>
-								</div>
-								<div class="col-sm-12 col-md-6 col-lg-4">
-									<div class="card">
+									<div class="card m-sm-3 m-md-0">
 										<div class="card-header bg-primary">
 											<div class="d-flex justify-content-between">
 												<div class="d-flex align-items-center text-white fs-4 fw-bold">
@@ -338,22 +311,9 @@
 										</div>
 									</div>
 								</div>
+								<!-- <div class="col-sm-12 col-md-6 col-lg-3">
 
-								<div class="col-sm-12 col-md-12 col-lg-4">
-									<div class="card">
-										<div class="card-header bg-primary">
-											<div class="d-flex justify-content-between">
-												<div class="d-flex align-items-center text-white fs-4 fw-bold">
-													Category
-												</div>	
-											</div>
-										</div>
-										<div class="card-body p-sm-0 p-md-4">
-											<!-- <div id="categoryChart"></div> -->
-										</div>
-									</div>
-								</div>
-
+								</div> -->
 							</div>
 						</div>
 						<div class="col-sm-12 col-lg-6">
@@ -382,16 +342,7 @@
 							</div>
 						</div>
 
-
-
-
-
-
-
-
-
-
-						<div class="col-sm-12 col-lg-6 p-3">
+						<div class="col-sm-12 col-lg-6">
 							<div class="card" style="min-height: 800px;">
 								<div class="card-header bg-primary">
 									<div class="d-flex justify-content-between">
@@ -416,17 +367,6 @@
 								</div>
 							</div>
 						</div>
-
-
-
-
-
-
-
-
-
-
-
 					</div>
 				</div>
 			</div>
@@ -476,25 +416,29 @@
 	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 	<!-- loadash -->
 	<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+	<!-- date range picker -->
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 	<script>
 		$('body').attr('data-leftbar-size', 'default').addClass('sidebar-enable')
 		$('.toggle-sidebar').on('click', function() {
 			$('body').toggleClass('sidebar-enable')
 		})
 		$(document).ready(function() {
-
 			setTimeout(function() {
 				handleFetchSearch('product', '')
 			}, 2000)
 			handleFetchSearch('barangay', '')
 			fetchChartData(`<?= site_url('admin_api/barangay_chart_data') ?>`, renderBarangayChart)
 			fetchChartData(`<?= site_url('admin_api/category_chart_data') ?>`, renderCategoryChart)
+			fetchSalesChartData()
 		})
 		// chart variables
 		let DeliveryFeeHistoryOptions = {}
 		let DeliveryFeeHistoryChart = ''
 		let productPriceHistoryOptions = {}
 		let productPriceHistoryChart = ''
+		let salesChartOptions = {}
+		let salesChart = ''
 
 		function fetchChartData(link, renderChart) {
 			return axios.get(link, {
@@ -656,6 +600,49 @@
 			DeliveryFeeHistoryChart.render();
 		}
 
+		// sales chart
+		function renderSalesChart(chartData, timePeriod) {
+			console.log(chartData)
+			let seriesCategory = [];
+			let seriesData = []
+			seriesCategory = chartData.map(function(data) {
+				return `${data['date']}`
+			})
+			seriesData = chartData.map(function(data) {
+				return `${parseFloat(data['total']).toFixed(2)}`
+			})
+
+			var salesChartOptions = {
+				series: [{
+					name: 'total sales',
+					data: seriesData
+				}],
+				chart: {
+					type: 'bar',
+					height: 350
+				},
+				plotOptions: {
+					bar: {
+						borderRadius: 4,
+						horizontal: true,
+					}
+				},
+				dataLabels: {
+					enabled: false
+				},
+				xaxis: {
+					categories: seriesCategory,
+				}
+			};
+			if (salesChart === '') {
+				salesChart = new ApexCharts(document.querySelector("#sales-chart"), salesChartOptions);
+				salesChart.render()
+				console.log('render')
+			} else {
+				console.log('update')
+				salesChart.updateOptions(salesChartOptions);
+			}
+		}
 
 		// product price history chart render
 		function productPriceHistory(data) {
@@ -933,6 +920,28 @@
 				<div class="fw-bold pt-3">Note:</div>
 				<div class="fw-normal text-danger">${cart['cart']['note']}</div>
 			`)
+		}
+
+		flatpickr("#time-period-range", {
+			mode: "range",
+			dateFormat: "Y-m-d",
+			defaultDate: ['<?= date('Y-01-01') ?>', '<?= date('Y-12-31') ?>']
+		});
+
+		$('#time-period, #time-period-range').on('change', function() {
+			fetchSalesChartData()
+		})
+
+		function fetchSalesChartData() {
+			let timePeriod = $('#time-period').val()
+			let timePeriodRange = $('#time-period-range').val()
+			$.post('<?= site_url('Admin_api/sales_chart_data') ?>', {
+				timePeriod: timePeriod,
+				timePeriodRange: timePeriodRange
+			}).then(function(response) {
+				console.log(response)
+				renderSalesChart(response, timePeriod)
+			})
 		}
 	</script>
 </body>
