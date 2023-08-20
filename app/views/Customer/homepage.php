@@ -411,7 +411,7 @@
         }
 
         function getProducts() {
-            $.post('<?= site_url('customer_api/get_products') ?>', {
+            $.post('<?= site_url('Customer_api/get_products') ?>', {
                     q: $('#product-search').val()
                 })
                 .then(function(response) {

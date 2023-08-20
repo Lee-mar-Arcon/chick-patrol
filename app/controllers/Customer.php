@@ -419,7 +419,7 @@ class Customer extends Controller
 			$this->call->view('Customer/category', [
 				'pageTitle' => $category['name'],
 				'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null,
-				'categoryName' => $category,
+				'category' => $category,
 				'categoryProducts' => $categoryProducts,
 			]);
 		} else

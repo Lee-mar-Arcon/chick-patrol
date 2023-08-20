@@ -37,7 +37,7 @@
          <div class="row">
             <div class="col-lg-12">
                <div id="products-list" class="section-title pt-4">
-                  <h2>Our Products</h2>
+                  <h2><?= $category['name'] ?></h2>
                </div>
                <div class="featured__controls">
                   <ul>
