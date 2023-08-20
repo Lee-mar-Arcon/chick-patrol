@@ -459,6 +459,7 @@
             });
 
             $('.set-bg').each(function() {
+                console.log('set bg code ran')
                 var bg = $(this).data('setbg');
                 $(this).css('background-image', 'url(' + bg + ')');
             });
