@@ -44,7 +44,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                     <div class="row card">
                         <div class="card-header">
                             <div class="display-6 fw-bold"><?= $product['name'] ?></div>
-                            <div class="text-muted fs-4">(Ingredients)</div>
+                            <div class="text-muted fs-4">(<?= $product['inventory_type'] == 'perishable' ? 'Ingredients' : 'Inventory' ?>)</div>
                         </div>
                         <div class="col-sm-12">
                             <div class="card-body row flex-sm-row-reverse">
@@ -77,14 +77,16 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-9 col-12 bg-white pb-5">
-                            <div class="card-header">
-                                <div class="fs-3 fw-bold">Inventory</div>
-                                <div id="ingredient_name_header" class="text-muted fs-4"></div>
+                        <?php if ($product['inventory_type'] == 'perishable') : ?>
+                            <div class="col-md-9 col-12 bg-white pb-5">
+                                <div class="card-header">
+                                    <div class="fs-3 fw-bold">Inventory</div>
+                                    <div id="ingredient_name_header" class="text-muted fs-4"></div>
+                                </div>
+                                <div id="ingredient-inventory" class="p-2">
+                                </div>
                             </div>
-                            <div id="ingredient-inventory" class="p-2">
-                            </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -165,6 +167,33 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         </div>
     </div>
 
+    <!-- Add product inventory offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="addProductInventoryForm" aria-labelledby="addProductInventoryLabel">
+        <div class="offcanvas-header">
+            <h5 class="fs-3 ms-2" id="addProductInventoryLabel">Add product inventory</h5>
+            <button type="button" class="me-1 btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <input type="hidden" id="inventory_product_id" value="<?= $product['id'] ?>" name="inventory_product_id">
+
+            <!-- quantity -->
+            <div class="mb-3 mt-2">
+                <label for="need_quantity" class="form-label">quantity<span class="text-danger"> *</span></label>
+                <input type="text" placeholder="need quantity" class="form-control" id="inventory_quantity" name="inventory_quantity">
+            </div>
+
+            <!-- expiration_date -->
+            <div class="mb-3 mt-2">
+                <label for="inventory_expiration_date" class="form-label">Expiration date<span class="text-danger"> *</span></label>
+                <input type="date" class="form-control" id="inventory_expiration_date" name="inventory_expiration_date">
+            </div>
+
+            <div class="text-end mt-3">
+                <button id="submit-add-product-ingredient" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Vendor -->
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/jquery/jquery.min.js"></script>
     <script src="<?= BASE_URL . PUBLIC_DIR ?>/admin/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -194,7 +223,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             if (product.inventory_type == 'perishable') {
                 getProductIngredients()
             } else {
-                ingredientNotNeededMessage()
+                getProductInventory()
             }
             initSelect2()
             getProductAvailableQuantity()
@@ -207,7 +236,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 placeholder: 'search ingredient',
                 dropdownParent: $('#addProductIngredientForm'),
                 ajax: {
-                    url: '<?= site_url('admin_api/search-ingredients') ?>',
+                    url: '<?= site_url('Admin_api/search-ingredients') ?>',
                     type: 'POST',
                     dataType: 'json',
                     delay: 250,
@@ -235,7 +264,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             let submitAddProductIngredientElement = $(this)
             submitAddProductIngredientElement.attr('disabled', true)
 
-            $.post('<?= site_url('admin_api/add_product_ingredient') ?>', {
+            $.post('<?= site_url('Admin_api/add_product_ingredient') ?>', {
                 product_id: $('#product_id').val(),
                 ingredient_id: $('#ingredient_id').val(),
                 need_quantity: $('#need_quantity').val(),
@@ -294,22 +323,70 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             `)
         }
 
-        function ingredientNotNeededMessage() {
-            $('.ingredient-container').html(`
-                <div class="py-5 my-5 fw-bold h2 text-muted text-center">
-                    This product does not need any ingredients.
-                </div>
-            `)
+        function getProductInventory() {
+            const productID = product.id
+            $.post('<?= site_url('Admin_api/get-product-inventory') ?>', {
+                productID: productID
+            }).then(function(response) {
+                console.log(response)
+                populateProductInventory(response)
+            })
         }
 
         function getProductIngredients() {
             const productID = product.id
-            $.post('<?= site_url('admin_api/get-product-ingredients') ?>', {
+            $.post('<?= site_url('Admin_api/get-product-ingredients') ?>', {
                 productID: productID
             }).then(function(response) {
                 console.log(response)
                 populateIngredientList(response)
             })
+        }
+
+        function populateProductInventory(inventory) {
+            inventoryList = ''
+            for (let i = 0; i < inventory.length; i++) {
+                inventoryList += `
+                <tr class="align-middle bg-light col-12 mb-2" data-id="${inventory[i]['id']}">
+                        <td>${parseFloat(inventory[i]['quantity']).toFixed(2)}</td>
+                        <td>${parseFloat(inventory[i]['remaining_quantity']).toFixed(2)}</td>
+                        <td>${inventory[i]['added_at']}</td>
+                        <td>${inventory[i]['expiration_date']}</td>
+                        <td class="text-center">
+                            <span data-tippy-content="remove" class="waves-effect waves-light p-1 py-0 me-1 bg-white rounded remove-inventory">
+                                <i class="mdi mdi-delete fs-3 text-danger"></i>
+                            </span>
+                        </td>
+                    </tr>`
+            }
+            $('.ingredient-container').html('')
+            $('.ingredient-container').prepend(
+                `
+            <div class="m-2 d-flex justify-content-end">
+                <button id="add-product-inventory" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light" data-bs-toggle="offcanvas" data-bs-target="#addProductInventoryForm" aria-controls="offcanvasRight">add inventory</button>
+            </div>
+            `
+            )
+
+            $('.ingredient-container').append(`
+            <div class="table-responsive">
+                <table class="table table-transparent table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 100px;">QTY</th>
+                            <th scope="col" style="width: 50px;">Rem QTY</th>
+                            <th scope="col" style="width: 150px;">Added at</th>
+                            <th scope="col" style="width: 150px;">Expiration date</th>
+                            <th scope="col" class="text-center" style="width: 50px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    ${inventoryList}
+                    </tbody>
+                </table>
+            </div>
+            `)
+            tippy('[data-tippy-content]');
         }
 
         function populateIngredientList(ingredients) {
@@ -376,7 +453,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
 
         function addIngredientQuantity() {
             $('#submit-add-ingredient-quantity').attr('disabled', true)
-            $.post('<?= site_url('admin_api/add_product_ingredient_quantity') ?>', {
+            $.post('<?= site_url('Admin_api/add_product_ingredient_quantity') ?>', {
                 product_ingredient_id: $('#product_ingredient_id').val(),
                 quantity: $('#quantity').val(),
                 expiration_date: $('#expiration_date').val(),
@@ -411,14 +488,15 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         }
 
         function getProductAvailableQuantity() {
-            $.post('<?= site_url('admin_api/get_product_available_quantity') ?>', {
+            $.post('<?= site_url('Admin_api/get_product_available_quantity') ?>', {
                 product_id: product.id
             }).then(function(response) {
+                console.log('12312')
                 $('#product_available_quantity').html(`${parseFloat(response == null ? 0 : response).toFixed(2)}`)
             })
         }
 
-        ingredientInventoryParams = {
+        let ingredientInventoryParams = {
             ingredient_id: '',
             product_id: product.id
         }
@@ -430,7 +508,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
 
         function fetchIngredientInventory(ingredientInventoryParams) {
             if (ingredientInventoryParams.ingredient_id != '')
-                $.post('<?= site_url(('admin_api/get_ingredient_inventory')) ?>',
+                $.post('<?= site_url(('Admin_api/get_ingredient_inventory')) ?>',
                     ingredientInventoryParams
                 ).then(function(response) {
                     populateIngredientInventory(response.list)
@@ -511,7 +589,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
 
         function deleteIngredientInventory(password, ingredientID) {
             return new Promise(function(resolve, reject) {
-                $.post('<?= site_url('admin_api/delete-ingredient-inventory') ?>', {
+                $.post('<?= site_url('Admin_api/delete-ingredient-inventory') ?>', {
                         password: password,
                         ingredient_id: ingredientID
                     })
@@ -560,9 +638,58 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             });
         })
 
+        $(document).on('click', '.remove-inventory', function() {
+            let inventoryID = $(this).closest('tr').attr('data-id')
+            Swal.fire({
+                title: 'Are you sure you want to remove this inventory?',
+                text: 'Enter your password',
+                icon: 'error',
+                input: 'password',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                allowOutsideClick: false,
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                preConfirm: function(password) {
+                    console.log(password, inventoryID)
+                    return deleteInventory(password, inventoryID);
+                }
+            }).then((result) => {
+                console.log(result.isConfirmed)
+                if (result.isConfirmed) {
+
+                }
+            });
+        })
+
+        function deleteInventory(password, inventoryID) {
+            return new Promise(function(resolve, reject) {
+                $.post('<?= site_url('Admin_api/delete-inventory') ?>', {
+                        password: password,
+                        inventory_id: inventoryID
+                    })
+                    .then(function(response) {
+                        if (response == 'wrong password') {
+                            showToast('you entered the wrong password', 'danger')
+                            resolve(false)
+                        } else if (response == 'invalid ID') {
+                            showToast('ID does not exists', 'danger')
+                            resolve(false)
+                        } else {
+                            showToast('Product inventory deletion success.', "success")
+                            getProductAvailableQuantity()
+                            getProductInventory()
+                            resolve(true)
+                        }
+                    })
+            })
+        }
+
         function deleteIngredient(password, ingredientID) {
             return new Promise(function(resolve, reject) {
-                $.post('<?= site_url('admin_api/delete-ingredient') ?>', {
+                $.post('<?= site_url('Admin_api/delete-ingredient') ?>', {
                         password: password,
                         ingredient_id: ingredientID
                     })
@@ -583,6 +710,10 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                     })
             })
         }
+
+        $(document).on('click', '#add-product-inventory', function() {
+            resetForm(['inventory_quantity', 'inventory_expiration_date'])
+        })
     </script>
 </body>
 

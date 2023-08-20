@@ -821,9 +821,9 @@ class Admin_api extends Controller
 	function get_product_available_quantity()
 	{
 		try {
-			$this->is_authorized();
-			if (isset($_POST['product_id']))
-				echo json_encode($this->db->raw("
+			// $this->is_authorized();
+			if (isset($_POST['product_id'])) {
+				$quantity = $this->db->raw("
 				SELECT 
 				IF(p.inventory_type = 'durable', 
 					(SELECT SUM(inner_p_inventory.remaining_quantity) FROM product_inventory AS inner_p_inventory WHERE inner_p_inventory.product_id = p.id AND inner_p_inventory.expiration_date > NOW()), 
@@ -849,8 +849,9 @@ class Admin_api extends Controller
 				LEFT JOIN ingredient_inventory AS ii ON p_ingredients.id = ii.product_ingredient_id
 				WHERE (p_inventory.expiration_date > CURRENT_DATE OR p.inventory_type = 'perishable') AND p.id = ?
 				GROUP BY p.id, p_inventory.remaining_quantity
-				ORDER BY p.name", array($this->M_encrypt->decrypt($_POST['product_id']), $this->M_encrypt->decrypt($_POST['product_id'])))[0]['available_quantity']);
-			else
+				ORDER BY p.name", array($this->M_encrypt->decrypt($_POST['product_id']), $this->M_encrypt->decrypt($_POST['product_id'])));
+				echo json_encode(count($quantity) > 0 ? $quantity[0]['available_quantity'] : 0);
+			} else
 				echo json_encode(null);
 		} catch (Exception $e) {
 			echo $e->getMessage();
@@ -903,13 +904,32 @@ class Admin_api extends Controller
 	function delete_ingredient()
 	{
 		try {
-			// $this->is_authorized();
+			$this->is_authorized();
 			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
 			$ingredient_id = $this->M_encrypt->decrypt($_POST['ingredient_id']);
 			if ($this->db->table('product_ingredients')->where('id', $ingredient_id)->get() == false) {
 				echo json_encode('invalid ID');
 			} else if (password_verify($_POST['password'], $user['password'])) {
 				$this->db->table('product_ingredients')->where('id', $ingredient_id)->delete();
+				echo json_encode('success');
+			} else {
+				echo json_encode('wrong password');
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
+	function delete_inventory()
+	{
+		try {
+			$this->is_authorized();
+			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
+			$inventory_id = $this->M_encrypt->decrypt($_POST['inventory_id']);
+			if ($this->db->table('product_inventory')->where('id', $inventory_id)->get() == false) {
+				echo json_encode('invalid ID');
+			} else if (password_verify($_POST['password'], $user['password'])) {
+				$this->db->table('product_inventory')->where('id', $inventory_id)->delete();
 				echo json_encode('success');
 			} else {
 				echo json_encode('wrong password');
@@ -1048,6 +1068,17 @@ class Admin_api extends Controller
 		}
 	}
 
+	function get_product_inventory()
+	{
+		try {
+			$this->is_authorized();
+			$productInventory = $this->M_encrypt->encrypt($this->db->table('product_inventory')->where('product_id', $this->M_encrypt->decrypt($_POST['productID']))->where('expiration_date', '>', date('Y-m-d H:i:s'))->get_all());
+			echo json_encode($productInventory);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	function sales_chart_data()
 	{
 		try {
@@ -1095,7 +1126,7 @@ class Admin_api extends Controller
 					$query = "SELECT YEAR(c.received_at) AS date, SUM(c.total) AS total FROM cart AS c WHERE c.received_at IS NOT null AND (c.received_at >= ? AND c.received_at <= ?) GROUP BY YEAR(c.received_at) ORDER BY YEAR(c.received_at) ASC;";
 					break;
 			}
-			
+
 			echo json_encode($this->db->raw($query, array($startDate, $endDate)));
 		} catch (Exception $e) {
 			echo $e->getMessage();
