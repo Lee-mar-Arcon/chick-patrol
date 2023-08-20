@@ -24,7 +24,7 @@
                   <li><a target="_blank" href="https://goo.gl/maps/gZJNWNMQmdHmJPEVA">Our Sitemap</a></li>
                   <li>Address: Macabulos Drive, Barangay San Roque, Tarlac, Philippines</li>
                   <li>Phone: 0920-983-5783</li>
-                  <li>Email: chix.patrol.2023@gmail.com</li>
+                  <li>Email us at chix.patrol.2023@gmail.com</li>
                </ul>
             </div>
          </div>

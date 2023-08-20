@@ -33,7 +33,7 @@
             <li class="<?= $pageTitle == 'Orders' ? 'active' : '' ?>"><a href="<?= site_url('customer/orders') ?>">Orders</a></li>
          <?php } ?>
          <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="<?= site_url('customer/foods') ?>">Foods</a>
-            <!-- <li><a href="./blog.html">Blog</a></li> -->
+         <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="<?= site_url('customer/about-us') ?>">About us</a>
       </ul>
    </nav>
    <div id="mobile-menu-wrap"></div>
@@ -88,8 +88,8 @@
                   <?php if ($user != null) { ?>
                      <li class="<?= $pageTitle == 'Orders' ? 'active' : '' ?>"><a href="<?= site_url('customer/orders') ?>">Orders</a></li>
                   <?php } ?>
-                  <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="<?= site_url('customer/foods') ?>">Foods</a>
-                     <!-- <li><a href="./blog.html">Blog</a></li> -->
+                  <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="<?= site_url('Customer/foods') ?>">Foods</a>
+                  <li class="<?= $pageTitle == '' ? 'active' : '' ?>"><a href="<?= site_url('Customer/about-us') ?>">About us</a>
                </ul>
             </nav>
          </div>

@@ -428,4 +428,12 @@ class Customer extends Controller
 				'message' => 'Category do not exists'
 			]);
 	}
+
+	function about_us()
+	{
+		$this->call->view('Customer/about-us', [
+			'pageTitle' => 'About Us',
+			'user' => $this->session->userdata('user') != null ? $this->session->userdata('user') : null
+		]);
+	}
 }
