@@ -101,19 +101,7 @@ class Customer_api extends Controller
 			echo $e->getMessage();
 		}
 	}
-
-	// function get_max_quantity()
-	// {
-	// 	try {
-	// 		$this->is_authorized();
-	// 		$productId = (int)$this->M_encrypt->decrypt($_POST['id']);
-	// 		$product = $this->db->table('products as p')->where('id', $productId)->get();
-	// 		echo json_encode($product['quantity']);
-	// 	} catch (Exception $e) {
-	// 		echo $e->getMessage();
-	// 	}
-	// }
-
+	
 	function get_product_available_quantity()
 	{
 		try {

@@ -179,7 +179,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             <!-- quantity -->
             <div class="mb-3 mt-2">
                 <label for="need_quantity" class="form-label">quantity<span class="text-danger"> *</span></label>
-                <input type="text" placeholder="need quantity" class="form-control" id="inventory_quantity" name="inventory_quantity">
+                <input type="text" placeholder="quantity" class="form-control" id="inventory_quantity" name="inventory_quantity">
             </div>
 
             <!-- expiration_date -->
@@ -189,7 +189,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             </div>
 
             <div class="text-end mt-3">
-                <button id="submit-add-product-ingredient" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
+                <button id="submit-add-product-inventory" class="btn btn-primary waves-effect waves-light" type="submit">Submit</button>
             </div>
         </div>
     </div>
@@ -466,9 +466,31 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                     resetForm(['product_ingredient_id', 'quantity', 'expiration_date', 'product_ingredient_name'])
                     getProductAvailableQuantity()
                     fetchIngredientInventory(ingredientInventoryParams)
+                    showToast('Ingredient inventory added.', "success")
                 }
 
                 $('#submit-add-ingredient-quantity').attr('disabled', false)
+            })
+        }
+
+        function addProductInventory() {
+            $('#submit-add-product-inventory').attr('disabled', true)
+            $.post('<?= site_url('Admin_api/add_product_inventory') ?>', {
+                inventory_product_id: $('#inventory_product_id').val(),
+                inventory_quantity: $('#inventory_quantity').val(),
+                inventory_expiration_date: $('#inventory_expiration_date').val(),
+            }).then(function(response) {
+                console.log(response)
+                if (typeof response === 'object')
+                    displayFormErrors(response)
+                else {
+                    $('#addProductInventoryForm').offcanvas('hide')
+                    getProductInventory()
+                    resetForm(['inventory_quantity', 'inventory_expiration_date'])
+                    getProductAvailableQuantity()
+                    showToast('Product inventory added.', "success")
+                }
+                $('#submit-add-product-inventory').attr('disabled', false)
             })
         }
 
@@ -713,6 +735,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
 
         $(document).on('click', '#add-product-inventory', function() {
             resetForm(['inventory_quantity', 'inventory_expiration_date'])
+        })
+        $(document).on('click', '#submit-add-product-inventory', function() {
+            addProductInventory()
         })
     </script>
 </body>

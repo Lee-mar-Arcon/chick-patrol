@@ -727,6 +727,65 @@ class Admin_api extends Controller
 		}
 	}
 
+	function add_product_inventory()
+	{
+		try {
+			// $this->is_authorized();
+			$errors = array();
+			// validate ID
+			$inventoryProductID = $_POST['inventory_product_id'];
+			// id
+			$this->form_validation
+				->name('inventory_product_id')
+				->required('required');
+			$result = $this->check_input();
+			$result != null ? $errors['inventory_product_id'] = $result : '';
+			// check if id exists
+			$inventoryProductID = $this->M_encrypt->decrypt($inventoryProductID);
+			$productInventoryExists = $this->db->table('products')->where('id', $inventoryProductID)->limit(1)->get_all();
+			if (!count($productInventoryExists)) {
+				$errors['inventory_product_id'] = 'invalid id';
+			}
+			// quantity
+			$this->form_validation
+				->name('inventory_quantity')
+				->numeric('invalid quantity')
+				->required('required');
+			$result = $this->check_input();
+			$result != null ? $errors['inventory_quantity'] = $result : '';
+
+			// expiration_date
+			$this->form_validation
+				->name('inventory_expiration_date')
+				->required('required');
+			$result = $this->check_input();
+			$result != null ? $errors['inventory_expiration_date'] = $result : '';
+			// check if input is valid date
+			if (!isset($errors['inventory_expiration_date'])) {
+				$dateTime = DateTime::createFromFormat('Y-m-d', $_POST['inventory_expiration_date']);
+				if (!($dateTime && $dateTime->format('Y-m-d') === $_POST['inventory_expiration_date'])) {
+					$errors['inventory_expiration_date'] = 'invalid date';
+					// check if date is later than current date
+				} else if (strtotime($_POST['inventory_expiration_date']) < time()) {
+					$errors['inventory_expiration_date'] = 'expiration date must be later that today';
+				}
+			}
+
+			if (count($errors) == 0) {
+				echo json_encode($this->db->table('product_inventory')->insert(array(
+					'product_id' => $inventoryProductID,
+					'quantity' => $_POST['inventory_quantity'],
+					'remaining_quantity' => $_POST['inventory_quantity'],
+					'expiration_date' => $_POST['inventory_expiration_date']
+				)));
+			} else {
+				echo json_encode($errors);
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	function search_ingredients()
 	{
 		try {
