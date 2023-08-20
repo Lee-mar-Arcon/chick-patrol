@@ -107,7 +107,9 @@
                 <div class="categories__slider owl-carousel">
                     <?php foreach ($categories as $category) : ?>
                         <div class="col-lg-3 p-0">
-                            <div class="categories__item mx-2 set-bg bg-light" data-setbg="<?= BASE_URL . PUBLIC_DIR . '/images/category/cropped/' . $category['image'] ?>">
+                            <div class="categories__item mx-2 set-bg bg-light" 
+                            style="background-image: url(&quot;<?= BASE_URL ?>public/images/category/cropped/<?= $category['image'] ?>&quot;);"
+                            >
                                 <h5 class="rounded"><a href="<?= site_url('customer/category/') . $category['id'] ?>" class="bg-white border-2"><?= $category['name'] ?></a></h5>
                             </div>
                         </div>
@@ -151,7 +153,7 @@
                         <?php foreach ($newestProducts as $newestProduct) : ?>
                             <div class="col-lg-3 p-0">
                                 <div class="featured__item">
-                                    <div class="featured__item__pic set-bg" data-setbg="<?= BASE_URL ?>public/images/products/cropped/<?= $newestProduct['image'] ?>">
+                                    <div class="featured__item__pic set-bg" style="background-image: url(&quot;<?= BASE_URL ?>public/images/products/cropped/<?= $newestProduct['image'] ?>&quot;);">
                                         <?php if (($newestProduct['available_quantity'] > 0)) : ?>
                                             <ul class="featured__item__pic__hover">
                                                 <li>
@@ -198,7 +200,7 @@
                         <?php foreach ($topSelling as $topSellingProduct) : ?>
                             <div class="col-lg-3 p-0">
                                 <div class="featured__item">
-                                    <div class="featured__item__pic set-bg" data-setbg="<?= BASE_URL ?>public/images/products/cropped/<?= $topSellingProduct['image'] ?>">
+                                    <div class="featured__item__pic set-bg" style="background-image: url(&quot;<?= BASE_URL ?>public/images/products/cropped/<?= $topSellingProduct['image'] ?>&quot;);">
                                         <?php if (($topSellingProduct['available_quantity'] > 0)) : ?>
                                             <ul class="featured__item__pic__hover">
                                                 <li>
@@ -427,7 +429,9 @@
                 $('.featured__filter').append(`
                 <div class="col-lg-3 col-md-4 col-sm-6 mix ${product['category_name'].replace(' ', '')}">
                     <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="${productLink + product['image']}">
+                        <div class="featured__item__pic set-bg"
+                        style="background-image: url(&quot;${productLink + product['image']}&quot;);"
+                        >
                         ${!(product['available_quantity'] == 0 || product['available_quantity'] == null) ?
                             `<ul class="featured__item__pic__hover">
                                 <li>
@@ -456,12 +460,6 @@
                     </div>
                 </div>
                 `)
-            });
-
-            $('.set-bg').each(function() {
-                console.log('set bg code ran')
-                var bg = $(this).data('setbg');
-                $(this).css('background-image', 'url(' + bg + ')');
             });
         }
 
