@@ -739,6 +739,9 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
         $(document).on('click', '#submit-add-product-inventory', function() {
             addProductInventory()
         })
+        $(document).on('click', function(){
+            clearValidationErrors()
+        })
     </script>
 </body>
 
