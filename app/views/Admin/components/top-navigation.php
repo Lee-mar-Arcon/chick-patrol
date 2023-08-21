@@ -31,12 +31,6 @@
                <span>My Account</span>
             </a>
 
-            <!-- item-->
-            <a href="auth-lock-screen.html" class="dropdown-item notify-item">
-               <i class="fe-lock"></i>
-               <span>Lock Screen</span>
-            </a>
-
             <div class="dropdown-divider"></div>
 
             <!-- item-->
@@ -46,12 +40,6 @@
             </a>
 
          </div>
-      </li>
-
-      <li class="dropdown notification-list">
-         <a href="javascript:void(0);" class="nav-link right-bar-toggle waves-effect waves-light">
-            <i class="fe-settings noti-icon"></i>
-         </a>
       </li>
 
    </ul>

@@ -144,7 +144,7 @@
             <div class="mb-3 p-1 status-select rounded">
                <select class="form-select form-select-lg border-0" id="cart-status">
                   <option value="all">All</option>
-                  <option value="for acceptance">For Acceptance</option>
+                  <option value="for approval">For Approval</option>
                   <option value="rejected">Rejected</option>
                   <option value="on delivery">On Delivery</option>
                   <option value="finished">Finished</option>
