@@ -65,8 +65,9 @@ class Customer extends Controller
 		$this->loggedIn();
 		$user = $this->session->userdata('user');
 		$pendingCart = $this->db->table('cart')->where(['user_id' => $user['id'], 'status' => 'pending'])->get();
-		if ($pendingCart)
-			$products = $this->db->table('products as p')->in('id', $this->get_all_product_id($pendingCart['products']))->get_all();
+
+		if ($pendingCart && count(json_decode($pendingCart['products'], true)) > 0)
+			$products = $this->db->table('products as p')->in('id',)->get_all();
 		else
 			$products = array();
 		$this->call->view('Customer/shopping-cart', [

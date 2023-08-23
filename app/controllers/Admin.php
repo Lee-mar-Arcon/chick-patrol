@@ -48,7 +48,7 @@ class Admin extends Controller
 		FROM products AS p
 		INNER JOIN categories AS c ON p.category = c.id		  
 		WHERE p.removed = 0 AND p.selling = 1 AND p.date_added > ?
-		ORDER BY p.date_added DESC", array($currentDate));
+		ORDER BY p.date_added DESC LIMIT 8", array($currentDate));
 
 		$this->call->view('Admin/dashboard', [
 			'pageTitle' => 'Admin | Dashboard',
