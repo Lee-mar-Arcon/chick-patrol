@@ -109,7 +109,7 @@ $LAVA = lava_instance();
                   <div class="checkout__input">
                      <select name="barangay" id="barangay">
                         <?php foreach ($barangays as $barangay) : ?>
-                           <option <?= ($user['barangay'] == $LAVA->m_encrypt->decrypt($barangay['id'])) ? 'selected' : '' ?> value="<?= $barangay['id'] ?>"><?= $barangay['name'] ?></option>
+                           <option <?= ($user['barangay'] == $LAVA->M_encrypt->decrypt($barangay['id'])) ? 'selected' : '' ?> value="<?= $barangay['id'] ?>"><?= $barangay['name'] ?></option>
                         <?php endforeach; ?>
                      </select>
                   </div>
