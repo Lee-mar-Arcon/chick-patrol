@@ -346,6 +346,7 @@ class Customer extends Controller
 				 )
 			) AS cart_product
 			INNER JOIN products AS p ON p.id = cart_product.id
+			WHERE c.status = 'finished'
 			GROUP BY p.id
 			ORDER BY SUM(cart_product.quantity) DESC LIMIT 8;"
 			);
