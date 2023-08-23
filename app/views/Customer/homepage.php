@@ -107,9 +107,7 @@
                 <div class="categories__slider owl-carousel">
                     <?php foreach ($categories as $category) : ?>
                         <div class="col-lg-3 p-0">
-                            <div class="categories__item mx-2 set-bg bg-light" 
-                            style="background-image: url(&quot;<?= BASE_URL ?>public/images/category/cropped/<?= $category['image'] ?>&quot;);"
-                            >
+                            <div class="categories__item mx-2 set-bg bg-light" style="background-image: url(&quot;<?= BASE_URL ?>public/images/category/cropped/<?= $category['image'] ?>&quot;);">
                                 <h5 class="rounded"><a href="<?= site_url('customer/category/') . $category['id'] ?>" class="bg-white border-2"><?= $category['name'] ?></a></h5>
                             </div>
                         </div>
@@ -273,24 +271,23 @@
 
     <script>
         const swiper = new Swiper('.swiper', {
-            direction: 'horizontal',
-            effect: "coverflow",
-            grabCursor: true,
-            loop: true,
-            centeredSlides: true,
-            slidesPerView: "auto",
-            autoHeight: true,
-            loop: true,
             autoplay: {
-                delay: 5000,
+                delay: 4000,
                 disableOnInteraction: false,
             },
+            effect: "coverflow",
+            grabCursor: true,
+            centeredSlides: true,
+            slidesPerView: "auto",
             coverflowEffect: {
                 rotate: 50,
                 stretch: 0,
                 depth: 100,
                 modifier: 1,
                 slideShadows: true,
+            },
+            pagination: {
+                el: ".swiper-pagination",
             },
         });
 
