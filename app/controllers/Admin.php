@@ -447,10 +447,10 @@ class Admin extends Controller
 	{
 		$id = $this->M_encrypt->decrypt($id);
 		$product = $this->M_encrypt->encrypt($this->db->raw(
-			"SELECT p.*, c.name AS category_name, SUM(pi.quantity) AS quantity
+			"SELECT p.*, c.name AS category_name,
+			(SELECT SUM(pi.remaining_quantity) FROM product_inventory AS pi WHERE (pi.expiration_date > CURRENT_DATE OR pi.expiration_date IS NULL) AND pi.product_id = p.id) AS quantity
 			FROM products AS p
 			INNER JOIN categories AS c ON p.category = c.id
-			LEFT JOIN product_inventory AS pi ON p.id = pi.product_id
 			WHERE p.id = ?
 			GROUP BY p.id",
 			array($id)
