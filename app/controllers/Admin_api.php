@@ -437,13 +437,19 @@ class Admin_api extends Controller
 					// expiration_date
 					$this->form_validation
 						->name('expiration_date')
-						->required('required.');
+						->required('required');
 					$result = $this->check_input();
-					if ($result != null) {
-						$errors['expiration_date'] = $result;
-					} else 
-						if (!strtotime($this->io->post('expiration_date')))
-						$errors['expiration_date'] =  "invalid date.";
+					$result != null ? $errors['expiration_date'] = $result : '';
+					// check if input is valid date
+					if (!isset($errors['expiration_date'])) {
+						$dateTime = DateTime::createFromFormat('Y-m-d', $_POST['expiration_date']);
+						if (!($dateTime && $dateTime->format('Y-m-d') === $_POST['expiration_date'])) {
+							$errors['expiration_date'] = 'invalid date';
+							// check if date is later than current date
+						} else if (strtotime($_POST['expiration_date']) < time()) {
+							$errors['expiration_date'] = 'expiration date must be later that today';
+						}
+					}
 				}
 				// price
 				$this->form_validation

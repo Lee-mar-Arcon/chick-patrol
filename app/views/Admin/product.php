@@ -84,7 +84,7 @@
                                         <div class="dropdown-menu">
                                             <button class="dropdown-item option-category" data-id="all">All</button>
                                             <?php foreach ($categories as $category) : ?>
-                                                <button class="dropdown-item option-category" data-id="<?= ucwords($category['id']) ?>">
+                                                <button style="text-wrap: wrap;" class="dropdown-item option-category" data-id="<?= ucwords($category['id']) ?>">
                                                     <?= ucwords($category['name']) ?>
                                                 </button>
                                             <?php endforeach; ?>
