@@ -125,7 +125,6 @@
       function AddToCart(element) {
          // not logged in toast
          if (!isLoggedIn) {
-            // showToast("Log in first!", "linear-gradient(to right, #0d6982, #02768e)")
             window.location.replace("<?= site_url('account/login') ?>");
          } else {
             let id = element.attr('data-id')

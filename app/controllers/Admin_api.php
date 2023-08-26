@@ -75,7 +75,6 @@ class Admin_api extends Controller
 		}
 	}
 
-
 	// barangay chart data
 	function barangay_chart_data()
 	{
@@ -547,6 +546,25 @@ class Admin_api extends Controller
 		}
 	}
 
+	function delete_ingredient()
+	{
+		try {
+			$this->is_authorized();
+			$user = $this->db->table('users')->where('id', $this->session->userdata('user')['id'])->get();
+			$ingredientID = $this->M_encrypt->decrypt($_POST['ingredientID']);
+			if ($this->db->table('ingredients')->where('id', $ingredientID)->get() == false) {
+				echo json_encode('invalid ID');
+			} else if (password_verify($_POST['password'], $user['password'])) {
+				$this->db->table('ingredients')->where('id', $ingredientID)->delete();
+				echo json_encode('success');
+			} else {
+				echo json_encode('wrong password');
+			}
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
+
 	function ingredients_index($page, $q)
 	{
 		try {
@@ -960,7 +978,7 @@ class Admin_api extends Controller
 		}
 	}
 
-	function delete_ingredient()
+	function delete_product_ingredient()
 	{
 		try {
 			$this->is_authorized();

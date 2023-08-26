@@ -338,11 +338,6 @@
                 }
             }
         }
-        // add form error
-        // function displayErrors() {
-        //     for (let key in formErrors)
-        //         $('<div class="ms-1 text-danger form-error-message">' + formErrors[key] + '</div>').insertAfter($(`#${key}`))
-        // }
 
         function showToast(message, backgroundColor, duration = 1500) {
             Toastify({
@@ -364,54 +359,52 @@
             $('#name').val('')
         }
 
-        // $(document).on('click', '.delete-product', function() {
-        //     let productID = $(this).closest('tr').attr('id')
+        $(document).on('click', '.delete-product', function() {
+            let ingredientID = $(this).closest('tr').attr('id')
+            Swal.fire({
+                title: 'Are you sure you want to delete this Product?',
+                text: 'Enter your password',
+                icon: 'error',
+                input: 'password',
+                inputAttributes: {
+                    autocapitalize: 'off'
+                },
+                allowOutsideClick: false,
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'No',
+                preConfirm: function(password) {
+                    return deleteIngredient(password, ingredientID);
+                }
+            }).then((result) => {
+                console.log(result.isConfirmed)
+                if (result.isConfirmed) {
 
-        //     Swal.fire({
-        //         title: 'Are you sure you want to delete this Product?',
-        //         text: 'Enter your password',
-        //         icon: 'error',
-        //         input: 'password',
-        //         inputAttributes: {
-        //             autocapitalize: 'off'
-        //         },
-        //         allowOutsideClick: false,
-        //         showCancelButton: true,
-        //         confirmButtonText: 'Yes',
-        //         cancelButtonText: 'No',
-        //         preConfirm: function(password) {
-        //             return deleteProduct(password, productID);
-        //         }
-        //     }).then((result) => {
-        //         console.log(result.isConfirmed)
-        //         if (result.isConfirmed) {
+                }
+            });
+        })
 
-        //         }
-        //     });
-        // })
-
-        // function deleteProduct(password, productID) {
-        //     return new Promise(function(resolve, reject) {
-        //         $.post('<?= site_url('admin_api/delete-product') ?>', {
-        //                 password: password,
-        //                 productID: productID
-        //             })
-        //             .then(function(response) {
-        //                 console.log(response)
-        //                 if (response == 'wrong password') {
-        //                     showToast('you entered the wrong password', "linear-gradient(to right, #ac1414, #f12b00)")
-        //                     resolve(false)
-        //                 } else if (response == 'invalid ID') {
-        //                     showToast('ID does not exists', "linear-gradient(to right, #ac1414, #f12b00)")
-        //                     resolve(false)
-        //                 } else {
-        //                     showToast('Product deletion success.', "linear-gradient(to right,  #3ab902, #14ac34)")
-        //                     handleFetchProducts(q)
-        //                     resolve(true)
-        //                 }
-        //             })
-        //     })
-        // }
+        function deleteIngredient(password, ingredientID) {
+            return new Promise(function(resolve, reject) {
+                $.post('<?= site_url('admin_api/delete-ingredient') ?>', {
+                        password: password,
+                        ingredientID: ingredientID
+                    })
+                    .then(function(response) {
+                        if (response == 'wrong password') {
+                            showToast('you entered the wrong password', "linear-gradient(to right, #ac1414, #f12b00)")
+                            resolve(false)
+                        } else if (response == 'invalid ID') {
+                            showToast('ID does not exists', "linear-gradient(to right, #ac1414, #f12b00)")
+                            resolve(false)
+                        } else {
+                            showToast('Product deletion success.', "linear-gradient(to right,  #3ab902, #14ac34)")
+                            handleFetchIngredients(q)
+                            resolve(true)
+                        }
+                    })
+            })
+        }
     </script>
 </body>
 

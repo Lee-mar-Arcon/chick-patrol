@@ -711,7 +711,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
 
         function deleteIngredient(password, ingredientID) {
             return new Promise(function(resolve, reject) {
-                $.post('<?= site_url('Admin_api/delete-ingredient') ?>', {
+                $.post('<?= site_url('Admin_api/delete-product-ingredient') ?>', {
                         password: password,
                         ingredient_id: ingredientID
                     })
