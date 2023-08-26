@@ -451,10 +451,11 @@ class Admin extends Controller
 			FROM products AS p
 			INNER JOIN categories AS c ON p.category = c.id
 			LEFT JOIN product_inventory AS pi ON p.id = pi.product_id
-			WHERE p.id = ? AND (pi.expiration_date > CURRENT_DATE OR pi.expiration_date IS NULL)
+			WHERE p.id = ?
 			GROUP BY p.id",
 			array($id)
-		))[0];
+		));
+		$product = count($product) == 0 ? array() : $product[0];
 		$this->call->view('Admin/view-product', [
 			'pageTitle' => 'Admin | View Product',
 			'breadCrumb' => 'View Product',
