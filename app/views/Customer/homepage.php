@@ -313,7 +313,6 @@
                         id: id,
                     })
                     .then(function(response) {
-                        console.log(response)
                         // show error if product exists
                         if (response == 'product exists')
                             showToast("Product already in cart!", "linear-gradient(to right, #ac1414, #f12b00)")
@@ -367,7 +366,7 @@
             `)
             categoryList.forEach(category => {
                 $('.featured__controls ul').append(`
-                    <li data-filter=".${category['name'].replace(' ', '')}">${category['name']}</li>
+                    <li data-filter=".${category['name'].replace(/ /g, '')}">${category['name']}</li>
                 `)
             });
         }
@@ -412,7 +411,6 @@
                     q: $('#product-search').val()
                 })
                 .then(function(response) {
-                    console.log(response)
                     populateProductsList(response)
                     initMixitup()
                 })
@@ -424,7 +422,7 @@
             const viewProductLink = '<?= site_url('customer/view-product/') ?>'
             products.forEach(product => {
                 $('.featured__filter').append(`
-                <div class="col-lg-3 col-md-4 col-sm-6 mix ${product['category_name'].replace(' ', '')}">
+                <div class="col-lg-3 col-md-4 col-sm-6 mix ${product['category_name'].replace(/ /g, "")}">
                     <div class="featured__item">
                         <div class="featured__item__pic set-bg"
                         style="background-image: url(&quot;${productLink + product['image']}&quot;);"

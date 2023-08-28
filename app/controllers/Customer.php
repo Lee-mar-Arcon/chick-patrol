@@ -65,9 +65,10 @@ class Customer extends Controller
 		$this->loggedIn();
 		$user = $this->session->userdata('user');
 		$pendingCart = $this->db->table('cart')->where(['user_id' => $user['id'], 'status' => 'pending'])->get();
-
 		if ($pendingCart && count(json_decode($pendingCart['products'], true)) > 0)
-			$products = $this->db->table('products as p')->in('id',)->get_all();
+			$products = $this->db->table('products as p')->in('id', array_map(function($product){
+            return $product['id'];
+        }, json_decode($pendingCart['products'], true)))->get_all();
 		else
 			$products = array();
 		$this->call->view('Customer/shopping-cart', [
@@ -392,27 +393,28 @@ class Customer extends Controller
 		if ($category) {
 			$category = $category[0];
 			$categoryProducts = $this->M_encrypt->encrypt($this->db->raw(
-				"SELECT 
-				p.*,
-				c.name AS category_name,
-				IF(p.inventory_type = 'durable',
-					(SELECT SUM(inner_pi.remaining_quantity) FROM product_inventory AS inner_pi WHERE inner_pi.product_id = p.id AND inner_pi.expiration_date > NOW()),
-					(
-						SELECT MIN(can_make)
-						FROM (
-								SELECT FLOOR((IF(SUM(inner_ii.remaining_quantity) IS NULL, 0, SUM(inner_ii.remaining_quantity)) / pi.need_quantity)) AS can_make
-								FROM product_ingredients AS pi
-								INNER JOIN ingredients AS i ON pi.ingredient_id = i.id
-								LEFT JOIN ingredient_inventory AS inner_ii ON pi.id = inner_ii.product_ingredient_id
-								WHERE (inner_ii.expiration_date > NOW() OR inner_ii.expiration_date IS NULL)
-								GROUP BY pi.id
-						) AS available_quantity
-					)
-				) AS available_quantity
-				FROM products AS p
-				INNER JOIN categories AS c ON p.category = c.id		  
-				WHERE p.category = ?
-				ORDER BY p.name",
+				"
+				
+				
+				
+				SELECT 
+			p.*,
+			c.name AS category_name,
+			IF(p.inventory_type = 'durable',
+				(SELECT SUM(inner_pi.remaining_quantity) FROM product_inventory AS inner_pi WHERE inner_pi.product_id = p.id AND inner_pi.expiration_date > NOW()),
+				(SELECT FLOOR(SUM(ii.remaining_quantity) / p_ing.need_quantity) AS can_make
+					FROM ingredient_inventory AS ii
+					INNER JOIN product_ingredients AS p_ing ON p_ing.id = ii.product_ingredient_id
+					WHERE p_ing.product_id = p.id AND ii.expiration_date > NOW()
+					GROUP BY ii.product_ingredient_id
+					ORDER BY can_make ASC
+					LIMIT 1
+				)
+			)AS available_quantity
+		FROM products AS p
+		INNER JOIN categories AS c ON p.category = c.id  		  
+		WHERE p.category = ?
+		ORDER BY p.name",
 				array($category['id'])
 			));
 			$this->call->view('Customer/category', [

@@ -632,6 +632,17 @@ class Admin_api extends Controller
 			$result = $this->check_input();
 			$result != null ? $errors['name'] = $result : '';
 
+			// id
+			$this->form_validation
+				->name('id')
+				->required('required.');
+			$result = $this->check_input();
+			$result != null ? $errors['id'] = $result : '';
+			// if ingredient is exists
+			if (!isset($errors['id']))
+				if (count($this->db->table('ingredients')->where('id', $this->M_encrypt->decrypt($_POST['id']))->limit(1)->get_all()) == 0)
+					$errors['id'] = 'invalid id';
+
 			if (count($errors) == 0) {
 				$name = $this->io->post('name');
 				$exists = $this->db->table('ingredients')->where('LOWER(name)', strtolower($name))->get();
@@ -645,7 +656,7 @@ class Admin_api extends Controller
 						echo json_encode('restored');
 					}
 				} else {
-					$this->db->table('ingredients')->insert(['name' => $name]);
+					$this->db->table('ingredients')->where('id', $this->M_encrypt->decrypt($_POST['id']))->update(['name' => $_POST['name']]);
 					echo json_encode('success');
 				}
 			} else {

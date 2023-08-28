@@ -294,7 +294,8 @@
         $(document).on('click', '.edit-ingredient', function() {
             resetForm()
             $('#ingredientFormLabel').html('EDIT INGREDIENT')
-            $('#name').val($(this).closest('tr').find('td:eq(0)').html())
+            $('#name').val($(this).closest('tr').find('td:eq(0)').html().trim())
+            $('#id').val($(this).closest('tr').attr('id'))
             $('#submit-form').attr('data-request-type', 'update')
         });
 
@@ -404,6 +405,27 @@
                         }
                     })
             })
+        }
+        
+        function updateIngredient(id) {
+            $.post('<?= site_url('admin_api/ingredient_update') ?>', {
+                    name: $('#name').val(),
+                    id: $('#id').val()
+                })
+                .then(function(response) {
+                    if (response == 'success') {
+                        resetForm()
+                        showToast('Ingredient Updated!', "linear-gradient(to right,  #3ab902, #14ac34)");
+                        $('#ingredientForm').offcanvas('hide')
+                        handleFetchIngredients(q)
+                    } else if (response == 'restored') {
+                        resetForm()
+                        showToast('Ingredient restored!', "linear-gradient(to right,  #007d85, #008e97)");
+                        $('#ingredientForm').offcanvas('hide')
+                        handleFetchIngredients(q)
+                    } else if ('already exists')
+                        setValidationErrors(response)
+                })
         }
     </script>
 </body>
