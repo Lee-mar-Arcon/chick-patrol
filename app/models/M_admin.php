@@ -181,7 +181,7 @@ class M_admin extends Model
 	{
 		if (strlen($q) == 0) $q = '%%';
 		else $q = '%' . $q . '%';
-		return $this->M_encrypt->encrypt($this->db->table('barangays')->select('name, id')->like('name', $q)->order_by('name', 'ASC')->limit(10)->get_all());
+		return $this->M_encrypt->encrypt($this->db->table('barangays')->select('name, id')->where_null('deleted_at')->like('name', $q)->order_by('name', 'ASC')->limit(10)->get_all());
 	}
 
 	function delivery_fee_history($id, $date)
