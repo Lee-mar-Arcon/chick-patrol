@@ -89,7 +89,6 @@
                                         <div class="px-4 mx-4 text-justify text-white pb-5">
                                             <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?= $featuredProduct['description'] ?></p>
                                         </div>
-                                        <div class="h4">adss</div>
                                     </div>
                                 </div>
                             <?php } ?>

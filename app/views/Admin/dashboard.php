@@ -55,9 +55,9 @@
 				<div class="container-fluid">
 					<div class="row">
 						<div class="container col-12">
-							<div class="row px-md-2 mx-sm-2 mx-md-2 mx-sm-2">
+							<div class="row">
 								<div class="col-xl-4 col-md-6">
-									<div class="card">
+									<div class="card bg-info">
 										<div class="card-body">
 											<h4 class="h2 mt-0 mb-0">Current orders for approval</h4>
 											<div class="widget-box-2">
@@ -70,7 +70,7 @@
 								</div>
 
 								<div class="col-xl-4 col-md-6">
-									<div class="card">
+									<div class="card bg-primary">
 										<div class="card-body">
 											<h4 class="h2 mt-0 mb-0">Current orders on preparing</h4>
 											<div class="widget-box-2">
@@ -83,7 +83,7 @@
 								</div>
 
 								<div class="col-xl-4 col-md-6">
-									<div class="card">
+									<div class="card bg-success">
 										<div class="card-body">
 											<h4 class="h2 mt-0 mb-0">Current orders on delivery</h4>
 											<div class="widget-box-2">
@@ -98,173 +98,167 @@
 						</div>
 
 						<div class="container col-12">
-							<div class="px-md-2 mx-sm-2 mx-md-3 mx-sm-3">
-								<div class="card card-body">
-									<h4 class="mt-0 mb-3">On Process Orders</h4>
-									<div class="table-responsive">
-										<table class="table table-borderless mb-0">
-											<thead>
-												<tr>
-													<th>First Name</th>
-													<th>Middle Name</th>
-													<th>Last Name</th>
-													<th>Email</th>
-													<th>Contact</th>
-													<th class="text-center">Status</th>
-													<th class="text-center">Action</th>
-												</tr>
-											</thead>
+							<div class="card card-body">
+								<h4 class="mt-0 mb-3">On Process Orders</h4>
+								<div class="table-responsive">
+									<table class="table table-borderless mb-0">
+										<thead>
+											<tr>
+												<th>First Name</th>
+												<th>Middle Name</th>
+												<th>Last Name</th>
+												<th>Email</th>
+												<th>Contact</th>
+												<th class="text-center">Status</th>
+												<th class="text-center">Action</th>
+											</tr>
+										</thead>
 
-											<tbody class="align-middle">
-												<?php if (count($latestOngoingOrders) > 0) {
-													foreach ($latestOngoingOrders as $latestOngoingOrder) { ?>
-														<tr id="Y21xWkVRZFVFWHNpRmpOZlZVWlhKYVBBeGpRYjRyM1JaRXdtTmc9PQ">
-															<td>&nbsp;<?= $latestOngoingOrder['last_name'] ?></td>
-															<td><?= $latestOngoingOrder['middle_name'] ?></td>
-															<td><?= $latestOngoingOrder['last_name'] ?></td>
-															<td><?= $latestOngoingOrder['email'] ?></td>
-															<td><?= $latestOngoingOrder['contact'] ?></td>
-															<td class="text-center"><span><?= $latestOngoingOrder['status'] ?></span></td>
-															<td class="text-center">
-																<span class="btn waves-effect waves-dark shadow-lg rounded p-2 show-cart">
-																	<i class="fas fs-4 fa-eye text-primary m-0 mx-0 p-0"></i>
-																</span>
-															</td>
-														</tr>
-													<?php }
-												} else { ?>
-													<tr>
-														<td colspan="100" class="bg-light text-center py-4"> No on process orders right now 😆</td>
+										<tbody class="align-middle">
+											<?php if (count($latestOngoingOrders) > 0) {
+												foreach ($latestOngoingOrders as $latestOngoingOrder) { ?>
+													<tr id="Y21xWkVRZFVFWHNpRmpOZlZVWlhKYVBBeGpRYjRyM1JaRXdtTmc9PQ">
+														<td>&nbsp;<?= $latestOngoingOrder['first_name'] ?></td>
+														<td><?= $latestOngoingOrder['middle_name'] ?></td>
+														<td><?= $latestOngoingOrder['last_name'] ?></td>
+														<td><?= $latestOngoingOrder['email'] ?></td>
+														<td><?= $latestOngoingOrder['contact'] ?></td>
+														<td class="text-center"><span><?= $latestOngoingOrder['status'] ?></span></td>
+														<td class="text-center">
+															<span class="btn waves-effect waves-dark shadow-lg rounded p-2 show-cart">
+																<i class="fas fs-4 fa-eye text-primary m-0 mx-0 p-0"></i>
+															</span>
+														</td>
 													</tr>
-												<?php } ?>
-											</tbody>
-										</table>
-									</div>
+												<?php }
+											} else { ?>
+												<tr>
+													<td colspan="100" class="bg-light text-center py-4"> No on process orders right now 😆</td>
+												</tr>
+											<?php } ?>
+										</tbody>
+									</table>
 								</div>
 							</div>
 						</div>
 
 						<div class="container col-12">
-							<div class="px-md-2 mx-sm-2 mx-md-3 mx-sm-3">
-								<div class="card card-body">
-									<h4 class="mt-0 mb-3">Newly registered users</h4>
-									<div class="table-responsive">
-										<table class="table table-borderless mb-0">
-											<thead>
-												<tr>
-													<th>First Name</th>
-													<th>Middle Name</th>
-													<th>Last Name</th>
-													<th>Email</th>
-													<th>Address</th>
-													<th>Contact</th>
-													<th>Birth date</th>
-													<th>Sex</th>
-													<th>Date Verified</th>
-												</tr>
-											</thead>
-											<tbody class="align-middle">
-												<?php if (count($newlyRegisteredUsers) > 0) {
-													foreach ($newlyRegisteredUsers as $newlyRegisteredUser) { ?>
-														<tr>
-															<td>&nbsp;<?= $newlyRegisteredUser['first_name'] ?></td>
-															<td><?= $newlyRegisteredUser['middle_name'] ?></td>
-															<td><?= $newlyRegisteredUser['last_name'] ?></td>
-															<td><?= $newlyRegisteredUser['email'] ?></td>
-															<td class="p-2"><?= $newlyRegisteredUser['barangay_name'] ?>, <?= $newlyRegisteredUser['street'] ?></td>
-															<td><?= $newlyRegisteredUser['contact'] ?></td>
-															<td><?= $newlyRegisteredUser['birth_date'] ?></td>
-															<td><?= $newlyRegisteredUser['sex'] ?></td>
-															<td><?= $newlyRegisteredUser['verified_at'] ?></td>
-														</tr>
-													<?php }
-												} else { ?>
+							<div class="card card-body">
+								<h4 class="mt-0 mb-3">Newly registered users</h4>
+								<div class="table-responsive">
+									<table class="table table-borderless mb-0">
+										<thead>
+											<tr>
+												<th>First Name</th>
+												<th>Middle Name</th>
+												<th>Last Name</th>
+												<th>Email</th>
+												<th>Address</th>
+												<th>Contact</th>
+												<th>Birth date</th>
+												<th>Sex</th>
+												<th>Date Verified</th>
+											</tr>
+										</thead>
+										<tbody class="align-middle">
+											<?php if (count($newlyRegisteredUsers) > 0) {
+												foreach ($newlyRegisteredUsers as $newlyRegisteredUser) { ?>
 													<tr>
-														<td colspan="100" class="bg-light text-center py-4"> No new users right now</td>
+														<td>&nbsp;<?= $newlyRegisteredUser['first_name'] ?></td>
+														<td><?= $newlyRegisteredUser['middle_name'] ?></td>
+														<td><?= $newlyRegisteredUser['last_name'] ?></td>
+														<td><?= $newlyRegisteredUser['email'] ?></td>
+														<td class="p-2"><?= $newlyRegisteredUser['barangay_name'] ?>, <?= $newlyRegisteredUser['street'] ?></td>
+														<td><?= $newlyRegisteredUser['contact'] ?></td>
+														<td><?= $newlyRegisteredUser['birth_date'] ?></td>
+														<td><?= $newlyRegisteredUser['sex'] ?></td>
+														<td><?= $newlyRegisteredUser['verified_at'] ?></td>
 													</tr>
-												<?php } ?>
-											</tbody>
-										</table>
-									</div>
+												<?php }
+											} else { ?>
+												<tr>
+													<td colspan="100" class="bg-light text-center py-4"> No new users right now</td>
+												</tr>
+											<?php } ?>
+										</tbody>
+									</table>
 								</div>
 							</div>
 						</div>
 
 						<div class="container col-12">
-							<div class="px-md-2 mx-sm-2 mx-md-3 mx-sm-3">
-								<div class="card card-body">
-									<h4 class="mt-0 mb-3">Newly added foods</h4>
-									<div class="table-responsive">
-										<table class="table table-borderless mb-0">
-											<thead>
-												<tr>
-													<th style="width: 100px;"></th>
-													<th>Name</th>
-													<th>Price</th>
-													<th>Category</th>
-													<th class="text-center">Inventory type</th>
-													<th class="text-center">Quantity</th>
-													<th style="width: 130px;">Date added</th>
-													<th style="width: 130px;">Updated at</th>
-												</tr>
-											</thead>
-											<tbody class="align-middle">
-												<?php if (count($newlyAddedProducts) > 0) {
-													foreach ($newlyAddedProducts as $newlyAddedProduct) { ?>
-														<tr>
-															<td>
-																<img src="<?= BASE_URL ?>public/images/products/cropped/<?= $newlyAddedProduct['image'] ?>" alt="" height="150" width="150" class="img-fluid rounded product-image" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#preview-image-modal">
-															</td>
-															<td> <?= $newlyAddedProduct['name'] ?> </td>
-															<td>₱ <?= number_format($newlyAddedProduct['price'], 2) ?> </td>
-															<td> <?= $newlyAddedProduct['category_name'] ?> </td>
-															<td class="text-center">
-																<?= $newlyAddedProduct['inventory_type'] == 'durable' ?
-																	'<span class="text-start badge badge-soft-success rounded-pill px-1 py-1 ms-2">durable</span>' :
-																	'<span class="text-start badge badge-soft-warning rounded-pill px-1 py-1 ms-2">perishable</span>'
-																?>
-															</td>
-															<td class="text-center">
-																<?= $newlyAddedProduct['available_quantity'] ?>
-															</td>
-															<td> <?= $newlyAddedProduct['date_added'] ?> </td>
-															<td> <?= $newlyAddedProduct['updated_at'] ?> </td>
-														</tr>
-														<tr>
-															<td class="p-0" colspan="100">
-																<div class="accordion accordion-flush" id="accordion-<?= $newlyAddedProduct['id'] ?>">
-																	<div class="accordion-item bg-light rounded">
-																		<h2 class="accordion-header m-0" id="flush-headingOne">
-																			<button class="accordion-button fw-bold bg-transparent collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-accordion-<?= $newlyAddedProduct['id'] ?>" aria-expanded="false" aria-controls="flush-accordion-<?= $newlyAddedProduct['id'] ?>">
-																				Description
-																			</button>
-																		</h2>
-																		<div id="flush-accordion-<?= $newlyAddedProduct['id'] ?>" class="accordion-collapse bg-light collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordion-<?= $newlyAddedProduct['id'] ?>" style="">
-																			<div class="accordion-body">
-																				<?= $newlyAddedProduct['description'] ?>
-																			</div>
+							<div class="card card-body">
+								<h4 class="mt-0 mb-3">Newly added foods</h4>
+								<div class="table-responsive">
+									<table class="table table-borderless mb-0">
+										<thead>
+											<tr>
+												<th style="width: 100px;"></th>
+												<th>Name</th>
+												<th>Price</th>
+												<th>Category</th>
+												<th class="text-center">Inventory type</th>
+												<th class="text-center">Quantity</th>
+												<th style="width: 130px;">Date added</th>
+												<th style="width: 130px;">Updated at</th>
+											</tr>
+										</thead>
+										<tbody class="align-middle">
+											<?php if (count($newlyAddedProducts) > 0) {
+												foreach ($newlyAddedProducts as $newlyAddedProduct) { ?>
+													<tr>
+														<td>
+															<img src="<?= BASE_URL ?>public/images/products/cropped/<?= $newlyAddedProduct['image'] ?>" alt="" height="150" width="150" class="img-fluid rounded product-image" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#preview-image-modal">
+														</td>
+														<td> <?= $newlyAddedProduct['name'] ?> </td>
+														<td>₱ <?= number_format($newlyAddedProduct['price'], 2) ?> </td>
+														<td> <?= $newlyAddedProduct['category_name'] ?> </td>
+														<td class="text-center">
+															<?= $newlyAddedProduct['inventory_type'] == 'durable' ?
+																'<span class="text-start badge badge-soft-success rounded-pill px-1 py-1 ms-2">durable</span>' :
+																'<span class="text-start badge badge-soft-warning rounded-pill px-1 py-1 ms-2">perishable</span>'
+															?>
+														</td>
+														<td class="text-center">
+															<?= $newlyAddedProduct['available_quantity'] ?>
+														</td>
+														<td> <?= $newlyAddedProduct['date_added'] ?> </td>
+														<td> <?= $newlyAddedProduct['updated_at'] ?> </td>
+													</tr>
+													<tr>
+														<td class="p-0" colspan="100">
+															<div class="accordion accordion-flush" id="accordion-<?= $newlyAddedProduct['id'] ?>">
+																<div class="accordion-item bg-light rounded">
+																	<h2 class="accordion-header m-0" id="flush-headingOne">
+																		<button class="accordion-button fw-bold bg-transparent collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-accordion-<?= $newlyAddedProduct['id'] ?>" aria-expanded="false" aria-controls="flush-accordion-<?= $newlyAddedProduct['id'] ?>">
+																			Description
+																		</button>
+																	</h2>
+																	<div id="flush-accordion-<?= $newlyAddedProduct['id'] ?>" class="accordion-collapse bg-light collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordion-<?= $newlyAddedProduct['id'] ?>" style="">
+																		<div class="accordion-body">
+																			<?= $newlyAddedProduct['description'] ?>
 																		</div>
 																	</div>
 																</div>
-															</td>
-														</tr>
-													<?php }
-												} else { ?>
-													<tr>
-														<td colspan="100" class="bg-light text-center py-4"> No new users right now</td>
+															</div>
+														</td>
 													</tr>
-												<?php } ?>
-											</tbody>
-										</table>
-									</div>
+												<?php }
+											} else { ?>
+												<tr>
+													<td colspan="100" class="bg-light text-center py-4"> No new users right now</td>
+												</tr>
+											<?php } ?>
+										</tbody>
+									</table>
 								</div>
 							</div>
 						</div>
 
 						<div class="col-12 container">
-							<div class="px-md-2 mx-sm-1 mx-md-2 mx-sm-1 row">
+							<div class="row">
 								<!-- sales chart -->
-								<div class="col-sm-12 col-md-12 col-lg-8 h-sm-auto">
+								<div class="col-sm-12 col-md-12 col-lg-12 h-sm-auto">
 									<div class="card">
 										<div class="card-header bg-primary">
 											<div class="d-flex justify-content-between align-items-center">
@@ -278,14 +272,13 @@
 													<input type="date" class="form-control p-1" placeholder="pick date range" style="min-width: 200px;" id="time-period-range">
 												</div>
 											</div>
-
 										</div>
 										<div class="card-body p-sm-0 p-md-4">
 											<div id="sales-chart"></div>
 										</div>
 									</div>
 								</div>
-								<div class="col-sm-12 col-md-6 col-lg-4">
+								<div class="col-sm-12 col-md-6 col-lg-6">
 									<div class="card">
 										<div class="card-header bg-primary">
 											<div class="d-flex justify-content-between">
@@ -298,6 +291,9 @@
 											<div id="barangayChart"></div>
 										</div>
 									</div>
+								</div>
+
+								<div class="col-sm-12 col-md-6 col-lg-6">
 									<div class="card m-sm-3 m-md-0">
 										<div class="card-header bg-primary">
 											<div class="d-flex justify-content-between">
@@ -311,9 +307,6 @@
 										</div>
 									</div>
 								</div>
-								<!-- <div class="col-sm-12 col-md-6 col-lg-3">
-
-								</div> -->
 							</div>
 						</div>
 						<div class="col-sm-12 col-lg-6">
@@ -343,7 +336,7 @@
 						</div>
 
 						<div class="col-sm-12 col-lg-6">
-							<div class="card" style="min-height: 800px;">
+							<div class="card">
 								<div class="card-header bg-primary">
 									<div class="d-flex justify-content-between">
 										<div class="d-flex align-items-center text-white fs-4 fw-bold">
