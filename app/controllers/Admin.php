@@ -117,7 +117,11 @@ class Admin extends Controller
 			->name('delivery_fee')
 			->required('Delivery fee is required.')
 			->numeric('Delivery fee is required.');
-		if ($this->form_validation->run()) {
+
+		if ((int)$this->io->post('delivery_fee') < 1) {
+			$this->session->set_flashdata(['formMessage' => 'must be greater than 1']);
+			$this->session->set_flashdata(['formData' => $_POST]);
+		} else if ($this->form_validation->run()) {
 			$name = $this->io->post('name');
 			$delivery_fee = $this->io->post('delivery_fee');
 

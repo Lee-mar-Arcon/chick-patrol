@@ -180,7 +180,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 console.log(formMessage)
                 $('#name').val(formData.name)
                 $('#delivery_fee').val(formData.delivery_fee)
-                let inputElement = '#' + ((formMessage == 'Delivery fee is required.') ? 'delivery_fee' : 'name')
+                let inputElement = '#' + ((formMessage == 'Delivery fee is required.' || formMessage == 'must be greater than 1') ? 'delivery_fee' : 'name')
                 console.log(inputElement)
                 $('<div class="ms-1 text-danger form-error-message">' + formMessage + '</div>').insertAfter(inputElement)
                 break;
