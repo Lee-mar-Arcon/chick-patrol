@@ -120,6 +120,7 @@ class Admin extends Controller
 			->numeric('Delivery fee is required.');
 
 		if ((int)$this->io->post('delivery_fee') < 1) {
+			if (!preg_match("/^[a-zA-Z0-9 ]+$/", $this->io->post('name'))) $_POST['name'] = '';
 			$this->session->set_flashdata(['formMessage' => 'must be greater than 1']);
 			$this->session->set_flashdata(['formData' => $_POST]);
 		} else if ($this->form_validation->run()) {
@@ -196,10 +197,11 @@ class Admin extends Controller
 			$this->session->set_flashdata(['formData' => $_POST]);
 		}
 
-		if ($this->form_validation->get_errors()[0] == 'invalid name') {
-			$_POST['name'] = '';
-			$this->session->set_flashdata(['formData' => $_POST]);
-		}
+		if (isset($this->form_validation->get_errors()[0]))
+			if ($this->form_validation->get_errors()[0] == 'invalid name') {
+				$_POST['name'] = '';
+				$this->session->set_flashdata(['formData' => $_POST]);
+			}
 		redirect('Admin/barangay');
 	}
 
