@@ -589,6 +589,7 @@ class Admin_api extends Controller
 			// name
 			$this->form_validation
 				->name('name')
+				->alpha_numeric_space('invalid name')
 				->required('required.')
 				->min_length(1, 'required.')
 				->max_length(100, 'must be less than 100 characters only.');
@@ -626,6 +627,7 @@ class Admin_api extends Controller
 			// name
 			$this->form_validation
 				->name('name')
+				->alpha_numeric_space('invalid name')
 				->required('required.')
 				->min_length(1, 'required.')
 				->max_length(100, 'must be less than 100 characters only.');
