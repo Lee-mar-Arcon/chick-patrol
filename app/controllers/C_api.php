@@ -61,7 +61,7 @@ class C_api extends Controller
 	{
 		$user = $this->db->table('users')->where_not_null('verified_at')->where('email', $email)->limit(1)->get_all();
 		if (count($user) > 0) {
-			$this->call->model('m_mailer');
+			$this->call->model('M_mailer');
 			echo $this->M_mailer->send_forgot_password_link($email, 'Account password reset link');
 		} else
 			echo 'User does not exists.';
