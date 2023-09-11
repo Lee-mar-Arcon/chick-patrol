@@ -254,14 +254,13 @@ class Admin extends Controller
 		// sa product
 		if ($this->form_validation->submitted()) {
 			$imageUploaded = true;
-
 			$this->form_validation
 				->name('name')
+				->alpha_numeric_space('invalid name')
 				->min_length(1, 'Must be 1-100 characters in length only.')
 				->max_length(100, 'Must be 1-100 characters in length only.');
 			// product image
-			if (strlen($_FILES['imageInput']['name']) == 0)
-				$imageUploaded = false;
+			strlen($_FILES['imageInput']['name']) == 0 && $imageUploaded = false;
 
 
 
@@ -284,6 +283,7 @@ class Admin extends Controller
 		$this->form_validation
 			->name('id')->required('ID is required.')
 			->name('name')
+			->alpha_numeric_space('invalid name')
 			->min_length(1, 'Must be 1-100 characters in length only.')
 			->max_length(100, 'Must be 1-100 characters in length only.');
 

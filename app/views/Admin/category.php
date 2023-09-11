@@ -201,6 +201,9 @@ $LAVA = lava_instance();
             case 'restored':
                 toastr.info('Category restored.')
                 break;
+            case 'invalid name':
+                toastr.error('Invalid name.')
+                break;
             case 'updated':
                 toastr.info('Category updated.')
                 break;
