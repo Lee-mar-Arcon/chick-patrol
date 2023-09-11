@@ -82,7 +82,12 @@ class Account extends Controller
 				->min_length(8, 'Password length must be 8-16 characters!')
 				->max_length(16, 'Password length must be 8-16 characters!');
 
-			if (!preg_match('/@gmail\.com$/i', $this->io->post('email'))) {
+			if (strtotime(date('Y-m-d')) <  strtotime($this->io->post('birth_date'))) {
+				$formData = array('formData' => $_POST);
+				$this->session->set_flashdata(['errorMessage' => 'Birthdate must be earlier than today.']);
+				$this->session->set_flashdata($formData);
+				redirect('Account/register');
+			} else if (!preg_match('/@gmail\.com$/i', $this->io->post('email'))) {
 				$formData = array('formData' => $_POST);
 				$this->session->set_flashdata(['errorMessage' => 'Email is not a valid gmail address.']);
 				$this->session->set_flashdata($formData);

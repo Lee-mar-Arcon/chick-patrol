@@ -174,14 +174,19 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
                 toastr.info('Barangay deleted.')
                 break;
             default:
-                const url = '<?= BASE_URL ?>admin/barangay_store'
+                console.log('<?php echo $LAVA->session->flashdata('lastQuery') ?>')
+                let url = ''
+                if ('<?php echo $LAVA->session->flashdata('lastQuery') ?>' == 'store') {
+                    url = '<?= BASE_URL ?>admin/barangay_store'
+                } else {
+                    $('#id').val(formData.id)
+                    url = '<?= BASE_URL ?>admin/barangay_update'
+                }
                 $('#form').attr('action', url)
                 $('#add-barangay').click()
-                console.log(formMessage)
                 $('#name').val(formData.name)
                 $('#delivery_fee').val(formData.delivery_fee)
-                let inputElement = '#' + ((formMessage == 'Delivery fee is required.') ? 'delivery_fee' : 'name')
-                console.log(inputElement)
+                let inputElement = '#' + ((formMessage == 'Delivery fee is required.' || formMessage == 'must be greater than 1') ? 'delivery_fee' : 'name')
                 $('<div class="ms-1 text-danger form-error-message">' + formMessage + '</div>').insertAfter(inputElement)
                 break;
         }
@@ -192,6 +197,7 @@ $LAVA->session->flashdata('formData') ? $formData = $LAVA->session->flashdata('f
             const url = '<?= BASE_URL ?>admin/barangay_store'
             $('#form').attr('action', url)
             $('#name').val('')
+            $('#delivery_fee').val('')
             $('#offcanvasRightLabel').html('Add new barangay')
         })
 

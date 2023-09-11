@@ -111,13 +111,18 @@ class Admin extends Controller
 	{
 		$this->form_validation
 			->name('name')
+			->alpha_numeric_space('invalid name')
 			->required()
 			->min_length(1, 'Must be 1-100 characters in length only.')
 			->max_length(100, 'Must be 1-100 characters in length only.')
 			->name('delivery_fee')
 			->required('Delivery fee is required.')
 			->numeric('Delivery fee is required.');
-		if ($this->form_validation->run()) {
+
+		if ((int)$this->io->post('delivery_fee') < 1) {
+			$this->session->set_flashdata(['formMessage' => 'must be greater than 1']);
+			$this->session->set_flashdata(['formData' => $_POST]);
+		} else if ($this->form_validation->run()) {
 			$name = $this->io->post('name');
 			$delivery_fee = $this->io->post('delivery_fee');
 
@@ -135,24 +140,31 @@ class Admin extends Controller
 				$this->session->set_flashdata(['formMessage' => 'success']);
 			}
 		} else {
+			$this->form_validation->get_errors()[0] == 'invalid name' && $_POST['name'] = '';
 			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
 			$this->session->set_flashdata(['formData' => $_POST]);
 		}
+		$this->session->set_flashdata(['lastQuery' => 'store']);
 		redirect('Admin/barangay');
 	}
 
 	function barangay_update()
 	{
 		$this->form_validation
-			->name('id')->required('ID is required.')
+			->name('id')
+			->required('ID is required.')
 			->name('name')
+			->alpha_numeric_space('invalid name')
 			->min_length(1, 'Must be 1-100 characters in length only.')
 			->max_length(100, 'Must be 1-100 characters in length only.')
 			->name('delivery_fee')
 			->required('Delivery fee is required')
 			->numeric('Delivery fee is required');
 
-		if ($this->form_validation->run()) {
+		if ((int)$this->io->post('delivery_fee') < 1) {
+			$this->session->set_flashdata(['formMessage' => 'must be greater than 1']);
+			$this->session->set_flashdata(['formData' => $_POST]);
+		} else if ($this->form_validation->run()) {
 			$this->call->model('M_encrypt');
 			$id = $this->M_encrypt->decrypt($this->io->post('id'));
 			$name = $this->io->post('name');
@@ -179,7 +191,13 @@ class Admin extends Controller
 				$this->session->set_flashdata(['formMessage' => 'updated']);
 			}
 		} else {
+			$this->form_validation->get_errors()[0] == 'invalid name' && $_POST['name'] = '';
 			$this->session->set_flashdata(['formMessage' => $this->form_validation->get_errors()[0]]);
+			$this->session->set_flashdata(['formData' => $_POST]);
+		}
+
+		if ($this->form_validation->get_errors()[0] == 'invalid name') {
+			$_POST['name'] = '';
 			$this->session->set_flashdata(['formData' => $_POST]);
 		}
 		redirect('Admin/barangay');
@@ -236,14 +254,13 @@ class Admin extends Controller
 		// sa product
 		if ($this->form_validation->submitted()) {
 			$imageUploaded = true;
-
 			$this->form_validation
 				->name('name')
+				->alpha_numeric_space('invalid name')
 				->min_length(1, 'Must be 1-100 characters in length only.')
 				->max_length(100, 'Must be 1-100 characters in length only.');
 			// product image
-			if (strlen($_FILES['imageInput']['name']) == 0)
-				$imageUploaded = false;
+			strlen($_FILES['imageInput']['name']) == 0 && $imageUploaded = false;
 
 
 
@@ -266,6 +283,7 @@ class Admin extends Controller
 		$this->form_validation
 			->name('id')->required('ID is required.')
 			->name('name')
+			->alpha_numeric_space('invalid name')
 			->min_length(1, 'Must be 1-100 characters in length only.')
 			->max_length(100, 'Must be 1-100 characters in length only.');
 

@@ -72,7 +72,7 @@ $LAVA->session->flashdata('error') ? $error = $LAVA->session->flashdata('error')
    </style>
 </head>
 
-<body class="img" style="background-image: url(<?= BASE_URL .  PUBLIC_DIR ?>/account/login/images/bg.jpg);">
+<body class="img" style="background-image: url(<?= BASE_URL .  PUBLIC_DIR ?>/account/login/Images/bg.jpg);">
    <section class="ftco-section">
       <div class="container">
          <div class="row justify-content-center">
