@@ -56,12 +56,12 @@ class Account extends Controller
 			$this->form_validation
 				// first name
 				->name('first_name')->required('First name is required.')
-				->alpha_space('first name must be letters and space only')
+				->valid_name('name not valid')
 				->min_length(1, 'First name must be atleast 1 characters in length.')
 				->max_length(50, 'First name must be less than 50 characters in length.')
 				// last name
 				->name('last_name')->required('Last name is required.')
-				->alpha_space('last name must be letters and space only')
+				->valid_name('name not valid')
 				->min_length(1, 'Last name must be atleast 1 characters in length.')
 				->max_length(50, 'Last name must be less than 50 characters in length.')
 				// sex
@@ -93,7 +93,7 @@ class Account extends Controller
 				->max_length(16, 'Password length must be 8-16 characters!');
 
 			if ('' !== $this->io->post('middle_name')) {
-				if (!preg_match('/^[A-Za-z\s]+$/', $this->io->post('middle_name'))) {
+				if (!preg_match('/^[\p{L} ]+$/u', $this->io->post('middle_name'))) {
 					$formData = array('formData' => $_POST);
 					$this->session->set_flashdata(['errorMessage' => 'middle name must be letters and space only']);
 					$this->session->set_flashdata($formData);
@@ -109,6 +109,19 @@ class Account extends Controller
 			}
 
 			if ($this->form_validation->run()) {
+
+				$exists = $this->db->table('users')
+					->where('first_name', $this->io->post('first_name'))
+					->where('last_name', $this->io->post('last_name'))
+					->where('middle_name', $this->io->post('middle_name'))->limit(1)->get_all();
+
+				if (count($exists)) {
+					$formData = array('formData' => $_POST);
+					$this->session->set_flashdata(['errorMessage' => 'User already exists.']);
+					$this->session->set_flashdata($formData);
+					redirect('Account/register');
+				}
+
 				$result = $this->M_account->register_user(
 					$this->io->post('first_name'),
 					$this->io->post('last_name'),
@@ -223,7 +236,7 @@ class Account extends Controller
 		$userID = $this->M_encrypt->decrypt($userID);
 		$this->call->database();
 		$newEmail = $this->db->table('change_email_code')->where('user_id', $userID)->get()['email'];
-		echo $this->db->table('users')->where('id', $userID)->update(['email' => $newEmail]);
+		$this->db->table('users')->where('id', $userID)->update(['email' => $newEmail]);
 		$this->db->table('change_email_code')->where('user_id', $userID)->delete();
 		redirect('Account/login');
 	}
