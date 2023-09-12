@@ -290,14 +290,12 @@ class M_admin extends Model
 
 	function ingredients_index($page, $q)
 	{
-		if (ctype_space($q) || $q == 'all')
-			$q = '%%';
-		else
-			$q = '%' . trim($q) . '%';
-		$totalRows = $this->db->table('ingredients')->select_count('id', 'total')->like('name', $q)->get()['total'];
-
+		$q == 'all' && $q = '';
+		$totalRows = $this->db->raw('SELECT COUNT(i.id) as total FROM ingredients AS i WHERE i.name LIKE ?', ["%$q%"])[0]['total'];
 		return [
-			'ingredients' => $this->M_encrypt->encrypt($this->db->table('ingredients as i')->select('i.*, DATE_FORMAT(i.deleted_at, "%M %e, %Y %l:%i %p") as deleted_at')->like('i.name', $q)->get_all()),
+			'ingredients' => $this->M_encrypt->encrypt(
+				$this->db->raw('SELECT i.*, DATE_FORMAT(i.deleted_at, "%M %e, %Y %l:%i %p") as deleted_at FROM ingredients AS i WHERE i.name LIKE ? ORDER BY i.name LIMIT 10 OFFSET ?', ["%$q%", ($page - 1) * 10])
+			),
 			'pagination' => [
 				'totalRows' => $totalRows,
 				'totalPage' => ceil($totalRows / 10),

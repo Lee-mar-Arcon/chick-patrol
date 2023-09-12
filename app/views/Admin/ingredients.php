@@ -177,11 +177,11 @@
         function fetchIngredients(q) {
             $('tbody').html('<tr class="align-middle rounded m-1"> <th colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin my-5 fs-1"></i></th></tr>')
             let link = `<?= site_url('admin_api/ingredients_index') ?>/${q.page}/${q.q}`
+            console.log(link)
             axios.get(link, {
                     /* OPTIONS */
                 })
                 .then(function(response) {
-                    console.log(response.data['ingredients'])
                     populateTable(response.data['ingredients'])
                     populatePagination(response.data['pagination'])
                 })

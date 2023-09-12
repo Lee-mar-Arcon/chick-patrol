@@ -576,7 +576,7 @@ class Admin_api extends Controller
 	function ingredients_index($page, $q)
 	{
 		try {
-			$this->is_authorized();
+			// $this->is_authorized();
 			echo json_encode($this->M_admin->ingredients_index($page, $q));
 		} catch (Exception $e) {
 			echo $e->getMessage();
