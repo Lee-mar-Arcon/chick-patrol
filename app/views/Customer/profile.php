@@ -244,7 +244,6 @@ $LAVA = lava_instance();
                email: $('#email').val(),
                old_password: $('#old_password').val(),
                new_password: $('#new_password').val(),
-               new_password: $('#new_password').val(),
                retype_new_password: $('#retype_new_password').val(),
             })
             .then(function(response) {

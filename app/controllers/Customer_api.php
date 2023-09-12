@@ -221,7 +221,7 @@ class Customer_api extends Controller
 	function update_account()
 	{
 		try {
-			$this->is_authorized();
+			// $this->is_authorized();
 			$updatePassword = false;
 			$updateEmail = false;
 			$responseSuccess = true;
@@ -241,50 +241,49 @@ class Customer_api extends Controller
 			if (!is_string($responseSuccess)) {
 				$responseSuccess = $this->validate_user_basic_information($_POST);
 			}
-			echo json_encode($responseSuccess);
 
-			// // changing email validation
-			// if ($this->session->userdata('user')['email'] != $_POST['email'] && $responseSuccess == true)
-			// 	$updateEmail = true;
+			// changing email validation
+			if ($this->session->userdata('user')['email'] != $_POST['email'] && $responseSuccess === true)
+				$updateEmail = true;
 
-			// // update user email
-			// if ($updateEmail && $responseSuccess == true) {
-			// 	$this->call->model('M_mailer');
-			// 	$userID = $this->session->userdata('user')['id'];
-			// 	$encryptedID = $this->M_encrypt->encrypt($this->session->userdata('user')['id']);
-			// 	$emailSent = $this->M_mailer->send_change_email_mail($_POST['email'], $encryptedID);
-			// 	if ($emailSent == false) {
-			// 		$responseSuccess = 'sending email failed';
-			// 	} else {
-			// 		$this->call->database();
-			// 		$exists = $this->db->table('change_email_code')->where('user_id', $userID)->get();
-			// 		if ($exists)
-			// 			$this->db->table('change_email_code')->where('id', $exists['id'])->update(array('email' => $_POST['email']));
-			// 		else
-			// 			$this->db->table('change_email_code')->insert(array('user_id' => $userID, 'email' => $_POST['email']));
-			// 	}
-			// }
+			// update user email
+			if ($updateEmail && $responseSuccess == true) {
+				$this->call->model('M_mailer');
+				$userID = $this->session->userdata('user')['id'];
+				$encryptedID = $this->M_encrypt->encrypt($this->session->userdata('user')['id']);
+				$emailSent = $this->M_mailer->send_change_email_mail($_POST['email'], $encryptedID);
+				if ($emailSent == false) {
+					$responseSuccess = 'sending email failed';
+				} else {
+					$this->call->database();
+					$exists = $this->db->table('change_email_code')->where('user_id', $userID)->get();
+					if ($exists)
+						$this->db->table('change_email_code')->where('id', $exists['id'])->update(array('email' => $_POST['email']));
+					else
+						$this->db->table('change_email_code')->insert(array('user_id' => $userID, 'email' => $_POST['email']));
+				}
+			}
 
-			// // update user password
-			// if ($updatePassword && $responseSuccess == true)
-			// 	$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update(array('password' => password_hash($_POST['new_password'], PASSWORD_DEFAULT)));
-			// // update user basic information
-			// if (!is_array($responseSuccess)) {
-			// 	$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update([
-			// 		'barangay' => $this->M_encrypt->decrypt($_POST['barangay']),
-			// 		'birth_date' => $_POST['birth_date'],
-			// 		'contact' => $_POST['contact'],
-			// 		'first_name' => $_POST['first_name'],
-			// 		'middle_name' => $_POST['middle_name'],
-			// 		'last_name' => $_POST['last_name'],
-			// 		'sex' => $_POST['sex'],
-			// 		'street' => $_POST['street'],
-			// 	]);
-			// }
-			// if ($updateEmail && $emailSent)
-			// 	echo json_encode($responseSuccess = 'mail sent and updated');
-			// else
-			// 	echo json_encode($responseSuccess);
+			// update user password
+			if ($updatePassword && $responseSuccess == true)
+				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update(array('password' => password_hash($_POST['new_password'], PASSWORD_DEFAULT)));
+			// update user basic information
+			if (!is_array($responseSuccess)) {
+				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update([
+					'barangay' => $this->M_encrypt->decrypt($_POST['barangay']),
+					'birth_date' => $_POST['birth_date'],
+					'contact' => $_POST['contact'],
+					'first_name' => $_POST['first_name'],
+					'middle_name' => $_POST['middle_name'],
+					'last_name' => $_POST['last_name'],
+					'sex' => $_POST['sex'],
+					'street' => $_POST['street'],
+				]);
+			}
+			if ($updateEmail && $emailSent)
+				echo json_encode($responseSuccess = 'mail sent and updated');
+			else
+				echo json_encode($responseSuccess);
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
