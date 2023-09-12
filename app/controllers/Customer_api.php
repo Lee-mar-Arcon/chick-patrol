@@ -101,7 +101,7 @@ class Customer_api extends Controller
 			echo $e->getMessage();
 		}
 	}
-	
+
 	function get_product_available_quantity()
 	{
 		try {
@@ -241,54 +241,50 @@ class Customer_api extends Controller
 			if (!is_string($responseSuccess)) {
 				$responseSuccess = $this->validate_user_basic_information($_POST);
 			}
+			echo json_encode($responseSuccess);
 
+			// // changing email validation
+			// if ($this->session->userdata('user')['email'] != $_POST['email'] && $responseSuccess == true)
+			// 	$updateEmail = true;
 
-			// changing email validation
-			if ($this->session->userdata('user')['email'] != $_POST['email'] && $responseSuccess == true)
-				if (!preg_match('/@gmail\.com$/i', $_POST['email']))
-					$responseSuccess = 'email is not a valid Gmail address.';
-				else {
-					$updateEmail = true;
-				}
+			// // update user email
+			// if ($updateEmail && $responseSuccess == true) {
+			// 	$this->call->model('M_mailer');
+			// 	$userID = $this->session->userdata('user')['id'];
+			// 	$encryptedID = $this->M_encrypt->encrypt($this->session->userdata('user')['id']);
+			// 	$emailSent = $this->M_mailer->send_change_email_mail($_POST['email'], $encryptedID);
+			// 	if ($emailSent == false) {
+			// 		$responseSuccess = 'sending email failed';
+			// 	} else {
+			// 		$this->call->database();
+			// 		$exists = $this->db->table('change_email_code')->where('user_id', $userID)->get();
+			// 		if ($exists)
+			// 			$this->db->table('change_email_code')->where('id', $exists['id'])->update(array('email' => $_POST['email']));
+			// 		else
+			// 			$this->db->table('change_email_code')->insert(array('user_id' => $userID, 'email' => $_POST['email']));
+			// 	}
+			// }
 
-			// update user email
-			if ($updateEmail && $responseSuccess == true) {
-				$this->call->model('M_mailer');
-				$userID = $this->session->userdata('user')['id'];
-				$encryptedID = $this->M_encrypt->encrypt($this->session->userdata('user')['id']);
-				$emailSent = $this->M_mailer->send_change_email_mail($_POST['email'], $encryptedID);
-				if ($emailSent == false) {
-					$responseSuccess = 'sending email failed';
-				} else {
-					$this->call->database();
-					$exists = $this->db->table('change_email_code')->where('user_id', $userID)->get();
-					if ($exists)
-						$this->db->table('change_email_code')->where('id', $exists['id'])->update(array('email' => $_POST['email']));
-					else
-						$this->db->table('change_email_code')->insert(array('user_id' => $userID, 'email' => $_POST['email']));
-				}
-			}
-
-			// update user password
-			if ($updatePassword && $responseSuccess == true)
-				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update(array('password' => password_hash($_POST['new_password'], PASSWORD_DEFAULT)));
-			// update user basic information
-			if (!is_array($responseSuccess)) {
-				$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update([
-					'barangay' => $this->M_encrypt->decrypt($_POST['barangay']),
-					'birth_date' => $_POST['birth_date'],
-					'contact' => $_POST['contact'],
-					'first_name' => $_POST['first_name'],
-					'middle_name' => $_POST['middle_name'],
-					'last_name' => $_POST['last_name'],
-					'sex' => $_POST['sex'],
-					'street' => $_POST['street'],
-				]);
-			}
-			if ($updateEmail && $emailSent)
-				echo json_encode($responseSuccess = 'mail sent and updated');
-			else
-				echo json_encode($responseSuccess);
+			// // update user password
+			// if ($updatePassword && $responseSuccess == true)
+			// 	$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update(array('password' => password_hash($_POST['new_password'], PASSWORD_DEFAULT)));
+			// // update user basic information
+			// if (!is_array($responseSuccess)) {
+			// 	$this->db->table('users')->where('id', $this->session->userdata('user')['id'])->update([
+			// 		'barangay' => $this->M_encrypt->decrypt($_POST['barangay']),
+			// 		'birth_date' => $_POST['birth_date'],
+			// 		'contact' => $_POST['contact'],
+			// 		'first_name' => $_POST['first_name'],
+			// 		'middle_name' => $_POST['middle_name'],
+			// 		'last_name' => $_POST['last_name'],
+			// 		'sex' => $_POST['sex'],
+			// 		'street' => $_POST['street'],
+			// 	]);
+			// }
+			// if ($updateEmail && $emailSent)
+			// 	echo json_encode($responseSuccess = 'mail sent and updated');
+			// else
+			// 	echo json_encode($responseSuccess);
 		} catch (Exception $e) {
 			echo $e->getMessage();
 		}
@@ -297,9 +293,16 @@ class Customer_api extends Controller
 	function validate_user_basic_information($postData)
 	{
 		$errors = array();
+		// middle name
+		if ('' !== $_POST['middle_name']) {
+			if (!preg_match('/^[A-Za-z\s]+$/', $_POST['middle_name'])) {
+				$errors['middle_name'] = 'middle name must be letters and space only';
+			}
+		}
 		// first name
 		$this->form_validation
 			->name('first_name')
+			->alpha_space('first name must be letters and space only')
 			->required('required.')
 			->min_length(1, 'required..')
 			->max_length(100, 'must be less than 100 characters only.');
@@ -309,18 +312,26 @@ class Customer_api extends Controller
 		$this->form_validation
 			->name('last_name')
 			->required('required.')
+			->alpha_space('last name must be letters and space only')
 			->min_length(1, 'required..')
 			->max_length(100, 'must be less than 100 characters only.');
 		$result = $this->check_input('last_name');
 		$result != null ? $errors['last_name'] = $result : '';
 		// birth date
+		if (strtotime(date('Y-m-d')) < strtotime($_POST['birth_date']))
+			$errors['birth_date'] = 'Birthdate must be earlier than today.';
 		$this->form_validation
 			->name('birth_date')
-			->required('required.')
-			->min_length(1, 'required..')
-			->max_length(100, 'must be less than 100 characters only.');
+			->required('required.');
 		$result = $this->check_input('birth_date');
 		$result != null ? $errors['birth_date'] = $result : '';
+		// email
+		$this->form_validation
+			->name('email')
+			->required('Email is required.')
+			->valid_email('email is not valid');
+		$result = $this->check_input('email');
+		$result != null ? $errors['email'] = $result : '';
 		// sex
 		if (!($_POST['sex'] == 'Female' || $_POST['sex'] == 'Male'))
 			$errors['sex'] = 'invalid';
@@ -330,6 +341,7 @@ class Customer_api extends Controller
 		// street
 		$this->form_validation
 			->name('street')
+			->custom_pattern('^[A-Za-z0-9 .()]+$', 'street valid characters: alpha, numbers, (), space and "."')
 			->required('required.')
 			->min_length(1, 'required..')
 			->max_length(100, 'must be less than 100 characters only.');

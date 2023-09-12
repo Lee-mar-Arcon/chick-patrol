@@ -57,28 +57,36 @@ class Account extends Controller
 		if ($this->form_validation->submitted()) {
 
 			$this->form_validation
+			// first name
 				->name('first_name')->required('First name is required.')
 				->alpha_space('first name must be letters and space only')
 				->min_length(1, 'First name must be atleast 1 characters in length.')
 				->max_length(50, 'First name must be less than 50 characters in length.')
+				// last name
 				->name('last_name')->required('Last name is required.')
 				->alpha_space('last name must be letters and space only')
 				->min_length(1, 'Last name must be atleast 1 characters in length.')
 				->max_length(50, 'Last name must be less than 50 characters in length.')
+				// sex
 				->name('sex')->required('Sex is required')
 				->min_length(4)
 				->max_length(6)
+				// birth date
 				->name('birth_date')->required('Birthdate is required.')
+				// street
 				->name('street')->required('Street is required.')
 				->custom_pattern('^[A-Za-z0-9 .()]+$', 'street valid characters: alpha, numbers, (), space and "."')
 				->min_length(1, 'Street must be between 1-100 characters only.')
 				->max_length(100, 'Street must be between 1-100 characters only.')
+				// barangay
 				->name('barangay')->required('Barangay is required.')
 				->numeric('Data is invalid.')
+				// contact
 				->name('contact')->required('Contact is required.')
 				->numeric('must be a valid number')
 				->min_length(11, 'Contact number in not valid!')
 				->max_length(11, 'Contact number in not valid!')
+				// email
 				->name('email')->required('Email is required.')
 				->valid_email('Your email is not valid!')
 				->name('password')
