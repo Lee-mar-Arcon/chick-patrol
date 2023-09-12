@@ -402,9 +402,10 @@ class Admin_api extends Controller
 				$this->form_validation
 					->name('name')
 					->required('required.')
+					->custom_pattern('^[A-Za-z0-9 .()-]+$', 'valid characters: alpha, numbers, ().-')
 					->min_length(1, 'required..')
 					->max_length(100, 'must be less than 100 characters only.');
-				$result = $this->check_input();
+				$result = $this->check_input('name');
 				$result != null ? $errors['name'] = $result : '';
 				// category
 				$this->form_validation
@@ -451,11 +452,11 @@ class Admin_api extends Controller
 						}
 					}
 				}
-				// price
 				$this->form_validation
 					->name('price')
 					->required('required.')
 					->numeric('invalid value');
+				$this->io->post('price') < 1 &&  $errors['price'] = 'invalid price';
 				$result = $this->check_input();
 				$result != null ? $errors['price'] = $result : '';
 				// description
@@ -463,6 +464,7 @@ class Admin_api extends Controller
 					->name('description')
 					->required('required.')
 					->min_length(0, 'required')
+					->custom_pattern("^[A-Za-z0-9 .():\-!\"',]+$", 'valid characters: alpha, numbers, space and ".():\-!"\',"')
 					->max_length(800, 'must be less than 800 characters, current length is ' . strlen($this->io->post('description')) . '.');
 				$result = $this->check_input();
 				$result != null ? $errors['description'] = $result : '';
@@ -1086,6 +1088,7 @@ class Admin_api extends Controller
 				$this->form_validation
 					->name('name')
 					->required('required.')
+					->custom_pattern('^[A-Za-z0-9 .()-]+$', 'valid characters: alpha, numbers, ().-')
 					->min_length(1, 'required..')
 					->max_length(100, 'must be less than 100 characters only.');
 				$result = $this->check_input('name');
@@ -1101,6 +1104,7 @@ class Admin_api extends Controller
 					->name('price')
 					->required('required.')
 					->numeric('invalid value');
+				$this->io->post('price') < 1 &&  $errors['price'] = 'invalid price';
 				$result = $this->check_input('price');
 				$result != null ? $errors['price'] = $result : '';
 
@@ -1109,6 +1113,7 @@ class Admin_api extends Controller
 					->name('description')
 					->required('required.')
 					->min_length(0, 'required')
+					->custom_pattern("^[A-Za-z0-9 .():\-!\"',]+$", 'valid characters: alpha, numbers, space and ".():\-!"\',"')
 					->max_length(800, 'must be less than 800 characters, current length is ' . strlen($this->io->post('description')) . '.');
 				$result = $this->check_input('description');
 				$result != null ? $errors['description'] = $result : '';

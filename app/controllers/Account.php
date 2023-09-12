@@ -44,8 +44,6 @@ class Account extends Controller
 		$this->call->model('M_encrypt');
 		$encryptedEmail = $email;
 		$email = $this->M_encrypt->decrypt($email);
-
-		// $this->send_email_code($email);
 		$this->call->view('Account/verify-email', [
 			'pageTitle' => 'verify email address',
 			'email' => $encryptedEmail
@@ -55,9 +53,8 @@ class Account extends Controller
 	public function handle_register_submit()
 	{
 		if ($this->form_validation->submitted()) {
-
 			$this->form_validation
-			// first name
+				// first name
 				->name('first_name')->required('First name is required.')
 				->alpha_space('first name must be letters and space only')
 				->min_length(1, 'First name must be atleast 1 characters in length.')
@@ -102,13 +99,16 @@ class Account extends Controller
 					$this->session->set_flashdata($formData);
 					redirect('Account/register');
 				}
-			} else if (strtotime(date('Y-m-d')) >  strtotime($this->io->post('birth_date'))) {
+			}
+
+			if (strtotime(date('Y-m-d')) < strtotime($this->io->post('birth_date'))) {
 				$formData = array('formData' => $_POST);
 				$this->session->set_flashdata(['errorMessage' => 'Birthdate must be earlier than today.']);
 				$this->session->set_flashdata($formData);
 				redirect('Account/register');
-			} else 
-					if ($this->form_validation->run()) {
+			}
+
+			if ($this->form_validation->run()) {
 				$result = $this->M_account->register_user(
 					$this->io->post('first_name'),
 					$this->io->post('last_name'),
@@ -138,23 +138,6 @@ class Account extends Controller
 			}
 		} else {
 			$this->call->view('errors/error_404', ['heading' => '404 Not Found', 'message' => 'Page not Found']);
-		}
-	}
-
-	public function send_email_code($email = '')
-	{
-		if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			$this->call->model('M_mailer');
-			$this->call->model('M_encrypt');
-			$this->call->database();
-
-			$code = $this->db->raw('select code from email_codes where user_email = ? limit 1', array($email))[0]['code'];
-
-			// $this->M_mailer->send_mail($email, 'Account Verification', $code, $this->M_encrypt->encrypt($email));
-			$this->M_mailer->send_mail($email, 'Account Verification', $code);
-			return 'email sent';
-		} else {
-			return 'not sent';
 		}
 	}
 
