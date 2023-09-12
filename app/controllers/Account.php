@@ -58,9 +58,11 @@ class Account extends Controller
 
 			$this->form_validation
 				->name('first_name')->required('First name is required.')
+				->alpha_space('first name must be letters and space only')
 				->min_length(1, 'First name must be atleast 1 characters in length.')
 				->max_length(50, 'First name must be less than 50 characters in length.')
 				->name('last_name')->required('Last name is required.')
+				->alpha_space('last name must be letters and space only')
 				->min_length(1, 'Last name must be atleast 1 characters in length.')
 				->max_length(50, 'Last name must be less than 50 characters in length.')
 				->name('sex')->required('Sex is required')
@@ -68,28 +70,33 @@ class Account extends Controller
 				->max_length(6)
 				->name('birth_date')->required('Birthdate is required.')
 				->name('street')->required('Street is required.')
+				->custom_pattern('^[A-Za-z0-9 .()]+$', 'street valid characters: alpha, numbers, (), space and "."')
 				->min_length(1, 'Street must be between 1-100 characters only.')
 				->max_length(100, 'Street must be between 1-100 characters only.')
 				->name('barangay')->required('Barangay is required.')
 				->numeric('Data is invalid.')
 				->name('contact')->required('Contact is required.')
+				->numeric('must be a valid number')
 				->min_length(11, 'Contact number in not valid!')
 				->max_length(11, 'Contact number in not valid!')
 				->name('email')->required('Email is required.')
 				->valid_email('Your email is not valid!')
 				->name('password')
+				->custom_pattern('[A-Za-z\d@$!%*?&]+', "Password contains disallowed characters. Valid characters are A-Z, a-z, 0-9, @$!%*?&.")
 				->matches('retype_password', 'Password are not the same.')
 				->min_length(8, 'Password length must be 8-16 characters!')
 				->max_length(16, 'Password length must be 8-16 characters!');
 
-			if (strtotime(date('Y-m-d')) <  strtotime($this->io->post('birth_date'))) {
+			if ('' !== $this->io->post('middle_name')) {
+				if (!preg_match('/^[A-Za-z\s]+$/', $this->io->post('middle_name'))) {
+					$formData = array('formData' => $_POST);
+					$this->session->set_flashdata(['errorMessage' => 'middle name must be letters and space only']);
+					$this->session->set_flashdata($formData);
+					redirect('Account/register');
+				}
+			} else if (strtotime(date('Y-m-d')) >  strtotime($this->io->post('birth_date'))) {
 				$formData = array('formData' => $_POST);
 				$this->session->set_flashdata(['errorMessage' => 'Birthdate must be earlier than today.']);
-				$this->session->set_flashdata($formData);
-				redirect('Account/register');
-			} else if (!preg_match('/@gmail\.com$/i', $this->io->post('email'))) {
-				$formData = array('formData' => $_POST);
-				$this->session->set_flashdata(['errorMessage' => 'Email is not a valid gmail address.']);
 				$this->session->set_flashdata($formData);
 				redirect('Account/register');
 			} else 
