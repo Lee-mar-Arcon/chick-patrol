@@ -221,7 +221,7 @@ class Customer_api extends Controller
 	function update_account()
 	{
 		try {
-			// $this->is_authorized();
+			$this->is_authorized();
 			$updatePassword = false;
 			$updateEmail = false;
 			$responseSuccess = true;
@@ -325,6 +325,8 @@ class Customer_api extends Controller
 		$result = $this->check_input('birth_date');
 		$result != null ? $errors['birth_date'] = $result : '';
 		// email
+		$exists = $this->db->table('users')->where('email', $this->io->post('email'))->not_where('id', $this->session->userdata('user')['id'])->get_all();
+		count($exists) > 0 && $errors['email'] = 'email already exists';
 		$this->form_validation
 			->name('email')
 			->required('Email is required.')
