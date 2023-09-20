@@ -204,6 +204,7 @@ class Customer extends Controller
 					}
 				}
 				$this->db->table('cart')->where('id', $cart['id'])->update([
+					'payment_method' => 'ONLINE',
 					'delivery_fee' => $delivery_fee,
 					'products' => json_encode($cartProductWithPrice),
 					'total' => $total,

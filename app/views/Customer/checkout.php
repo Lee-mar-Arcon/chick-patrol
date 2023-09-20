@@ -1,3 +1,5 @@
+<?php
+?>
 <!DOCTYPE html>
 <html lang="zxx">
 
@@ -92,6 +94,17 @@
                      </div>
                      <div class="col-lg-5 col-md-7">
                         <div class="checkout__order">
+                           <div class="row pb-4">
+                              <label for="payment_method" class="col-12">Payment Method: </label>
+                              <select name="payment_method" class="col-12" id="payment_method">
+                                 <option value="COD">COD</option>
+                                 <option value="ONLINE">ONLINE</option>
+                              </select>
+                              <div class="col-12 mt-4" id="paypal-container" hidden>
+                                 <div id="paypal-button-container"></div>
+                                 <p id="result-message"></p>
+                              </div>
+                           </div>
                            <h4>Your Order</h4>
                            <div class="checkout__order__products">Products (quantity) <span>Total</span></div>
                            <ul>
@@ -148,11 +161,63 @@
    <!-- leaflet -->
    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
    <script src="<?= BASE_URL ?>public/leaflet/leafletjs_code.js"></script>
-
-
+   <script src="https://www.paypal.com/sdk/js?client-id=AT4kJk_h3TXbvu-4Dzgb_2ofugcaKpUSt8GYso-wA3K7jUnQJg-mxqr4-jldmtJFR9izTRbd5crkVSY_&currency=PHP"></script>
    <script>
+      let userPaid = false
+      let order_id = ''
+      let accessToken = ''
+      $.ajax({
+         url: 'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+         type: 'POST',
+         headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + btoa('AbBa8TRqKhlMQpRwD6KzQmmks-Oz9X_wNClnqXZw9HerwJK82hOLiZfEE0DmyKhDXTKQwom6ixJrmdjx:EHxtClx0mHWgzbYT7oEb1hfkQfvx7K-a2Hi50t2cT4ifyYAAaqd6rqY5bjFtjgIyUjxOqsgxtbXkWtot')
+         },
+         data: {
+            'grant_type': 'client_credentials'
+         },
+         success: function(response) {
+            // Handle the response here
+            console.log(response.access_token);
+            accessToken = response.access_token
+            haha(response.access_token)
+         },
+         error: function(error) {
+            console.error('Failed to get Access Token:', error);
+         }
+      });
+
+      function haha(accessToken) {
+         const payload = {
+            intent: "CAPTURE",
+            purchase_units: [{
+               amount: {
+                  currency_code: "PHP",
+                  value: "<?= $total + $user['delivery_fee'] ?>",
+               },
+            }, ],
+         };
+
+         $.ajax({
+            url: 'https://api-m.sandbox.paypal.com/v2/checkout/orders',
+            type: "POST",
+            contentType: "application/json",
+            headers: {
+               Authorization: "Bearer " + accessToken
+            },
+            data: JSON.stringify(payload),
+            success: function(response) {
+               order_id = response.id
+            },
+            error: function(xhr, status, error) {
+               console.error(error);
+            }
+         });
+      }
+
       $(document).ready(function() {
          updateCartBadge()
+         $('.nice-select').css('z-index', 10000)
       })
 
       function updateCartBadge() {
@@ -163,7 +228,104 @@
                   $('.fa-shopping-bag').next().html(response)
             })
       }
+      $("#payment_method").on('change', function() {
+         if ($(this).val() === 'COD') {
+            $('#paypal-container').attr('hidden', true)
+         } else {
+            $('#paypal-container').attr('hidden', false)
+         }
+      })
+
+      // app js
+      window.paypal
+         .Buttons({
+            async createOrder() {
+               try {
+                  if (order_id) {
+                     return order_id;
+                  } else {
+                     const errorDetail = orderData?.details?.[0];
+                     const errorMessage = errorDetail ?
+                        `${errorDetail.issue} ${errorDetail.description} (${orderData.debug_id})` :
+                        JSON.stringify(orderData);
+
+                     throw new Error(errorMessage);
+                  }
+               } catch (error) {
+                  console.error(error);
+                  resultMessage(`Could not initiate PayPal Checkout...<br><br>${error}`);
+               }
+            },
+
+            async onApprove(data, actions) {
+               try {
+                  $.ajax({
+                     url: `https://api-m.sandbox.paypal.com/v2/checkout/orders/${order_id}/capture`,
+                     type: "POST",
+                     contentType: "application/json",
+                     headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                        // Uncomment one of these to force an error for negative testing (in sandbox mode only). Documentation:
+                        // https://developer.paypal.com/tools/sandbox/negative-testing/request-headers/
+                        // "PayPal-Mock-Response": '{"mock_application_codes": "INSTRUMENT_DECLINED"}'
+                        // "PayPal-Mock-Response": '{"mock_application_codes": "TRANSACTION_REFUSED"}'
+                        // "PayPal-Mock-Response": '{"mock_application_codes": "INTERNAL_SERVER_ERROR"}'
+                     },
+                     success: function(response) {
+                        let orderData = response
+                        console.log(orderData)
+                        const errorDetail = orderData?.details?.[0];
+                        if (errorDetail?.issue === "INSTRUMENT_DECLINED") {
+                           // (1) Recoverable INSTRUMENT_DECLINED -> call actions.restart()
+                           // recoverable state, per https://developer.paypal.com/docs/checkout/standard/customize/handle-funding-failures/
+                           return actions.restart();
+                        } else if (errorDetail) {
+                           // (2) Other non-recoverable errors -> Show a failure message
+                           throw new Error(`${errorDetail.description} (${orderData.debug_id})`);
+                        } else if (!orderData.purchase_units) {
+                           throw new Error(JSON.stringify(orderData));
+                        } else {
+                           userPaid = true
+                           $('.nice-select').attr('hidden', true)
+                           // (3) Successful transaction -> Show confirmation or thank you message
+                           // Or go to another URL:  actions.redirect('thank_you.html');
+                           const transaction =
+                              orderData?.purchase_units?.[0]?.payments?.captures?.[0] ||
+                              orderData?.purchase_units?.[0]?.payments?.authorizations?.[0];
+                           resultMessage(
+                              `Transaction ${transaction.status}: ${transaction.id}`,
+                           );
+                           console.log(
+                              "Capture result",
+                              orderData,
+                              JSON.stringify(orderData, null, 2),
+                           );
+                        }
+
+                     },
+                     error: function(jqXHR, textStatus, errorThrown) {
+                        // Handle errors here
+                        console.error("Failed to capture order:", errorThrown);
+                     }
+                  });
+
+               } catch (error) {
+                  console.error(error);
+                  resultMessage(
+                     `Sorry, your transaction could not be processed...<br><br>${error}`,
+                  );
+               }
+            },
+         })
+         .render("#paypal-button-container");
+
+      // Example function to show a result to the user. Your site's UI library can be used instead.
+      function resultMessage(message) {
+         const container = document.querySelector("#result-message");
+         container.innerHTML = message;
+      }
    </script>
+   <script src="<?= BASE_URL ?>public/paypal/app.js"></script>
 </body>
 
 </html>
