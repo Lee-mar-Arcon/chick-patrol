@@ -490,4 +490,17 @@ class Admin extends Controller
 			'breadCrumb' => 'Ingredients'
 		]);
 	}
+
+	function view_ingredient($id)
+	{
+		$encryptedId = $id;
+		$id = $this->M_encrypt->decrypt($id);
+		$ingredient = $this->db->table('ingredients')->where('id', $id)->get();
+		$this->call->view('Admin/view-ingredient', [
+			'pageTitle' => 'Admin | Ingredient',
+			'breadCrumb' => 'Ingredient',
+			'ingredient' => $ingredient,
+			'id' => $encryptedId
+		]);
+	}
 }

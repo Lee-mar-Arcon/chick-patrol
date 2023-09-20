@@ -57,9 +57,8 @@
             <div class="content">
                 <div class="container-fluid">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <div>Ingredients</div>
-                            <button id="add-ingredient" type="button" class="btn btn-primary rounded-pill waves-effect border-none waves-light" data-bs-toggle="offcanvas" data-bs-target="#ingredientForm" aria-controls="offcanvasRight">Add</button>
+                        <div class="card-header d-flex justify-content-start fw-bold fs-2 align-items-center">
+                            <div><?= $ingredient['name'] ?></div>
                         </div>
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center my-3">
@@ -68,23 +67,15 @@
                                 </div>
                             </div>
                             <div class="table-responsive">
-                                <div class="d-flex justify-content-end mb-3">
-                                    <div class="btn-group-vertical row bg-primary rounded text-white text-center fs-6 fw-bold m-0 p-1">
-                                        <div class="d-flex justify-content-center bg-primary text-white w-100 px-3 py-1">Availability</div>
-                                        <button type="button" class="btn bg-white text-dark text-white p-1 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> <span>All</span> <i class="mdi mdi-chevron-down"></i> </button>
-                                        <div class="dropdown-menu">
-                                            <button class="dropdown-item option-availability" data-value="all">All</button>
-                                            <button class="dropdown-item option-availability" data-value="1">Archived</button>
-                                            <button class="dropdown-item option-availability" data-value="0">Unarchived</button>
-                                        </div>
-                                    </div>
-                                </div>
                                 <table class="table table-borderless mb-0">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
-                                            <th class="text-center" style="width: 230px;">Deleted</th>
-                                            <th class="text-center" style="width: 230px;">Action</th>
+                                            <th style="width: 230px;">Expiration Date</th>
+                                            <th style="width: 230px;">Quantity</th>
+                                            <th style="width: 230px;">Remaining Quantity</th>
+                                            <th style="width: 230px;">Unit of Measure</th>
+                                            <th style="width: 230px;">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody class="align-middle">
@@ -176,13 +167,13 @@
         // ingredients request
         function fetchIngredients(q) {
             $('tbody').html('<tr class="align-middle rounded m-1"> <th colspan="100%" scope="row" class="text-center"> <i class="fas fa-spinner fa-spin my-5 fs-1"></i></th></tr>')
-            let link = `<?= site_url('admin_api/ingredients_index') ?>/${q.page}/${q.q}`
-            console.log(link)
+            let link = `<?= site_url('admin_api/ingredient_index/') . $id ?>`
             axios.get(link, {
                     /* OPTIONS */
                 })
                 .then(function(response) {
-                    populateTable(response.data['ingredients'])
+                    console.log(response)
+                    populateTable(response.data['ingredient'])
                     populatePagination(response.data['pagination'])
                 })
                 .catch(function(error) {
@@ -248,22 +239,14 @@
                     `
                     <tr id="${ingredients[i]['id']}">
                         <td> ${ingredients[i]['name']} </td>
-                        <td class="text-center"> ${ingredients[i]['deleted_at'] == null ? 
-                            '<span class="badge badge-soft-success rounded-pill px-1 py-1 ms-2"> Not Deleted </span>' : 
-                            ingredients[i]['deleted_at']} 
-                        </td>
-                        <td class="text-center">
-                            <div class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1">
-                                <a href="${link + ingredients[i]['id']}">
-                                    <i class="mdi mdi-eye fs-3 text-info"></i>
-                                </a>
-                            </div>
-                            <span data-tippy-content="Delete Permanently" class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 delete-product">
-                                <i class="mdi mdi-delete fs-3 text-danger"></i>
-                            </span>
-                            <div class="btn waves-effect waves-dark p-1 py-0 shadow-lg me-1 edit-ingredient" data-bs-toggle="offcanvas" data-bs-target="#ingredientForm" aria-controls="offcanvasRight">
-                                <i class="mdi mdi-circle-edit-outline fs-3 text-info"></i>
-                            </div>
+                        <td> ${ingredients[i]['expiration_date']} </td>
+                        <td> ${ingredients[i]['quantity']} </td>
+                        <td> ${ingredients[i]['remaining_quantity']} </td>
+                        <td> ${ingredients[i]['unit_of_measurement']} </td>
+                        <td class="text-center"> ${ingredients[i]['status'] == 'not yet expired' ? 
+                            '<span class="badge badge-soft-success rounded-pill px-1 py-1 ms-2"> Not Expired </span>' : 
+                            '<span class="badge badge-soft-danger rounded-pill px-1 py-1 ms-2"> Expired </span>'
+                        } 
                         </td>
                     </tr>
                     `

@@ -1233,6 +1233,45 @@ class Admin_api extends Controller
 			echo $e->getMessage();
 		}
 	}
+	function ingredient_index($id)
+	{
+		try {
+			// $this->is_authorized();
+			$totalRows = $this->db->raw("
+				SELECT 
+					COUNT(p.id) as total
+				FROM ingredients AS i 
+				INNER JOIN product_ingredients AS pi ON pi.ingredient_id = i.id
+				INNER JOIN products AS p ON pi.product_id = p.id
+				INNER JOIN ingredient_inventory AS ii ON ii.product_ingredient_id = pi.id
+				WHERE i.id = ? ORDER BY p.name
+				", [$this->M_encrypt->decrypt($id)])[0]['total'];
+
+			$ingredientsList = $this->db->raw("
+			SELECT 
+				p.name,
+				ii.expiration_date,
+				ii.quantity,
+                pi.unit_of_measurement,
+				ii.remaining_quantity,
+				IF(ii.expiration_date < NOW(), 'expired', 'not yet expired') AS status
+			FROM ingredients AS i 
+			INNER JOIN product_ingredients AS pi ON pi.ingredient_id = i.id
+			INNER JOIN products AS p ON pi.product_id = p.id
+			INNER JOIN ingredient_inventory AS ii ON ii.product_ingredient_id = pi.id
+			WHERE i.id = ? ORDER BY p.name
+			", [$this->M_encrypt->decrypt($id)]);
+
+			echo json_encode(
+				[
+					'ingredient' => $ingredientsList,
+					'total_rows' => $totalRows
+				]
+			);
+		} catch (Exception $e) {
+			echo $e->getMessage();
+		}
+	}
 	// template
 	// function user_index()
 	// {
